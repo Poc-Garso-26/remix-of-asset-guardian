@@ -1,11 +1,6 @@
 /**
- * Camada de autenticação.
- *
- * IMPORTANTE: Esta é uma implementação MOCK que simula uma API externa de autenticação.
- * Para integrar com a API real, substitua a função `mockLoginRequest` por uma chamada
- * `fetch(AUTH_API_URL + "/login", ...)` que retorne `{ token, user: { ..., role } }`.
- *
- * Toda a aplicação consome esta camada via `useAuth()`, então a troca é isolada.
+ * Camada de autenticação — integrada ao Supabase Auth.
+ * Carrega sessão + profile + role do usuário e expõe `useAuth()`.
  */
 import {
   createContext,
@@ -16,6 +11,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Session } from "@supabase/supabase-js";
 
 export type Role = "admin" | "gerente" | "usuario";
 
@@ -37,16 +34,14 @@ interface AuthContextValue {
   session: AuthSession | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<AuthSession>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<AuthSession>;
+  logout: () => Promise<void>;
   can: (permission: Permission) => boolean;
+  refresh: () => Promise<void>;
 }
-
-const STORAGE_KEY = "gti.session.v1";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// --- Permissões (RBAC) ---
 export type Permission =
   | "asset.view"
   | "asset.create"
@@ -84,54 +79,92 @@ export function roleLabel(role: Role): string {
   return role === "admin" ? "Administrador" : role === "gerente" ? "Gerente" : "Usuário";
 }
 
-// --- Mock da API externa ---
-import { findUserByCredentials } from "./users-mock";
+async function loadUser(sbSession: Session): Promise<AuthSession> {
+  const uid = sbSession.user.id;
+  const [{ data: profile }, { data: rolesRows }] = await Promise.all([
+    supabase.from("profiles").select("nome, username, email").eq("user_id", uid).maybeSingle(),
+    supabase.from("user_roles").select("role").eq("user_id", uid),
+  ]);
 
-async function mockLoginRequest(username: string, password: string): Promise<AuthSession> {
-  // Simula latência de rede
-  await new Promise((r) => setTimeout(r, 600));
-  const match = findUserByCredentials(username, password);
-  if (!match) {
-    throw new Error("Usuário ou senha inválidos.");
-  }
-  const user: AuthUser = {
-    id: match.id,
-    username: match.username,
-    name: match.name,
-    email: match.email,
-    role: match.role,
+  const roles = (rolesRows ?? []).map((r) => r.role as Role);
+  const role: Role = roles.includes("admin")
+    ? "admin"
+    : roles.includes("gerente")
+      ? "gerente"
+      : "usuario";
+
+  const email = sbSession.user.email ?? profile?.email ?? "";
+  return {
+    token: sbSession.access_token,
+    user: {
+      id: uid,
+      email,
+      name: profile?.nome ?? email.split("@")[0] ?? "Usuário",
+      username: profile?.username ?? email.split("@")[0] ?? "",
+      role,
+    },
   };
-  const token = `mock.${btoa(match.id)}.${Date.now()}`;
-  return { token, user };
 }
-
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const hydrate = useCallback(async (sbSession: Session | null) => {
+    if (!sbSession) {
+      setSession(null);
+      return;
+    }
     try {
-      const raw = typeof window !== "undefined" ? window.localStorage.getItem(STORAGE_KEY) : null;
-      if (raw) setSession(JSON.parse(raw));
-    } catch {
-      // ignore
-    } finally {
-      setIsLoading(false);
+      const next = await loadUser(sbSession);
+      setSession(next);
+    } catch (err) {
+      console.error("[auth] failed to load user", err);
+      setSession(null);
     }
   }, []);
 
-  const login = useCallback(async (username: string, password: string) => {
-    const next = await mockLoginRequest(username, password);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  useEffect(() => {
+    let mounted = true;
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, sbSession) => {
+      if (!mounted) return;
+      // Defer Supabase calls out of the callback synchronously
+      setTimeout(() => {
+        void hydrate(sbSession);
+      }, 0);
+    });
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      void hydrate(data.session).finally(() => {
+        if (mounted) setIsLoading(false);
+      });
+    });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [hydrate]);
+
+  const login = useCallback(async (email: string, password: string): Promise<AuthSession> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+    if (!data.session) throw new Error("Sessão indisponível. Verifique seu e-mail.");
+    const next = await loadUser(data.session);
     setSession(next);
     return next;
   }, []);
 
-  const logout = useCallback(() => {
-    window.localStorage.removeItem(STORAGE_KEY);
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setSession(null);
   }, []);
+
+  const refresh = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    await hydrate(data.session);
+  }, [hydrate]);
 
   const can = useCallback(
     (permission: Permission) => {
@@ -149,8 +182,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       can,
+      refresh,
     }),
-    [session, isLoading, login, logout, can],
+    [session, isLoading, login, logout, can, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -160,14 +194,4 @@ export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth deve ser usado dentro de <AuthProvider>");
   return ctx;
-}
-
-export function getStoredToken(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as AuthSession).token : null;
-  } catch {
-    return null;
-  }
 }
