@@ -38,10 +38,10 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
   const [selected, setSelected] = useState<Role>(user?.role ?? "usuario");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // Reset selection when user changes
-  if (user && open && selected !== user.role && !confirmOpen) {
-    // sync only on first open per user
-  }
+  useEffect(() => {
+    if (user && open) setSelected(user.role);
+  }, [user, open]);
+
 
   const mutation = useMutation({
     mutationFn: async () => {
