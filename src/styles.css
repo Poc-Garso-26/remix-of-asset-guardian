@@ -1,0 +1,324 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant hc (&:is(.high-contrast *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: "Rawline", "Raleway", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Rawline", "Raleway", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ============================================================
+   PBH — Design System PI (Padrão de Interface)
+   Tokens base do PI mapeados em variáveis semânticas.
+   Suporta temas: claro (default), escuro (.dark) e
+   alto contraste (.high-contrast).
+   ============================================================ */
+:root {
+  /* --- Tokens PI (paleta institucional PBH) --- */
+  --pi-body-bg: oklch(0.985 0.004 240);
+  --pi-body-color: oklch(0.22 0.03 250);
+  --pi-surface: oklch(1 0 0);
+  --pi-surface-muted: oklch(0.965 0.008 240);
+
+  --pi-primary: oklch(0.45 0.16 255);          /* PBH azul institucional */
+  --pi-primary-text-emphasis: oklch(0.32 0.14 255);
+  --pi-primary-bg-subtle: oklch(0.95 0.03 255);
+  --pi-primary-border-subtle: oklch(0.85 0.06 255);
+  --pi-primary-contrast: oklch(0.99 0 0);
+
+  --pi-accent: oklch(0.58 0.18 35);            /* PBH vermelho/laranja institucional */
+  --pi-accent-text-emphasis: oklch(0.42 0.16 35);
+  --pi-accent-bg-subtle: oklch(0.96 0.03 35);
+  --pi-accent-border-subtle: oklch(0.86 0.07 35);
+  --pi-accent-contrast: oklch(0.99 0 0);
+
+  --pi-success: oklch(0.58 0.14 150);
+  --pi-success-text-emphasis: oklch(0.42 0.13 150);
+  --pi-success-bg-subtle: oklch(0.95 0.04 150);
+  --pi-success-border-subtle: oklch(0.83 0.08 150);
+  --pi-success-contrast: oklch(0.99 0 0);
+
+  --pi-danger: oklch(0.55 0.22 25);
+  --pi-danger-text-emphasis: oklch(0.42 0.2 25);
+  --pi-danger-bg-subtle: oklch(0.96 0.04 25);
+  --pi-danger-border-subtle: oklch(0.85 0.1 25);
+  --pi-danger-contrast: oklch(0.99 0 0);
+
+  --pi-warning: oklch(0.78 0.16 80);
+  --pi-warning-text-emphasis: oklch(0.5 0.12 80);
+  --pi-warning-bg-subtle: oklch(0.97 0.05 85);
+  --pi-warning-border-subtle: oklch(0.87 0.1 80);
+  --pi-warning-contrast: oklch(0.22 0.05 80);
+
+  --pi-info: oklch(0.62 0.13 230);
+  --pi-info-text-emphasis: oklch(0.42 0.13 230);
+  --pi-info-bg-subtle: oklch(0.95 0.04 230);
+  --pi-info-border-subtle: oklch(0.83 0.08 230);
+  --pi-info-contrast: oklch(0.99 0 0);
+
+  --pi-border: oklch(0.9 0.008 240);
+  --pi-border-strong: oklch(0.78 0.01 240);
+  --pi-muted: oklch(0.96 0.006 240);
+  --pi-muted-color: oklch(0.5 0.02 250);
+  --pi-ring: oklch(0.55 0.16 255);
+
+  /* --- Mapeamento shadcn → PI --- */
+  --radius: 0.5rem;
+  --background: var(--pi-body-bg);
+  --foreground: var(--pi-body-color);
+  --card: var(--pi-surface);
+  --card-foreground: var(--pi-body-color);
+  --popover: var(--pi-surface);
+  --popover-foreground: var(--pi-body-color);
+
+  --primary: var(--pi-primary);
+  --primary-foreground: var(--pi-primary-contrast);
+
+  --secondary: var(--pi-accent-bg-subtle);
+  --secondary-foreground: var(--pi-accent-text-emphasis);
+
+  --muted: var(--pi-muted);
+  --muted-foreground: var(--pi-muted-color);
+
+  --accent: var(--pi-primary-bg-subtle);
+  --accent-foreground: var(--pi-primary-text-emphasis);
+
+  --destructive: var(--pi-danger);
+  --destructive-foreground: var(--pi-danger-contrast);
+
+  --success: var(--pi-success);
+  --success-foreground: var(--pi-success-contrast);
+
+  --warning: var(--pi-warning);
+  --warning-foreground: var(--pi-warning-contrast);
+
+  --info: var(--pi-info);
+  --info-foreground: var(--pi-info-contrast);
+
+  --border: var(--pi-border);
+  --input: var(--pi-border);
+  --ring: var(--pi-ring);
+
+  --chart-1: var(--pi-primary);
+  --chart-2: var(--pi-success);
+  --chart-3: var(--pi-warning);
+  --chart-4: var(--pi-info);
+  --chart-5: var(--pi-accent);
+
+  --sidebar: var(--pi-surface);
+  --sidebar-foreground: var(--pi-body-color);
+  --sidebar-primary: var(--pi-primary);
+  --sidebar-primary-foreground: var(--pi-primary-contrast);
+  --sidebar-accent: var(--pi-primary-bg-subtle);
+  --sidebar-accent-foreground: var(--pi-primary-text-emphasis);
+  --sidebar-border: var(--pi-border);
+  --sidebar-ring: var(--pi-ring);
+
+  --shadow-soft: 0 1px 2px oklch(0.2 0.02 250 / 0.05), 0 1px 1px oklch(0.2 0.02 250 / 0.03);
+  --shadow-card: 0 1px 3px oklch(0.2 0.02 250 / 0.06), 0 4px 12px oklch(0.2 0.02 250 / 0.04);
+}
+
+/* ============================================================
+   Tema escuro PI
+   ============================================================ */
+.dark {
+  --pi-body-bg: oklch(0.18 0.02 250);
+  --pi-body-color: oklch(0.97 0.004 240);
+  --pi-surface: oklch(0.23 0.02 250);
+  --pi-surface-muted: oklch(0.27 0.02 250);
+
+  --pi-primary: oklch(0.72 0.14 255);
+  --pi-primary-text-emphasis: oklch(0.85 0.1 255);
+  --pi-primary-bg-subtle: oklch(0.3 0.06 255);
+  --pi-primary-border-subtle: oklch(0.4 0.1 255);
+  --pi-primary-contrast: oklch(0.18 0.02 250);
+
+  --pi-accent: oklch(0.72 0.16 35);
+  --pi-accent-text-emphasis: oklch(0.85 0.12 35);
+  --pi-accent-bg-subtle: oklch(0.32 0.07 35);
+  --pi-accent-border-subtle: oklch(0.42 0.1 35);
+  --pi-accent-contrast: oklch(0.18 0.02 250);
+
+  --pi-success: oklch(0.72 0.14 150);
+  --pi-success-text-emphasis: oklch(0.85 0.1 150);
+  --pi-success-bg-subtle: oklch(0.3 0.06 150);
+  --pi-success-border-subtle: oklch(0.4 0.1 150);
+  --pi-success-contrast: oklch(0.18 0.02 250);
+
+  --pi-danger: oklch(0.7 0.2 25);
+  --pi-danger-text-emphasis: oklch(0.85 0.14 25);
+  --pi-danger-bg-subtle: oklch(0.32 0.08 25);
+  --pi-danger-border-subtle: oklch(0.45 0.14 25);
+  --pi-danger-contrast: oklch(0.18 0.02 250);
+
+  --pi-warning: oklch(0.82 0.15 80);
+  --pi-warning-text-emphasis: oklch(0.88 0.13 80);
+  --pi-warning-bg-subtle: oklch(0.33 0.07 80);
+  --pi-warning-border-subtle: oklch(0.45 0.12 80);
+  --pi-warning-contrast: oklch(0.18 0.02 250);
+
+  --pi-info: oklch(0.75 0.12 230);
+  --pi-info-text-emphasis: oklch(0.85 0.1 230);
+  --pi-info-bg-subtle: oklch(0.3 0.06 230);
+  --pi-info-border-subtle: oklch(0.4 0.1 230);
+  --pi-info-contrast: oklch(0.18 0.02 250);
+
+  --pi-border: oklch(1 0 0 / 12%);
+  --pi-border-strong: oklch(1 0 0 / 22%);
+  --pi-muted: oklch(0.27 0.02 250);
+  --pi-muted-color: oklch(0.72 0.02 250);
+  --pi-ring: oklch(0.7 0.14 255);
+}
+
+/* ============================================================
+   Tema alto contraste PI (WCAG AAA)
+   Ativar adicionando a classe `.high-contrast` em <html> ou <body>.
+   ============================================================ */
+.high-contrast {
+  --pi-body-bg: oklch(1 0 0);
+  --pi-body-color: oklch(0 0 0);
+  --pi-surface: oklch(1 0 0);
+  --pi-surface-muted: oklch(0.96 0 0);
+
+  --pi-primary: oklch(0.25 0.18 260);
+  --pi-primary-text-emphasis: oklch(0.2 0.18 260);
+  --pi-primary-bg-subtle: oklch(0.95 0.05 260);
+  --pi-primary-border-subtle: oklch(0.25 0.18 260);
+  --pi-primary-contrast: oklch(1 0 0);
+
+  --pi-accent: oklch(0.35 0.22 30);
+  --pi-accent-text-emphasis: oklch(0.3 0.22 30);
+  --pi-accent-bg-subtle: oklch(0.96 0.05 30);
+  --pi-accent-border-subtle: oklch(0.35 0.22 30);
+  --pi-accent-contrast: oklch(1 0 0);
+
+  --pi-success: oklch(0.35 0.18 150);
+  --pi-success-text-emphasis: oklch(0.3 0.18 150);
+  --pi-success-bg-subtle: oklch(0.95 0.06 150);
+  --pi-success-border-subtle: oklch(0.35 0.18 150);
+  --pi-success-contrast: oklch(1 0 0);
+
+  --pi-danger: oklch(0.35 0.25 25);
+  --pi-danger-text-emphasis: oklch(0.3 0.25 25);
+  --pi-danger-bg-subtle: oklch(0.96 0.07 25);
+  --pi-danger-border-subtle: oklch(0.35 0.25 25);
+  --pi-danger-contrast: oklch(1 0 0);
+
+  --pi-warning: oklch(0.55 0.2 80);
+  --pi-warning-text-emphasis: oklch(0.3 0.15 80);
+  --pi-warning-bg-subtle: oklch(0.97 0.08 85);
+  --pi-warning-border-subtle: oklch(0.4 0.18 80);
+  --pi-warning-contrast: oklch(0 0 0);
+
+  --pi-info: oklch(0.35 0.18 230);
+  --pi-info-text-emphasis: oklch(0.3 0.18 230);
+  --pi-info-bg-subtle: oklch(0.95 0.06 230);
+  --pi-info-border-subtle: oklch(0.35 0.18 230);
+  --pi-info-contrast: oklch(1 0 0);
+
+  --pi-border: oklch(0 0 0);
+  --pi-border-strong: oklch(0 0 0);
+  --pi-muted: oklch(0.94 0 0);
+  --pi-muted-color: oklch(0.2 0 0);
+  --pi-ring: oklch(0.25 0.18 260);
+}
+
+.high-contrast.dark,
+.dark .high-contrast {
+  --pi-body-bg: oklch(0 0 0);
+  --pi-body-color: oklch(1 0 0);
+  --pi-surface: oklch(0.08 0 0);
+  --pi-surface-muted: oklch(0.14 0 0);
+  --pi-primary: oklch(0.85 0.18 255);
+  --pi-primary-contrast: oklch(0 0 0);
+  --pi-accent: oklch(0.82 0.2 60);
+  --pi-accent-contrast: oklch(0 0 0);
+  --pi-success: oklch(0.85 0.18 150);
+  --pi-success-contrast: oklch(0 0 0);
+  --pi-danger: oklch(0.78 0.22 25);
+  --pi-danger-contrast: oklch(0 0 0);
+  --pi-warning: oklch(0.9 0.18 85);
+  --pi-warning-contrast: oklch(0 0 0);
+  --pi-info: oklch(0.85 0.15 230);
+  --pi-info-contrast: oklch(0 0 0);
+  --pi-border: oklch(1 0 0);
+  --pi-border-strong: oklch(1 0 0);
+  --pi-muted: oklch(0.16 0 0);
+  --pi-muted-color: oklch(0.92 0 0);
+  --pi-ring: oklch(0.9 0.15 255);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html, body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  /* Foco visível e acessível, mesmo em alto contraste */
+  :focus-visible {
+    outline: 2px solid var(--pi-ring);
+    outline-offset: 2px;
+  }
+
+  .high-contrast :focus-visible {
+    outline-width: 3px;
+  }
+}
