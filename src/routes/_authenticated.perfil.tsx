@@ -45,7 +45,7 @@ function PerfilPage() {
 
         <div className="mt-6 border-t border-border pt-6">
           <button
-            onClick={logout}
+            onClick={() => { void logout(); }}
             className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
           >
             Encerrar sessão

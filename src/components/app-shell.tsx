@@ -169,7 +169,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </li>
             <li>
               <button
-                onClick={logout}
+                onClick={() => { void logout(); }}
                 title={collapsed ? "Sair" : undefined}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-destructive",

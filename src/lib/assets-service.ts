@@ -1,217 +1,295 @@
 /**
- * Serviço de dados de Ativos.
- *
- * IMPORTANTE: Implementação MOCK em localStorage que imita a interface de uma
- * API REST. Para trocar pela API real, mantenha as mesmas assinaturas e
- * substitua o corpo das funções por chamadas fetch (ex.: `fetch(API_URL + "/assets")`).
+ * Camada de acesso a Ativos — backend Supabase.
+ * Mapeia entre o shape de domínio `Asset` e as tabelas
+ * `assets`, `asset_computer_specs`, `asset_printer_specs`, `sectors`, `locations`.
  */
-import type { Asset, AssetStatus, AssetType } from "./assets-types";
+import { supabase } from "@/integrations/supabase/client";
+import type {
+  Asset,
+  AssetStatus,
+  AssetType,
+  PrintType,
+} from "./assets-types";
 
-const STORAGE_KEY = "gti.assets.v1";
-
-function uid(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-function seed(): Asset[] {
-  const now = new Date();
-  const iso = (daysAgo: number) =>
-    new Date(now.getTime() - daysAgo * 86400000).toISOString();
-  const date = (daysAgo: number) => iso(daysAgo).slice(0, 10);
-
-  const sectors = ["TI", "Financeiro", "RH", "Comercial", "Operações", "Diretoria"];
-  const responsibles = [
-    "Ana Silva",
-    "Bruno Costa",
-    "Carla Mendes",
-    "Diego Rocha",
-    "Eduarda Lima",
-    "Felipe Souza",
-  ];
-  const brands = ["Dell", "HP", "Lenovo", "Apple", "Acer"];
-  const printerBrands = ["HP", "Brother", "Epson", "Canon"];
-
-  const items: Asset[] = [];
-  for (let i = 0; i < 14; i++) {
-    items.push({
-      id: uid(),
-      type: "computador",
-      patrimony: `PC-${1000 + i}`,
-      serialNumber: `SN-PC-${100000 + i}`,
-      brand: brands[i % brands.length],
-      model: `OptiPlex ${7000 + i}`,
-      processor: "Intel Core i5-12400",
-      ram: "16 GB",
-      storage: "512 GB SSD",
-      operatingSystem: i % 3 === 0 ? "Windows 11 Pro" : "Ubuntu 22.04",
-      hostname: `desk-${i.toString().padStart(3, "0")}`,
-      ipAddress: `10.0.1.${10 + i}`,
-      macAddress: `00:1A:2B:3C:4D:${(10 + i).toString(16).padStart(2, "0").toUpperCase()}`,
-      sector: sectors[i % sectors.length],
-      responsible: responsibles[i % responsibles.length],
-      location: `Andar ${1 + (i % 4)} - Sala ${100 + i}`,
-      status: (["em_uso", "em_uso", "estoque", "manutencao"] as AssetStatus[])[i % 4],
-      acquisitionDate: date(180 + i * 7),
-      createdAt: iso(40 - i),
-    });
-  }
-  for (let i = 0; i < 12; i++) {
-    items.push({
-      id: uid(),
-      type: "notebook",
-      patrimony: `NB-${2000 + i}`,
-      serialNumber: `SN-NB-${200000 + i}`,
-      brand: brands[i % brands.length],
-      model: `ThinkPad T${14 + (i % 4)}`,
-      processor: "Intel Core i7-1365U",
-      ram: "32 GB",
-      storage: "1 TB SSD",
-      operatingSystem: "Windows 11 Pro",
-      hostname: `lap-${i.toString().padStart(3, "0")}`,
-      ipAddress: `10.0.2.${10 + i}`,
-      macAddress: `00:2C:3D:4E:5F:${(10 + i).toString(16).padStart(2, "0").toUpperCase()}`,
-      sector: sectors[(i + 1) % sectors.length],
-      responsible: responsibles[(i + 2) % responsibles.length],
-      location: "Home Office",
-      status: (["em_uso", "em_uso", "em_uso", "baixado"] as AssetStatus[])[i % 4],
-      acquisitionDate: date(120 + i * 5),
-      createdAt: iso(30 - i),
-    });
-  }
-  for (let i = 0; i < 6; i++) {
-    items.push({
-      id: uid(),
-      type: "impressora",
-      patrimony: `IMP-${3000 + i}`,
-      serialNumber: `SN-IMP-${300000 + i}`,
-      brand: printerBrands[i % printerBrands.length],
-      model: `LaserJet Pro ${400 + i}`,
-      sector: sectors[i % sectors.length],
-      responsible: responsibles[i % responsibles.length],
-      location: `Andar ${1 + (i % 4)} - Copa`,
-      status: (["em_uso", "estoque", "manutencao"] as AssetStatus[])[i % 3],
-      acquisitionDate: date(200 + i * 10),
-      createdAt: iso(20 - i),
-      printType: (["laser", "jato_tinta", "laser"] as const)[i % 3],
-      color: i % 2 === 0,
-      network: true,
-    });
-  }
-  return items;
-}
-
-function load(): Asset[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Asset[];
-  } catch {
-    // ignore
-  }
-  const initial = seed();
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-  return initial;
-}
-
-function save(items: Asset[]) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
-
-// --- Filtros ---
 export interface AssetFilters {
   type?: AssetType | "all";
+  status?: AssetStatus | "all";
+  q?: string;
   patrimony?: string;
   serialNumber?: string;
   brand?: string;
   model?: string;
   responsible?: string;
   sector?: string;
-  status?: AssetStatus | "all";
   operatingSystem?: string;
   createdFrom?: string;
   createdTo?: string;
   acquiredFrom?: string;
   acquiredTo?: string;
-  q?: string; // pesquisa rápida
 }
 
-function matches(asset: Asset, f: AssetFilters): boolean {
-  const text = (v?: string) => (v ?? "").toLowerCase();
-  if (f.type && f.type !== "all" && asset.type !== f.type) return false;
-  if (f.status && f.status !== "all" && asset.status !== f.status) return false;
-  if (f.patrimony && !text(asset.patrimony).includes(text(f.patrimony))) return false;
-  if (f.serialNumber && !text(asset.serialNumber).includes(text(f.serialNumber))) return false;
-  if (f.brand && !text(asset.brand).includes(text(f.brand))) return false;
-  if (f.model && !text(asset.model).includes(text(f.model))) return false;
-  if (f.responsible && !text(asset.responsible).includes(text(f.responsible))) return false;
-  if (f.sector && !text(asset.sector).includes(text(f.sector))) return false;
-  if (f.operatingSystem && !text(asset.operatingSystem).includes(text(f.operatingSystem))) return false;
-  if (f.createdFrom && asset.createdAt.slice(0, 10) < f.createdFrom) return false;
-  if (f.createdTo && asset.createdAt.slice(0, 10) > f.createdTo) return false;
-  if (f.acquiredFrom && asset.acquisitionDate < f.acquiredFrom) return false;
-  if (f.acquiredTo && asset.acquisitionDate > f.acquiredTo) return false;
+const SELECT =
+  "*, sectors(nome), locations(nome), asset_computer_specs(*), asset_printer_specs(*)";
+
+type RawRow = {
+  id: string;
+  type: AssetType;
+  patrimony: string;
+  serial_number: string;
+  brand: string;
+  model: string;
+  status: AssetStatus;
+  acquisition_date: string | null;
+  notes: string | null;
+  responsible_name: string | null;
+  sector_id: string | null;
+  location_id: string | null;
+  created_at: string;
+  sectors: { nome: string } | null;
+  locations: { nome: string } | null;
+  asset_computer_specs:
+    | {
+        processor: string | null;
+        ram: string | null;
+        storage: string | null;
+        operating_system: string | null;
+        hostname: string | null;
+        ip_address: unknown;
+        mac_address: unknown;
+      }
+    | null;
+  asset_printer_specs: {
+    print_type: PrintType | null;
+    color: boolean;
+    network: boolean;
+  } | null;
+};
+
+function rowToAsset(r: RawRow): Asset {
+  const comp = r.asset_computer_specs ?? undefined;
+  const prn = r.asset_printer_specs ?? undefined;
+  return {
+    id: r.id,
+    type: r.type,
+    patrimony: r.patrimony,
+    serialNumber: r.serial_number,
+    brand: r.brand,
+    model: r.model,
+    status: r.status,
+    acquisitionDate: r.acquisition_date ?? "",
+    notes: r.notes ?? undefined,
+    responsible: r.responsible_name ?? "",
+    sector: r.sectors?.nome ?? "",
+    location: r.locations?.nome ?? "",
+    createdAt: r.created_at,
+    processor: comp?.processor ?? undefined,
+    ram: comp?.ram ?? undefined,
+    storage: comp?.storage ?? undefined,
+    operatingSystem: comp?.operating_system ?? undefined,
+    hostname: comp?.hostname ?? undefined,
+    ipAddress: comp?.ip_address ? String(comp.ip_address) : undefined,
+    macAddress: comp?.mac_address ? String(comp.mac_address) : undefined,
+    printType: prn?.print_type ?? undefined,
+    color: prn?.color ?? undefined,
+    network: prn?.network ?? undefined,
+  };
+}
+
+async function upsertByName(
+  table: "sectors" | "locations",
+  nome: string,
+): Promise<string | null> {
+  const trimmed = nome.trim();
+  if (!trimmed) return null;
+  const existing = await supabase
+    .from(table)
+    .select("id")
+    .ilike("nome", trimmed)
+    .maybeSingle();
+  if (existing.data?.id) return existing.data.id;
+  const inserted = await supabase
+    .from(table)
+    .insert({ nome: trimmed })
+    .select("id")
+    .single();
+  if (inserted.error) throw inserted.error;
+  return inserted.data.id;
+}
+
+export type AssetInput = Omit<Asset, "id" | "createdAt">;
+
+function matches(a: Asset, f: AssetFilters): boolean {
+  if (f.patrimony && !a.patrimony.toLowerCase().includes(f.patrimony.toLowerCase())) return false;
+  if (f.serialNumber && !a.serialNumber.toLowerCase().includes(f.serialNumber.toLowerCase())) return false;
+  if (f.brand && !a.brand.toLowerCase().includes(f.brand.toLowerCase())) return false;
+  if (f.model && !a.model.toLowerCase().includes(f.model.toLowerCase())) return false;
+  if (f.responsible && !a.responsible.toLowerCase().includes(f.responsible.toLowerCase())) return false;
+  if (f.sector && !a.sector.toLowerCase().includes(f.sector.toLowerCase())) return false;
+  if (f.operatingSystem && !(a.operatingSystem ?? "").toLowerCase().includes(f.operatingSystem.toLowerCase())) return false;
+  if (f.createdFrom && a.createdAt.slice(0, 10) < f.createdFrom) return false;
+  if (f.createdTo && a.createdAt.slice(0, 10) > f.createdTo) return false;
+  if (f.acquiredFrom && (a.acquisitionDate || "") < f.acquiredFrom) return false;
+  if (f.acquiredTo && (a.acquisitionDate || "") > f.acquiredTo) return false;
   if (f.q) {
-    const q = text(f.q);
+    const q = f.q.toLowerCase();
     const hay = [
-      asset.patrimony,
-      asset.serialNumber,
-      asset.brand,
-      asset.model,
-      asset.responsible,
-      asset.sector,
-      asset.hostname,
-      asset.location,
+      a.patrimony,
+      a.serialNumber,
+      a.brand,
+      a.model,
+      a.responsible,
+      a.sector,
+      a.location,
+      a.hostname ?? "",
     ]
-      .map(text)
-      .join(" ");
+      .join(" ")
+      .toLowerCase();
     if (!hay.includes(q)) return false;
   }
   return true;
 }
 
-// --- API ---
 export const assetsService = {
   async list(filters: AssetFilters = {}): Promise<Asset[]> {
-    await new Promise((r) => setTimeout(r, 120));
-    return load().filter((a) => matches(a, filters));
+    let q = supabase.from("assets").select(SELECT).order("created_at", { ascending: false });
+    if (filters.type && filters.type !== "all") q = q.eq("type", filters.type);
+    if (filters.status && filters.status !== "all") q = q.eq("status", filters.status);
+    const { data, error } = await q.limit(1000);
+    if (error) throw error;
+    const mapped = ((data ?? []) as unknown as RawRow[]).map(rowToAsset);
+    return mapped.filter((a) => matches(a, filters));
   },
 
-  async get(id: string): Promise<Asset | undefined> {
-    return load().find((a) => a.id === id);
+  async get(id: string): Promise<Asset | null> {
+    const { data, error } = await supabase
+      .from("assets")
+      .select(SELECT)
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? rowToAsset(data as unknown as RawRow) : null;
   },
 
-  async create(input: Omit<Asset, "id" | "createdAt">): Promise<Asset> {
-    const items = load();
-    const next: Asset = { ...input, id: uid(), createdAt: new Date().toISOString() };
-    save([next, ...items]);
-    return next;
+  async create(input: AssetInput): Promise<Asset> {
+    const sector_id = await upsertByName("sectors", input.sector);
+    const location_id = await upsertByName("locations", input.location);
+
+    const { data, error } = await supabase
+      .from("assets")
+      .insert({
+        type: input.type,
+        patrimony: input.patrimony.trim(),
+        serial_number: input.serialNumber.trim(),
+        brand: input.brand.trim(),
+        model: input.model.trim(),
+        status: input.status,
+        acquisition_date: input.acquisitionDate || null,
+        notes: input.notes || null,
+        responsible_name: input.responsible || null,
+        sector_id,
+        location_id,
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+    const id = data.id;
+
+    if (input.type === "impressora") {
+      await supabase.from("asset_printer_specs").insert({
+        asset_id: id,
+        print_type: input.printType ?? null,
+        color: !!input.color,
+        network: input.network ?? true,
+      });
+    } else {
+      await supabase.from("asset_computer_specs").insert({
+        asset_id: id,
+        processor: input.processor || null,
+        ram: input.ram || null,
+        storage: input.storage || null,
+        operating_system: input.operatingSystem || null,
+        hostname: input.hostname || null,
+        ip_address: input.ipAddress || null,
+        mac_address: input.macAddress || null,
+      });
+    }
+
+    const created = await assetsService.get(id);
+    if (!created) throw new Error("Falha ao recuperar ativo recém-criado");
+    return created;
   },
 
-  async update(id: string, patch: Partial<Asset>): Promise<Asset> {
-    const items = load();
-    const i = items.findIndex((a) => a.id === id);
-    if (i === -1) throw new Error("Ativo não encontrado");
-    items[i] = { ...items[i], ...patch };
-    save(items);
-    return items[i];
+  async update(id: string, input: AssetInput): Promise<Asset> {
+    const sector_id = await upsertByName("sectors", input.sector);
+    const location_id = await upsertByName("locations", input.location);
+
+    const { error } = await supabase
+      .from("assets")
+      .update({
+        type: input.type,
+        patrimony: input.patrimony.trim(),
+        serial_number: input.serialNumber.trim(),
+        brand: input.brand.trim(),
+        model: input.model.trim(),
+        status: input.status,
+        acquisition_date: input.acquisitionDate || null,
+        notes: input.notes || null,
+        responsible_name: input.responsible || null,
+        sector_id,
+        location_id,
+      })
+      .eq("id", id);
+    if (error) throw error;
+
+    if (input.type === "impressora") {
+      await supabase.from("asset_computer_specs").delete().eq("asset_id", id);
+      await supabase
+        .from("asset_printer_specs")
+        .upsert({
+          asset_id: id,
+          print_type: input.printType ?? null,
+          color: !!input.color,
+          network: input.network ?? true,
+        });
+    } else {
+      await supabase.from("asset_printer_specs").delete().eq("asset_id", id);
+      await supabase
+        .from("asset_computer_specs")
+        .upsert({
+          asset_id: id,
+          processor: input.processor || null,
+          ram: input.ram || null,
+          storage: input.storage || null,
+          operating_system: input.operatingSystem || null,
+          hostname: input.hostname || null,
+          ip_address: input.ipAddress || null,
+          mac_address: input.macAddress || null,
+        });
+    }
+
+    const updated = await assetsService.get(id);
+    if (!updated) throw new Error("Ativo não encontrado após atualização");
+    return updated;
   },
 
   async remove(id: string): Promise<void> {
-    save(load().filter((a) => a.id !== id));
+    const { error } = await supabase.from("assets").delete().eq("id", id);
+    if (error) throw error;
   },
 
   async summary() {
-    const items = load();
-    const monthAgo = Date.now() - 30 * 86400000;
+    const all = await assetsService.list();
+    const byType = (t: AssetType) => all.filter((a) => a.type === t).length;
+    const recentes = all.slice(0, 6);
+    const since = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const novosNoMes = all.filter((a) => new Date(a.createdAt).getTime() >= since).length;
     return {
-      total: items.length,
-      computadores: items.filter((a) => a.type === "computador").length,
-      notebooks: items.filter((a) => a.type === "notebook").length,
-      impressoras: items.filter((a) => a.type === "impressora").length,
-      novosNoMes: items.filter((a) => new Date(a.createdAt).getTime() >= monthAgo).length,
-      recentes: [...items]
-        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
-        .slice(0, 6),
+      total: all.length,
+      computadores: byType("computador"),
+      notebooks: byType("notebook"),
+      impressoras: byType("impressora"),
+      recentes,
+      novosNoMes,
     };
   },
 };
