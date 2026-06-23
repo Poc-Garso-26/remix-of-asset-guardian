@@ -23,6 +23,7 @@ function AdminPage() {
   const { can } = useAuth();
   const { data: users = [], isLoading } = useManagedUsers();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<ManagedUser | null>(null);
   if (!can("user.manage")) return <Navigate to="/dashboard" replace />;
 
   return (
