@@ -80,6 +80,7 @@ function AdminPage() {
                 <th className="px-4 py-3 text-left font-medium">Perfil</th>
                 <th className="px-4 py-3 text-left font-medium">Ativo</th>
                 <th className="px-4 py-3 text-left font-medium">Último acesso</th>
+                <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -107,11 +108,22 @@ function AdminPage() {
                   <td className="px-4 py-3 text-muted-foreground tabular-nums">
                     {u.lastLogin ? new Date(u.lastLogin).toLocaleString("pt-BR") : "—"}
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => setEditing(u)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Editar perfil
+                    </Button>
+                  </td>
                 </tr>
               ))}
               {isLoading && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
                     <Loader2 className="mx-auto h-4 w-4 animate-spin" />
                   </td>
                 </tr>
