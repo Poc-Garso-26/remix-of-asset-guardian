@@ -7,10 +7,19 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const roleEnum = z.enum(["admin", "gerente", "usuario"]);
+type RoleEnum = z.infer<typeof roleEnum>;
 
-async function ensureAdmin(supabase: {
-  rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown; error: unknown }>;
-}, userId: string) {
+const ROLE_RANK: Record<RoleEnum, number> = { admin: 3, gerente: 2, usuario: 1 };
+
+async function ensureAdmin(
+  supabase: {
+    rpc: (
+      fn: "has_role",
+      args: { _user_id: string; _role: "admin" },
+    ) => Promise<{ data: unknown; error: unknown }>;
+  },
+  userId: string,
+) {
   const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
   if (error) throw new Error("Falha ao validar permissão.");
   if (!data) throw new Error("Acesso negado: requer Administrador.");
@@ -60,9 +69,55 @@ export const setUserRole = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase as never, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
-    await supabaseAdmin
+
+    // Determine previous role (highest in hierarchy)
+    const { data: existingRoles, error: rolesErr } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId);
+    if (rolesErr) throw new Error("Falha ao consultar perfis atuais.");
+
+    let previousRole: RoleEnum = "usuario";
+    for (const r of existingRoles ?? []) {
+      const role = r.role as RoleEnum;
+      if (ROLE_RANK[role] > ROLE_RANK[previousRole]) previousRole = role;
+    }
+
+    if (previousRole === data.role) {
+      return { ok: true, previousRole, newRole: data.role, unchanged: true };
+    }
+
+    // Protect last active admin
+    if (previousRole === "admin" && data.role !== "admin") {
+      const { data: count, error: countErr } = await supabaseAdmin.rpc("count_active_admins");
+      if (countErr) throw new Error("Falha ao validar administradores ativos.");
+      if ((count as number) <= 1) {
+        throw new Error(
+          "Não é possível remover o perfil de Administrador do último administrador ativo do sistema.",
+        );
+      }
+    }
+
+    // Replace role rows
+    const { error: delErr } = await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.userId);
+    if (delErr) throw new Error("Falha ao atualizar perfil.");
+
+    const { error: insErr } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: data.userId, role: data.role });
-    return { ok: true };
+    if (insErr) throw new Error("Falha ao atribuir novo perfil.");
+
+    // Audit log
+    const { error: auditErr } = await supabaseAdmin.from("role_audit_log").insert({
+      target_user_id: data.userId,
+      previous_role: previousRole,
+      new_role: data.role,
+      changed_by: context.userId,
+    });
+    if (auditErr) console.error("[role-audit] failed to record audit entry", auditErr);
+
+    return { ok: true, previousRole, newRole: data.role };
   });
