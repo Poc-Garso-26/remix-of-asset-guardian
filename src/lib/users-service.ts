@@ -42,7 +42,7 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
     user_id: p.user_id,
     name: p.nome,
     email: p.email,
-    username: p.username,
+    username: p.username ?? "",
     role: roleByUser.get(p.user_id) ?? "usuario",
     active: p.active ?? true,
     lastLogin: p.last_login ?? p.created_at,

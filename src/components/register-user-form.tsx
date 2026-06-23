@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,12 +13,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createUser, type ManagedUser } from "@/lib/users-mock";
 import type { Role } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { createUserAsAdmin } from "@/lib/users-admin.functions";
+
+export interface RegisteredUser {
+  username: string;
+  email: string;
+}
 
 interface RegisterUserFormProps {
   allowRoleSelection: boolean;
-  onSuccess?: (user: ManagedUser) => void;
+  onSuccess?: (user: RegisteredUser) => void;
   onCancel?: () => void;
   submitLabel?: string;
 }
@@ -35,6 +43,8 @@ export function RegisterUserForm({
   const [role, setRole] = useState<Role>("usuario");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const qc = useQueryClient();
+  const createUser = useServerFn(createUserAsAdmin);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -44,16 +54,39 @@ export function RegisterUserForm({
       setErrors({ confirm: "As senhas não coincidem." });
       return;
     }
+    if (password.length < 6) {
+      setErrors({ password: "A senha deve ter ao menos 6 caracteres." });
+      return;
+    }
 
     setSubmitting(true);
     try {
-      const user = createUser({ name, email, username, password, role });
-      toast.success(`Usuário ${user.username} cadastrado com sucesso.`);
-      onSuccess?.(user);
+      if (allowRoleSelection) {
+        await createUser({
+          data: { name, email, username, password, role },
+        });
+        toast.success(`Usuário ${username} cadastrado com sucesso.`);
+      } else {
+        const redirectTo =
+          typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectTo,
+            data: { nome: name, username },
+          },
+        });
+        if (error) throw new Error(error.message);
+        toast.success("Cadastro realizado", {
+          description: "Se a confirmação de e-mail estiver ativa, verifique sua caixa de entrada.",
+        });
+      }
+      await qc.invalidateQueries({ queryKey: ["managed-users"] });
+      onSuccess?.({ username, email });
     } catch (err) {
-      const field = (err as { field?: string }).field ?? "form";
       const message = err instanceof Error ? err.message : "Erro ao cadastrar.";
-      setErrors({ [field]: message });
+      setErrors({ form: message });
     } finally {
       setSubmitting(false);
     }
@@ -63,64 +96,28 @@ export function RegisterUserForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="reg-name">Nome completo</Label>
-        <Input
-          id="reg-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          autoComplete="name"
-          required
-        />
-        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+        <Input id="reg-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="reg-email">E-mail</Label>
-        <Input
-          id="reg-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-          required
-        />
-        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+        <Input id="reg-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="reg-username">Usuário</Label>
-        <Input
-          id="reg-username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          autoComplete="username"
-          required
-        />
-        {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
+        <Input id="reg-username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="reg-password">Senha</Label>
-          <Input
-            id="reg-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            required
-          />
+          <Input id="reg-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
           {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="reg-confirm">Confirmar senha</Label>
-          <Input
-            id="reg-confirm"
-            type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            autoComplete="new-password"
-            required
-          />
+          <Input id="reg-confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required />
           {errors.confirm && <p className="text-xs text-destructive">{errors.confirm}</p>}
         </div>
       </div>

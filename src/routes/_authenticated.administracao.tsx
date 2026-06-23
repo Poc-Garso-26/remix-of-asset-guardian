@@ -1,8 +1,8 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Shield, CheckCircle2, XCircle, UserPlus } from "lucide-react";
+import { Shield, CheckCircle2, XCircle, UserPlus, Loader2 } from "lucide-react";
 import { useAuth, roleLabel } from "@/lib/auth";
-import { useManagedUsers } from "@/lib/users-mock";
+import { useManagedUsers } from "@/lib/users-service";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/administracao")({
 
 function AdminPage() {
   const { can } = useAuth();
-  const users = useManagedUsers();
+  const { data: users = [], isLoading } = useManagedUsers();
   const [open, setOpen] = useState(false);
   if (!can("user.manage")) return <Navigate to="/dashboard" replace />;
 
