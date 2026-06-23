@@ -24,7 +24,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,7 @@ function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await login(username, password);
+      await login(email, password);
       navigate({ to: "/dashboard", replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no login");
@@ -98,14 +98,15 @@ function LoginPage() {
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div className="space-y-1.5">
-              <label htmlFor="username" className="text-xs font-medium text-foreground">
-                Usuário
+              <label htmlFor="email" className="text-xs font-medium text-foreground">
+                E-mail
               </label>
               <input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 required
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
               />
@@ -164,7 +165,7 @@ function LoginPage() {
                 onCancel={() => setRegisterOpen(false)}
                 onSuccess={(u) => {
                   setRegisterOpen(false);
-                  setUsername(u.username);
+                  setEmail(u.email);
                   setPassword("");
                   setTimeout(() => document.getElementById("password")?.focus(), 0);
                 }}
@@ -174,12 +175,10 @@ function LoginPage() {
 
 
           <div className="mt-8 rounded-lg border border-dashed border-border bg-muted/40 p-4 text-xs text-muted-foreground">
-            <p className="mb-2 font-medium text-foreground">Usuários de teste (mock)</p>
-            <ul className="space-y-1 font-mono">
-              <li>admin / admin123 — Administrador</li>
-              <li>gerente / gerente123 — Gerente</li>
-              <li>usuario / usuario123 — Usuário</li>
-            </ul>
+            <p className="font-medium text-foreground">Primeiro acesso?</p>
+            <p className="mt-1">
+              Cadastre-se com seu e-mail. O primeiro usuário criado recebe automaticamente o perfil de Administrador.
+            </p>
           </div>
         </div>
       </div>

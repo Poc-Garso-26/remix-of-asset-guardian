@@ -103,10 +103,17 @@ function AdminPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground tabular-nums">
-                    {new Date(u.lastLogin).toLocaleString("pt-BR")}
+                    {u.lastLogin ? new Date(u.lastLogin).toLocaleString("pt-BR") : "—"}
                   </td>
                 </tr>
               ))}
+              {isLoading && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
+                    <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
