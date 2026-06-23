@@ -153,6 +153,12 @@ function AdminPage() {
           </div>
         </div>
       </section>
+
+      <EditUserRoleDialog
+        user={editing}
+        open={!!editing}
+        onOpenChange={(o) => { if (!o) setEditing(null); }}
+      />
     </div>
   );
 }
