@@ -21,7 +21,7 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
   const [{ data: profiles, error: pErr }, { data: roles, error: rErr }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, user_id, nome, email, username, ativo, ultimo_acesso, created_at")
+      .select("id, user_id, nome, email, username, active, last_login, created_at")
       .order("created_at", { ascending: false }),
     supabase.from("user_roles").select("user_id, role"),
   ]);
@@ -44,8 +44,8 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
     email: p.email,
     username: p.username,
     role: roleByUser.get(p.user_id) ?? "usuario",
-    active: p.ativo ?? true,
-    lastLogin: p.ultimo_acesso ?? p.created_at,
+    active: p.active ?? true,
+    lastLogin: p.last_login ?? p.created_at,
   }));
 }
 
