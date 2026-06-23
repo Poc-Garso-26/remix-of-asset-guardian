@@ -70,18 +70,8 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
 
   return (
     <>
-      <Dialog
-        open={open}
-        onOpenChange={(o) => {
-          if (!o) {
-            setSelected(user.role);
-            setConfirmOpen(false);
-          } else {
-            setSelected(user.role);
-          }
-          onOpenChange(o);
-        }}
-      >
+      <Dialog open={open} onOpenChange={onOpenChange}>
+
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Editar perfil de usuário</DialogTitle>
