@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { RegisterUserForm } from "@/components/register-user-form";
+import { PasswordInput } from "@/components/ui/password-input";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 
@@ -116,14 +117,13 @@ function LoginPage() {
               <label htmlFor="password" className="text-xs font-medium text-foreground">
                 Senha
               </label>
-              <input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20 h-auto"
               />
             </div>
 

@@ -1,63 +1,20 @@
-## Gerenciamento de perfis de usuário
+## Objetivo
+Adicionar toggle de visibilidade (ícone olho) em todos os campos de senha do app, sem alterar a lógica de autenticação ou validações.
 
-Adicionar edição de perfil (role) na tela `/administracao`, restrita a administradores, com auditoria e proteção do último admin.
+## Componente novo
+**`src/components/ui/password-input.tsx`** — `PasswordInput` reutilizável:
+- Wrapper sobre `<Input>` do shadcn (mantém estilos, foco, tema claro/escuro, responsividade).
+- `useState` interno `visible` (inicial `false`).
+- Renderiza `<Input type={visible ? "text" : "password"} className="pr-10" ... />` dentro de um container `relative`.
+- Botão `<button type="button">` posicionado absolutamente à direita, com ícone `Eye`/`EyeOff` (lucide-react).
+- Acessibilidade: `aria-label` dinâmico ("Mostrar senha" / "Ocultar senha"), `aria-pressed`, `tabIndex={-1}` para não interromper o fluxo de tab do formulário; foco do input preservado ao clicar.
+- `React.forwardRef<HTMLInputElement>` repassando todas as props do `Input` (id, value, onChange, autoComplete, required, etc.) para preservar integrações existentes.
+- Sem lógica de validação ou autenticação.
 
-### Banco de dados (migração)
+## Pontos de uso (apenas trocar o input, manter props)
+1. **`src/routes/login.tsx`** — campo `#password` (atualmente `<input type="password">` cru). Substituir por `PasswordInput` mantendo classes/aria/autocomplete (`current-password`).
+2. **`src/components/register-user-form.tsx`** — campos `#reg-password` e `#reg-confirm` (`<Input type="password">`). Substituir por `PasswordInput` mantendo `autoComplete="new-password"`.
 
-1. **Tabela `public.role_audit_log`** — registro de alterações:
-   - `target_user_id` (uuid), `previous_role` (app_role, nullable), `new_role` (app_role)
-   - `changed_by` (uuid), `created_at` (timestamptz default now())
-   - GRANT SELECT/INSERT para `authenticated`, ALL para `service_role`
-   - RLS habilitada; policy SELECT: `public.has_role(auth.uid(), 'admin')`; INSERT somente via service_role (server function)
-
-2. **Função `public.count_active_admins()`** — `security definer`, retorna número de admins ativos (join `user_roles` + `profiles.active = true`). Usada na validação de "último admin".
-
-### Server function (`src/lib/users-admin.functions.ts`)
-
-Substituir/ampliar o `setUserRole` existente:
-- Middleware `requireSupabaseAuth` + checagem `has_role(admin)` do chamador.
-- Buscar role atual do alvo (maior na hierarquia).
-- Se role atual = `admin` e novo role ≠ `admin`: chamar `count_active_admins()`; bloquear se = 1 e o alvo for o único admin ativo (erro claro: "Não é possível remover o último administrador ativo").
-- Em transação lógica (via `supabaseAdmin`):
-  - DELETE roles do `user_id`
-  - INSERT novo role (sempre, inclusive `usuario`, para consistência)
-  - INSERT em `role_audit_log` com `previous_role`, `new_role`, `changed_by = context.userId`
-- Retornar `{ ok: true, previousRole, newRole }`.
-
-### UI — `src/routes/_authenticated.administracao.tsx`
-
-Acrescentar coluna **Ações** na tabela com botão "Editar perfil" (ícone `Pencil`) por linha.
-
-Novo componente `EditUserRoleDialog` (`src/components/edit-user-role-dialog.tsx`):
-- Dialog do shadcn com:
-  - Resumo do usuário (nome, e-mail, perfil atual badge)
-  - `<Select>` com opções: Administrador / Gestor / Usuário Padrão (rótulos via `roleLabel`)
-  - Mensagem de validação inline (ex.: tentativa de rebaixar último admin)
-  - Botões Cancelar / Salvar
-- Ao salvar, abrir `ConfirmDialog` ("Confirmar alteração de perfil de X para Y?") antes de chamar a server function.
-- `useMutation` → `useServerFn(setUserRole)`:
-  - onSuccess: `toast.success("Perfil atualizado com sucesso")`, `queryClient.invalidateQueries(["managed-users"])`, fechar dialog.
-  - onError: `toast.error(error.message)` (mensagens já vêm em PT).
-
-Self-demotion: permitir, mas o backend bloqueia se for o último admin; o front mostra aviso visual quando `targetUserId === currentUser.id && currentRole === 'admin'`.
-
-### Permissões imediatas
-
-`src/lib/auth.tsx` já deriva permissões do JWT/role do contexto Supabase. Após alteração:
-- Se o admin alterou o próprio role, chamar `supabase.auth.refreshSession()` para recarregar claims; caso contrário, invalidar query de usuários é suficiente (o alvo verá a mudança no próximo carregamento da sessão dele).
-
-### Detalhes técnicos
-
-- Arquivos novos: `src/components/edit-user-role-dialog.tsx`, migração SQL com `role_audit_log` + `count_active_admins`.
-- Arquivos editados: `src/lib/users-admin.functions.ts` (lógica de auditoria e guarda do último admin), `src/routes/_authenticated.administracao.tsx` (coluna Ações + integração do dialog).
-- Reutiliza `ConfirmDialog`, `Dialog`, `Select`, `Button`, `sonner` (toast) já existentes.
-- Mantém o padrão visual atual (cards, badges `bg-accent`, tipografia `font-display`).
-
-### Critérios de aceitação cobertos
-
-- Admin vê todos os usuários ✔ (já existente, com nova coluna Ações)
-- Admin altera perfil de outro usuário via dropdown + confirmação ✔
-- Não-admin não acessa (`can("user.manage")` + checagem no server) ✔
-- Auditoria persistida em `role_audit_log` ✔
-- Último admin protegido pelo backend ✔
-- Permissões atualizadas imediatamente (invalidação + refresh de sessão quando aplicável) ✔
+## Fora de escopo
+- Nenhuma mudança em `auth.tsx`, server functions, validações de senha (`length < 6`, `password !== confirm`), ou fluxos de submit.
+- Sem alteração de estilos globais; o toggle herda tokens semânticos (`text-muted-foreground`, `hover:text-foreground`) para compatibilidade com tema claro/escuro.

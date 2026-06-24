@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -112,12 +113,12 @@ export function RegisterUserForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="reg-password">Senha</Label>
-          <Input id="reg-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
+          <PasswordInput id="reg-password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
           {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="reg-confirm">Confirmar senha</Label>
-          <Input id="reg-confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required />
+          <PasswordInput id="reg-confirm" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required />
           {errors.confirm && <p className="text-xs text-destructive">{errors.confirm}</p>}
         </div>
       </div>
