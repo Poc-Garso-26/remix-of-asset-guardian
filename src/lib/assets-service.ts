@@ -235,6 +235,7 @@ export const assetsService = {
 
     const created = await assetsService.get(id);
     if (!created) throw new Error("Falha ao recuperar ativo recém-criado");
+    void triggerQrCodeGeneration(id);
     return created;
   },
 
@@ -293,6 +294,7 @@ export const assetsService = {
 
     const updated = await assetsService.get(id);
     if (!updated) throw new Error("Ativo não encontrado após atualização");
+    void triggerQrCodeGeneration(id);
     return updated;
   },
 
