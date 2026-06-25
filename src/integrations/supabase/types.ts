@@ -100,10 +100,14 @@ export type Database = {
         Row: {
           acquisition_date: string | null
           acquisition_value: number | null
+          bairro: string | null
           brand: string
+          cep: string | null
+          cidade: string | null
           created_at: string
           id: string
           location_id: string | null
+          logradouro: string | null
           model: string
           notes: string | null
           patrimony: string
@@ -113,15 +117,20 @@ export type Database = {
           serial_number: string
           status: Database["public"]["Enums"]["asset_status"]
           type: Database["public"]["Enums"]["asset_type"]
+          uf: string | null
           updated_at: string
         }
         Insert: {
           acquisition_date?: string | null
           acquisition_value?: number | null
+          bairro?: string | null
           brand: string
+          cep?: string | null
+          cidade?: string | null
           created_at?: string
           id?: string
           location_id?: string | null
+          logradouro?: string | null
           model: string
           notes?: string | null
           patrimony: string
@@ -131,15 +140,20 @@ export type Database = {
           serial_number: string
           status?: Database["public"]["Enums"]["asset_status"]
           type: Database["public"]["Enums"]["asset_type"]
+          uf?: string | null
           updated_at?: string
         }
         Update: {
           acquisition_date?: string | null
           acquisition_value?: number | null
+          bairro?: string | null
           brand?: string
+          cep?: string | null
+          cidade?: string | null
           created_at?: string
           id?: string
           location_id?: string | null
+          logradouro?: string | null
           model?: string
           notes?: string | null
           patrimony?: string
@@ -149,6 +163,7 @@ export type Database = {
           serial_number?: string
           status?: Database["public"]["Enums"]["asset_status"]
           type?: Database["public"]["Enums"]["asset_type"]
+          uf?: string | null
           updated_at?: string
         }
         Relationships: [
