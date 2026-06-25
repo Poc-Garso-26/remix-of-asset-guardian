@@ -154,7 +154,7 @@ function LoginPage() {
           <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Cadastrar usuários</DialogTitle>
+                <DialogTitle>Cadastrar usuário</DialogTitle>
                 <DialogDescription>
                   Preencha os dados para criar uma conta com perfil de usuário.
                 </DialogDescription>
