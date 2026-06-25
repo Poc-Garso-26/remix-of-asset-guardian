@@ -125,6 +125,18 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         <Field label="Modelo" error={form.formState.errors.model?.message}>
           <input {...form.register("model")} className={inputCls} />
         </Field>
+        <Field label="CEP" error={form.formState.errors.cep?.message}>
+          <CepInput
+            value={form.watch("cep") ?? ""}
+            onChange={(v) => form.setValue("cep", v, { shouldDirty: true, shouldValidate: true })}
+            onAddressResolved={(addr) => {
+              form.setValue("logradouro", addr.logradouro, { shouldDirty: true });
+              form.setValue("bairro", addr.bairro, { shouldDirty: true });
+              form.setValue("cidade", addr.cidade, { shouldDirty: true });
+              form.setValue("uf", addr.uf, { shouldDirty: true });
+            }}
+          />
+        </Field>
         <Field label="Situação" error={form.formState.errors.status?.message}>
           <select {...form.register("status")} className={inputCls}>
             {(Object.keys(ASSET_STATUS_LABEL) as Array<keyof typeof ASSET_STATUS_LABEL>).map((s) => (
