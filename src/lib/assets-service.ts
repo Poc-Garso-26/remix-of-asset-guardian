@@ -44,6 +44,11 @@ type RawRow = {
   responsible_name: string | null;
   sector_id: string | null;
   location_id: string | null;
+  cep: string | null;
+  logradouro: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  uf: string | null;
   created_at: string;
   sectors: { nome: string } | null;
   locations: { nome: string } | null;
