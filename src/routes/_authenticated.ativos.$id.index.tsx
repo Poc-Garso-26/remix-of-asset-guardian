@@ -2,8 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ChevronLeft, Pencil, Trash2, Loader2 } from "lucide-react";
-import { assetsService } from "@/lib/assets-service";
+import { ChevronLeft, Pencil, Trash2, Loader2, QrCode, RefreshCw } from "lucide-react";
+import { assetsService, regenerateAssetQrCode } from "@/lib/assets-service";
 import {
   ASSET_STATUS_LABEL,
   ASSET_TYPE_LABEL,
@@ -24,6 +24,7 @@ function AssetDetailsPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: ["asset", id],
@@ -147,6 +148,49 @@ function AssetDetailsPage() {
             <p className="whitespace-pre-wrap text-sm text-foreground/90">{asset.notes}</p>
           </InfoCard>
         )}
+
+        <section className="rounded-xl border border-border bg-card p-5 lg:col-span-3">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-sm font-semibold">
+              <QrCode className="h-4 w-4" /> QR Code
+            </h2>
+            <button
+              onClick={async () => {
+                try {
+                  setRegenerating(true);
+                  await regenerateAssetQrCode(asset.id);
+                  await qc.invalidateQueries({ queryKey: ["asset", id] });
+                  toast.success("QR Code atualizado");
+                } catch {
+                  toast.error("Não foi possível gerar o QR Code");
+                } finally {
+                  setRegenerating(false);
+                }
+              }}
+              disabled={regenerating}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium hover:bg-accent disabled:opacity-50"
+            >
+              {regenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+              {asset.qrCodeUrl ? "Regenerar" : "Gerar agora"}
+            </button>
+          </div>
+          {asset.qrCodeUrl ? (
+            <div className="flex flex-col items-start gap-2">
+              <img
+                src={asset.qrCodeUrl}
+                alt={`QR Code do ativo ${asset.patrimony}`}
+                className="h-48 w-48 rounded-md border border-border bg-white p-2"
+              />
+              {asset.qrCodeGeneratedAt && (
+                <p className="text-xs text-muted-foreground">
+                  Gerado em {fmtDateTime(asset.qrCodeGeneratedAt)}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">QR Code ainda não gerado.</p>
+          )}
+        </section>
       </div>
 
       <ConfirmDialog
