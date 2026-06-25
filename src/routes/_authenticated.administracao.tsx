@@ -45,7 +45,7 @@ function AdminPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Cadastrar usuário</DialogTitle>
+            <DialogTitle>Cadastrar usuários</DialogTitle>
             <DialogDescription>
               Preencha os dados e selecione o perfil de acesso.
             </DialogDescription>
