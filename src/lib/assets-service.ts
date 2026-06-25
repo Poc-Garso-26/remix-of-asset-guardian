@@ -319,3 +319,23 @@ export const assetsService = {
     };
   },
 };
+
+async function triggerQrCodeGeneration(assetId: string): Promise<void> {
+  try {
+    const { error } = await supabase.functions.invoke("generate-asset-qrcode", {
+      body: { assetId },
+    });
+    if (error) console.warn("[qrcode] geração falhou", error);
+  } catch (e) {
+    console.warn("[qrcode] geração falhou", e);
+  }
+}
+
+export async function regenerateAssetQrCode(assetId: string): Promise<string | null> {
+  const { data, error } = await supabase.functions.invoke<{ url?: string }>(
+    "generate-asset-qrcode",
+    { body: { assetId } },
+  );
+  if (error) throw error;
+  return data?.url ?? null;
+}
