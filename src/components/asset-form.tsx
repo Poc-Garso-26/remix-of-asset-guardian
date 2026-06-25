@@ -12,6 +12,8 @@ import {
   type Asset,
 } from "@/lib/assets-types";
 import { cn } from "@/lib/utils";
+import { CepInput } from "@/components/cep-input";
+
 
 const baseSchema = z.object({
   type: z.enum(["computador", "notebook", "impressora"]),
