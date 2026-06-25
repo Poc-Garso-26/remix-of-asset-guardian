@@ -24,6 +24,11 @@ export interface Asset {
   sector: string;
   responsible: string;
   location: string;
+  cep?: string;
+  logradouro?: string;
+  bairro?: string;
+  cidade?: string;
+  uf?: string;
   status: AssetStatus;
   acquisitionDate: string; // ISO yyyy-mm-dd
   createdAt: string; // ISO datetime
