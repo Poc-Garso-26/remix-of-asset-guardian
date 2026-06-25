@@ -44,6 +44,11 @@ type RawRow = {
   responsible_name: string | null;
   sector_id: string | null;
   location_id: string | null;
+  cep: string | null;
+  logradouro: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  uf: string | null;
   created_at: string;
   sectors: { nome: string } | null;
   locations: { nome: string } | null;
@@ -81,6 +86,11 @@ function rowToAsset(r: RawRow): Asset {
     responsible: r.responsible_name ?? "",
     sector: r.sectors?.nome ?? "",
     location: r.locations?.nome ?? "",
+    cep: r.cep ?? undefined,
+    logradouro: r.logradouro ?? undefined,
+    bairro: r.bairro ?? undefined,
+    cidade: r.cidade ?? undefined,
+    uf: r.uf ?? undefined,
     createdAt: r.created_at,
     processor: comp?.processor ?? undefined,
     ram: comp?.ram ?? undefined,
@@ -188,6 +198,11 @@ export const assetsService = {
         responsible_name: input.responsible || null,
         sector_id,
         location_id,
+        cep: input.cep || null,
+        logradouro: input.logradouro || null,
+        bairro: input.bairro || null,
+        cidade: input.cidade || null,
+        uf: input.uf ? input.uf.toUpperCase() : null,
       })
       .select("id")
       .single();
@@ -237,6 +252,11 @@ export const assetsService = {
         responsible_name: input.responsible || null,
         sector_id,
         location_id,
+        cep: input.cep || null,
+        logradouro: input.logradouro || null,
+        bairro: input.bairro || null,
+        cidade: input.cidade || null,
+        uf: input.uf ? input.uf.toUpperCase() : null,
       })
       .eq("id", id);
     if (error) throw error;

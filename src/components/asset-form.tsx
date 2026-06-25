@@ -12,6 +12,8 @@ import {
   type Asset,
 } from "@/lib/assets-types";
 import { cn } from "@/lib/utils";
+import { CepInput } from "@/components/cep-input";
+
 
 const baseSchema = z.object({
   type: z.enum(["computador", "notebook", "impressora"]),
@@ -19,6 +21,15 @@ const baseSchema = z.object({
   serialNumber: z.string().trim().min(1, "Informe o nº de série").max(80),
   brand: z.string().trim().min(1, "Informe a marca").max(60),
   model: z.string().trim().min(1, "Informe o modelo").max(80),
+  cep: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((v) => !v || /^\d{5}-?\d{3}$/.test(v), "CEP inválido"),
+  logradouro: z.string().max(160).optional().or(z.literal("")),
+  bairro: z.string().max(80).optional().or(z.literal("")),
+  cidade: z.string().max(80).optional().or(z.literal("")),
+  uf: z.string().max(2).optional().or(z.literal("")),
   sector: z.string().trim().min(1, "Informe o setor").max(60),
   responsible: z.string().trim().min(1, "Informe o responsável").max(80),
   location: z.string().trim().min(1, "Informe a localização").max(120),
@@ -62,6 +73,11 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
       sector: initial?.sector ?? "",
       responsible: initial?.responsible ?? "",
       location: initial?.location ?? "",
+      cep: initial?.cep ?? "",
+      logradouro: initial?.logradouro ?? "",
+      bairro: initial?.bairro ?? "",
+      cidade: initial?.cidade ?? "",
+      uf: initial?.uf ?? "",
       status: (initial?.status ?? "em_uso") as AssetFormValues["status"],
       acquisitionDate: initial?.acquisitionDate ?? today(),
       notes: initial?.notes ?? "",
@@ -109,6 +125,18 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         <Field label="Modelo" error={form.formState.errors.model?.message}>
           <input {...form.register("model")} className={inputCls} />
         </Field>
+        <Field label="CEP" error={form.formState.errors.cep?.message}>
+          <CepInput
+            value={form.watch("cep") ?? ""}
+            onChange={(v) => form.setValue("cep", v, { shouldDirty: true, shouldValidate: true })}
+            onAddressResolved={(addr) => {
+              form.setValue("logradouro", addr.logradouro, { shouldDirty: true });
+              form.setValue("bairro", addr.bairro, { shouldDirty: true });
+              form.setValue("cidade", addr.cidade, { shouldDirty: true });
+              form.setValue("uf", addr.uf, { shouldDirty: true });
+            }}
+          />
+        </Field>
         <Field label="Situação" error={form.formState.errors.status?.message}>
           <select {...form.register("status")} className={inputCls}>
             {(Object.keys(ASSET_STATUS_LABEL) as Array<keyof typeof ASSET_STATUS_LABEL>).map((s) => (
@@ -127,6 +155,18 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         </Field>
         <Field label="Localização" error={form.formState.errors.location?.message}>
           <input {...form.register("location")} className={inputCls} placeholder="Andar / Sala" />
+        </Field>
+        <Field label="Logradouro" error={form.formState.errors.logradouro?.message}>
+          <input {...form.register("logradouro")} className={inputCls} placeholder="Rua, Avenida..." />
+        </Field>
+        <Field label="Bairro" error={form.formState.errors.bairro?.message}>
+          <input {...form.register("bairro")} className={inputCls} />
+        </Field>
+        <Field label="Cidade" error={form.formState.errors.cidade?.message}>
+          <input {...form.register("cidade")} className={inputCls} />
+        </Field>
+        <Field label="UF" error={form.formState.errors.uf?.message}>
+          <input {...form.register("uf")} maxLength={2} className={cn(inputCls, "uppercase")} placeholder="SP" />
         </Field>
         <Field label="Data de aquisição" error={form.formState.errors.acquisitionDate?.message}>
           <input type="date" {...form.register("acquisitionDate")} className={inputCls} />
