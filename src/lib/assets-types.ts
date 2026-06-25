@@ -33,6 +33,8 @@ export interface Asset {
   acquisitionDate: string; // ISO yyyy-mm-dd
   createdAt: string; // ISO datetime
   notes?: string;
+  qrCodeUrl?: string;
+  qrCodeGeneratedAt?: string;
 
   // Impressora
   printType?: PrintType;

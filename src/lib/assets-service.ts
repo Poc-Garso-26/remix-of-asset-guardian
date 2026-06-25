@@ -49,6 +49,8 @@ type RawRow = {
   bairro: string | null;
   cidade: string | null;
   uf: string | null;
+  qr_code_url: string | null;
+  qr_code_generated_at: string | null;
   created_at: string;
   sectors: { nome: string } | null;
   locations: { nome: string } | null;
@@ -91,6 +93,8 @@ function rowToAsset(r: RawRow): Asset {
     bairro: r.bairro ?? undefined,
     cidade: r.cidade ?? undefined,
     uf: r.uf ?? undefined,
+    qrCodeUrl: r.qr_code_url ?? undefined,
+    qrCodeGeneratedAt: r.qr_code_generated_at ?? undefined,
     createdAt: r.created_at,
     processor: comp?.processor ?? undefined,
     ram: comp?.ram ?? undefined,
@@ -231,6 +235,7 @@ export const assetsService = {
 
     const created = await assetsService.get(id);
     if (!created) throw new Error("Falha ao recuperar ativo recém-criado");
+    void triggerQrCodeGeneration(id);
     return created;
   },
 
@@ -289,6 +294,7 @@ export const assetsService = {
 
     const updated = await assetsService.get(id);
     if (!updated) throw new Error("Ativo não encontrado após atualização");
+    void triggerQrCodeGeneration(id);
     return updated;
   },
 
@@ -313,3 +319,23 @@ export const assetsService = {
     };
   },
 };
+
+async function triggerQrCodeGeneration(assetId: string): Promise<void> {
+  try {
+    const { error } = await supabase.functions.invoke("generate-asset-qrcode", {
+      body: { assetId },
+    });
+    if (error) console.warn("[qrcode] geração falhou", error);
+  } catch (e) {
+    console.warn("[qrcode] geração falhou", e);
+  }
+}
+
+export async function regenerateAssetQrCode(assetId: string): Promise<string | null> {
+  const { data, error } = await supabase.functions.invoke<{ url?: string }>(
+    "generate-asset-qrcode",
+    { body: { assetId } },
+  );
+  if (error) throw error;
+  return data?.url ?? null;
+}
