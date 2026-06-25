@@ -93,6 +93,8 @@ function rowToAsset(r: RawRow): Asset {
     bairro: r.bairro ?? undefined,
     cidade: r.cidade ?? undefined,
     uf: r.uf ?? undefined,
+    qrCodeUrl: r.qr_code_url ?? undefined,
+    qrCodeGeneratedAt: r.qr_code_generated_at ?? undefined,
     createdAt: r.created_at,
     processor: comp?.processor ?? undefined,
     ram: comp?.ram ?? undefined,
