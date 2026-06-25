@@ -38,14 +38,14 @@ function AdminPage() {
         </div>
         <Button onClick={() => setOpen(true)} className="gap-2">
           <UserPlus className="h-4 w-4" />
-          Cadastrar usuário
+          Cadastrar usuários
         </Button>
       </header>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Cadastrar usuário</DialogTitle>
+            <DialogTitle>Cadastrar usuários</DialogTitle>
             <DialogDescription>
               Preencha os dados e selecione o perfil de acesso.
             </DialogDescription>

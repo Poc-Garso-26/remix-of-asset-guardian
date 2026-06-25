@@ -147,14 +147,14 @@ function LoginPage() {
               onClick={() => setRegisterOpen(true)}
               className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted"
             >
-              Cadastrar usuário
+              Cadastrar usuários
             </button>
           </form>
 
           <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Cadastrar usuário</DialogTitle>
+                <DialogTitle>Cadastrar usuários</DialogTitle>
                 <DialogDescription>
                   Preencha os dados para criar uma conta com perfil de usuário.
                 </DialogDescription>
