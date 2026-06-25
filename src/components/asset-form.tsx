@@ -21,6 +21,15 @@ const baseSchema = z.object({
   serialNumber: z.string().trim().min(1, "Informe o nº de série").max(80),
   brand: z.string().trim().min(1, "Informe a marca").max(60),
   model: z.string().trim().min(1, "Informe o modelo").max(80),
+  cep: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((v) => !v || /^\d{5}-?\d{3}$/.test(v), "CEP inválido"),
+  logradouro: z.string().max(160).optional().or(z.literal("")),
+  bairro: z.string().max(80).optional().or(z.literal("")),
+  cidade: z.string().max(80).optional().or(z.literal("")),
+  uf: z.string().max(2).optional().or(z.literal("")),
   sector: z.string().trim().min(1, "Informe o setor").max(60),
   responsible: z.string().trim().min(1, "Informe o responsável").max(80),
   location: z.string().trim().min(1, "Informe a localização").max(120),
