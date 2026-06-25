@@ -38,7 +38,7 @@ function AdminPage() {
         </div>
         <Button onClick={() => setOpen(true)} className="gap-2">
           <UserPlus className="h-4 w-4" />
-          Cadastrar usuários
+          Cadastrar usuário
         </Button>
       </header>
 
