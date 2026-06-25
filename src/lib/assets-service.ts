@@ -49,6 +49,8 @@ type RawRow = {
   bairro: string | null;
   cidade: string | null;
   uf: string | null;
+  qr_code_url: string | null;
+  qr_code_generated_at: string | null;
   created_at: string;
   sectors: { nome: string } | null;
   locations: { nome: string } | null;
