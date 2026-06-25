@@ -114,6 +114,11 @@ function AssetDetailsPage() {
           <Row label="Setor" value={asset.sector} />
           <Row label="Responsável" value={asset.responsible} />
           <Row label="Localização" value={asset.location} />
+          <Row label="CEP" value={asset.cep} />
+          <Row label="Logradouro" value={asset.logradouro} />
+          <Row label="Bairro" value={asset.bairro} />
+          <Row label="Cidade" value={asset.cidade} />
+          <Row label="UF" value={asset.uf} />
           <Row label="Cadastro" value={fmtDateTime(asset.createdAt)} />
         </InfoCard>
 
