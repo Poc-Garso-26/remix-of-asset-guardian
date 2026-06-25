@@ -111,6 +111,8 @@ export type Database = {
           model: string
           notes: string | null
           patrimony: string
+          qr_code_generated_at: string | null
+          qr_code_url: string | null
           responsible_name: string | null
           responsible_profile_id: string | null
           sector_id: string | null
@@ -134,6 +136,8 @@ export type Database = {
           model: string
           notes?: string | null
           patrimony: string
+          qr_code_generated_at?: string | null
+          qr_code_url?: string | null
           responsible_name?: string | null
           responsible_profile_id?: string | null
           sector_id?: string | null
@@ -157,6 +161,8 @@ export type Database = {
           model?: string
           notes?: string | null
           patrimony?: string
+          qr_code_generated_at?: string | null
+          qr_code_url?: string | null
           responsible_name?: string | null
           responsible_profile_id?: string | null
           sector_id?: string | null
