@@ -147,7 +147,7 @@ function LoginPage() {
               onClick={() => setRegisterOpen(true)}
               className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted"
             >
-              Cadastrar usuários
+              Cadastrar usuário
             </button>
           </form>
 
