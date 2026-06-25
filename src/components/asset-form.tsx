@@ -156,6 +156,18 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         <Field label="Localização" error={form.formState.errors.location?.message}>
           <input {...form.register("location")} className={inputCls} placeholder="Andar / Sala" />
         </Field>
+        <Field label="Logradouro" error={form.formState.errors.logradouro?.message}>
+          <input {...form.register("logradouro")} className={inputCls} placeholder="Rua, Avenida..." />
+        </Field>
+        <Field label="Bairro" error={form.formState.errors.bairro?.message}>
+          <input {...form.register("bairro")} className={inputCls} />
+        </Field>
+        <Field label="Cidade" error={form.formState.errors.cidade?.message}>
+          <input {...form.register("cidade")} className={inputCls} />
+        </Field>
+        <Field label="UF" error={form.formState.errors.uf?.message}>
+          <input {...form.register("uf")} maxLength={2} className={cn(inputCls, "uppercase")} placeholder="SP" />
+        </Field>
         <Field label="Data de aquisição" error={form.formState.errors.acquisitionDate?.message}>
           <input type="date" {...form.register("acquisitionDate")} className={inputCls} />
         </Field>
