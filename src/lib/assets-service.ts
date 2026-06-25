@@ -198,6 +198,11 @@ export const assetsService = {
         responsible_name: input.responsible || null,
         sector_id,
         location_id,
+        cep: input.cep || null,
+        logradouro: input.logradouro || null,
+        bairro: input.bairro || null,
+        cidade: input.cidade || null,
+        uf: input.uf ? input.uf.toUpperCase() : null,
       })
       .select("id")
       .single();
