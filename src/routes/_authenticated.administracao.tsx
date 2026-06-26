@@ -78,7 +78,7 @@ function AdminPage() {
                 <th className="px-4 py-3 text-left font-medium">Usuário</th>
                 <th className="px-4 py-3 text-left font-medium">E-mail</th>
                 <th className="px-4 py-3 text-left font-medium">Perfil</th>
-                <th className="px-4 py-3 text-left font-medium">Ativo</th>
+                <th className="px-4 py-3 text-left font-medium">SITUAÇÃO</th>
                 <th className="px-4 py-3 text-left font-medium">Último acesso</th>
                 <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
