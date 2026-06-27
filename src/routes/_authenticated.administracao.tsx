@@ -1,8 +1,12 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Shield, CheckCircle2, XCircle, UserPlus, Loader2, Pencil } from "lucide-react";
 import { useAuth, roleLabel } from "@/lib/auth";
 import { useManagedUsers, type ManagedUser } from "@/lib/users-service";
+import { setUserStatus } from "@/lib/users-status.functions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { RegisterUserForm } from "@/components/register-user-form";
 import { EditUserRoleDialog } from "@/components/edit-user-role-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 export const Route = createFileRoute("/_authenticated/administracao")({
   head: () => ({ meta: [{ title: "Administração — GestãoTI" }] }),
