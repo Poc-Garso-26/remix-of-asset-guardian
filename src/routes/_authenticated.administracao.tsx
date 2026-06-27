@@ -196,6 +196,26 @@ function AdminPage() {
         open={!!editing}
         onOpenChange={(o) => { if (!o) setEditing(null); }}
       />
+
+      <ConfirmDialog
+        open={!!pendingToggle}
+        onOpenChange={(o) => { if (!o) setPendingToggle(null); }}
+        title="Deseja alterar a situação deste usuário?"
+        description={
+          pendingToggle
+            ? `${pendingToggle.name} passará para "${pendingToggle.status === "Ativo" ? "Inativo" : "Ativo"}".`
+            : ""
+        }
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        onConfirm={() => {
+          if (!pendingToggle) return;
+          const next = pendingToggle.status === "Ativo" ? "Inativo" : "Ativo";
+          const userId = pendingToggle.user_id;
+          setPendingToggle(null);
+          statusMutation.mutate({ userId, status: next });
+        }}
+      />
     </div>
   );
 }
