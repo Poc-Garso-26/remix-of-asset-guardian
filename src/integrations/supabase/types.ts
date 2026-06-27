@@ -372,6 +372,7 @@ export type Database = {
           id: string
           last_login: string | null
           nome: string
+          status: string
           updated_at: string
           user_id: string
           username: string | null
@@ -383,6 +384,7 @@ export type Database = {
           id?: string
           last_login?: string | null
           nome: string
+          status?: string
           updated_at?: string
           user_id: string
           username?: string | null
@@ -394,6 +396,7 @@ export type Database = {
           id?: string
           last_login?: string | null
           nome?: string
+          status?: string
           updated_at?: string
           user_id?: string
           username?: string | null

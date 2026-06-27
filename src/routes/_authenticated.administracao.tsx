@@ -1,8 +1,12 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Shield, CheckCircle2, XCircle, UserPlus, Loader2, Pencil } from "lucide-react";
 import { useAuth, roleLabel } from "@/lib/auth";
 import { useManagedUsers, type ManagedUser } from "@/lib/users-service";
+import { setUserStatus } from "@/lib/users-status.functions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { RegisterUserForm } from "@/components/register-user-form";
 import { EditUserRoleDialog } from "@/components/edit-user-role-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 export const Route = createFileRoute("/_authenticated/administracao")({
   head: () => ({ meta: [{ title: "Administração — GestãoTI" }] }),
@@ -20,10 +25,26 @@ export const Route = createFileRoute("/_authenticated/administracao")({
 });
 
 function AdminPage() {
-  const { can } = useAuth();
+  const { can, session } = useAuth();
   const { data: users = [], isLoading } = useManagedUsers();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedUser | null>(null);
+  const [pendingToggle, setPendingToggle] = useState<ManagedUser | null>(null);
+  const queryClient = useQueryClient();
+  const setUserStatusFn = useServerFn(setUserStatus);
+  const isAdmin = session?.user.role === "admin";
+  const statusMutation = useMutation({
+    mutationFn: (vars: { userId: string; status: "Ativo" | "Inativo" }) =>
+      setUserStatusFn({ data: vars }),
+    onSuccess: () => {
+      toast.success("Situação do usuário atualizada com sucesso.");
+      queryClient.invalidateQueries({ queryKey: ["managed-users"] });
+    },
+    onError: (err: unknown) => {
+      const msg = err instanceof Error ? err.message : "";
+      toast.error(msg || "Não foi possível atualizar a situação do usuário.");
+    },
+  });
   if (!can("user.manage")) return <Navigate to="/dashboard" replace />;
 
   return (
@@ -95,15 +116,30 @@ function AdminPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {u.active ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-success">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <XCircle className="h-3.5 w-3.5" /> Inativo
-                      </span>
-                    )}
+                    {(() => {
+                      const content = u.status === "Ativo" ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-success">
+                          <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <XCircle className="h-3.5 w-3.5" /> Inativo
+                        </span>
+                      );
+                      if (!isAdmin) return content;
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => setPendingToggle(u)}
+                          disabled={statusMutation.isPending}
+                          className="cursor-pointer bg-transparent p-0 border-0 disabled:opacity-60"
+                          aria-label={`Alterar situação de ${u.name}`}
+                          title="Clique para alternar a situação"
+                        >
+                          {content}
+                        </button>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground tabular-nums">
                     {u.lastLogin ? new Date(u.lastLogin).toLocaleString("pt-BR") : "—"}
@@ -159,6 +195,26 @@ function AdminPage() {
         user={editing}
         open={!!editing}
         onOpenChange={(o) => { if (!o) setEditing(null); }}
+      />
+
+      <ConfirmDialog
+        open={!!pendingToggle}
+        onOpenChange={(o) => { if (!o) setPendingToggle(null); }}
+        title="Deseja alterar a situação deste usuário?"
+        description={
+          pendingToggle
+            ? `${pendingToggle.name} passará para "${pendingToggle.status === "Ativo" ? "Inativo" : "Ativo"}".`
+            : ""
+        }
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        onConfirm={() => {
+          if (!pendingToggle) return;
+          const next = pendingToggle.status === "Ativo" ? "Inativo" : "Ativo";
+          const userId = pendingToggle.user_id;
+          setPendingToggle(null);
+          statusMutation.mutate({ userId, status: next });
+        }}
       />
     </div>
   );

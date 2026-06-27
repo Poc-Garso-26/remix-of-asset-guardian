@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Role } from "./auth";
 
+export type UserStatus = "Ativo" | "Inativo";
+
 export interface ManagedUser {
   id: string;
   user_id: string;
@@ -14,6 +16,7 @@ export interface ManagedUser {
   username: string;
   role: Role;
   active: boolean;
+  status: UserStatus;
   lastLogin: string;
 }
 
@@ -21,7 +24,7 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
   const [{ data: profiles, error: pErr }, { data: roles, error: rErr }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, user_id, nome, email, username, active, last_login, created_at")
+      .select("id, user_id, nome, email, username, active, status, last_login, created_at")
       .order("created_at", { ascending: false }),
     supabase.from("user_roles").select("user_id, role"),
   ]);
@@ -37,16 +40,27 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
     if (!current || rank[role] > rank[current]) roleByUser.set(r.user_id, role);
   }
 
-  return (profiles ?? []).map((p) => ({
-    id: p.id,
-    user_id: p.user_id,
-    name: p.nome,
-    email: p.email,
-    username: p.username ?? "",
-    role: roleByUser.get(p.user_id) ?? "usuario",
-    active: p.active ?? true,
-    lastLogin: p.last_login ?? p.created_at,
-  }));
+  return (profiles ?? []).map((p) => {
+    const active = p.active ?? true;
+    const rawStatus = (p as { status?: string }).status;
+    const status: UserStatus =
+      rawStatus === "Inativo" || rawStatus === "Ativo"
+        ? (rawStatus as UserStatus)
+        : active
+          ? "Ativo"
+          : "Inativo";
+    return {
+      id: p.id,
+      user_id: p.user_id,
+      name: p.nome,
+      email: p.email,
+      username: p.username ?? "",
+      role: roleByUser.get(p.user_id) ?? "usuario",
+      active,
+      status,
+      lastLogin: p.last_login ?? p.created_at,
+    };
+  });
 }
 
 export function useManagedUsers() {
