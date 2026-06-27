@@ -1,82 +1,63 @@
-# Plano: README.md técnico completo (pt-BR)
-
 ## Objetivo
-Criar um `README.md` na raiz do projeto que permita a qualquer pessoa desenvolvedora executar, entender, manter e implantar a aplicação **GestãoTI — Sistema de Gestão de Ativos de TI** sem conhecimento prévio.
 
-## Levantamento prévio (leitura, sem alterações)
-Antes de escrever, lerei:
-- `package.json`, `bunfig.toml`, `tsconfig.json`, `vite.config.ts`, `eslint.config.js`, `components.json`
-- `src/router.tsx`, `src/server.ts`, `src/start.ts`, `src/styles.css`
-- `src/routes/__root.tsx` e a lista de rotas em `src/routes/`
-- `src/lib/` (auth, services, server functions: `users-admin.functions.ts`, `assets-service.ts`, `pdf-export.ts`)
-- `src/integrations/supabase/*` (client, client.server, auth-middleware, auth-attacher, types)
-- `supabase/config.toml`, `supabase/functions/generate-asset-qrcode/index.ts`, migrações em `supabase/migrations/`
-- `.env` (apenas variáveis públicas / nomes)
-- `AGENTS.md`, `.lovable/project.json`
+Permitir que Administradores alternem o status (Ativo/Inativo) de um usuário clicando no texto da coluna "SITUAÇÃO" em `/_authenticated/administracao`, sem qualquer mudança de layout, CSS, ordem de colunas, filtros, paginação ou demais fluxos.
 
-Para extrair: scripts npm reais, dependências/versões, rotas, tabelas (`profiles`, `user_roles`, `app_role`, `assets`), buckets (`asset-qrcodes`), funções RPC (`has_role`, `handle_new_user`, `count_active_admins`), e a edge function existente.
+## Mudanças no banco (migração Supabase)
 
-## Estrutura do README.md
+1. Adicionar coluna `status text not null default 'Ativo'` em `public.profiles`.
+2. Backfill a partir do booleano existente `active`:
+   - `UPDATE public.profiles SET status = CASE WHEN COALESCE(active, true) THEN 'Ativo' ELSE 'Inativo' END;`
+3. Constraint: `CHECK (status IN ('Ativo','Inativo'))`.
+4. Trigger `BEFORE INSERT OR UPDATE` que mantém `active` sincronizado com `status` (`active = (status = 'Ativo')`) — preserva todo código atual que lê `active` (ex.: `count_active_admins`, `users-service`, badge "Ativo/Inativo" da própria tela).
+5. Atualizar `handle_new_user` para também gravar `status = 'Ativo'` (compatível com o default).
+6. Não alterar RLS de SELECT. Política de UPDATE já existente em `profiles` é restrita; o toggle será feito via server function com `supabaseAdmin` após verificação de papel — bloqueando qualquer tentativa direta de cliente sem permissão.
 
-1. **Cabeçalho** — nome, descrição curta, badges de stack (React 19, TanStack Start, Vite 7, Tailwind v4, Supabase, Bun).
-2. **Visão geral** — propósito (gestão de computadores, notebooks, impressoras), papéis (admin/gerente/usuario), principais funcionalidades (CRUD de ativos, QR code, relatórios PDF, administração de usuários).
-3. **Arquitetura**
-   - Diagrama ASCII: Browser → TanStack Router (SSR via Cloudflare Workers/Nitro) → Server Functions (`createServerFn`) → Supabase (Auth, Postgres, Storage, Edge Functions).
-   - Camadas: rotas em `src/routes` (roteamento file-based), `_authenticated` como gate, server functions em `*.functions.ts`, clients Supabase (browser, server publishable, admin via `client.server.ts`).
-4. **Stack & dependências principais** — tabela com versões reais extraídas do `package.json`.
-5. **Estrutura de pastas** — árvore comentada do `src/`, `supabase/`, `.lovable/`.
-6. **Pré-requisitos** — Bun ≥ 1.x, Node 20+ (opcional), conta Supabase (ou usar projeto já vinculado), Docker (opcional).
-7. **Variáveis de ambiente**
-   - Tabela com `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SB_URL`, `SB_SERVICE_ROLE_KEY`, `LOVABLE_API_KEY`.
-   - Distinção client (`VITE_*`) vs server-only.
-   - Exemplo `.env.example` pronto para copiar.
-8. **Execução local**
-   ```bash
-   bun install
-   bun run dev        # http://localhost:8080
-   ```
-   Mais: `bun run build`, `bun run build:dev`, `bun run start`, `bun run lint`, `bun run preview` (conforme `package.json`).
-9. **Integração Supabase**
-   - Projeto ref `gkieaxljrlocsuythjqw`.
-   - Esquema: tabelas `profiles`, `user_roles`, `assets` (campos derivados de `types.ts`); enum `app_role`.
-   - Funções: `has_role`, `handle_new_user` (trigger em `auth.users`), `count_active_admins`, `update_updated_at_column`.
-   - RLS por `auth.uid()` + `has_role`.
-   - Bucket `asset-qrcodes` (privado) e edge function `generate-asset-qrcode`.
-   - Como rodar migrações (`supabase db push` ou via dashboard) e regenerar types (`supabase gen types`).
-10. **Server functions & auth** — explicação de `requireSupabaseAuth`, `attachSupabaseAuth`, fluxo do bearer token, e por que `client.server.ts` só é importado dentro de handlers.
-11. **Scripts disponíveis** — tabela extraída do `package.json`.
-12. **Build & deploy**
-    - Build padrão (Cloudflare Workers via Nitro embutido).
-    - Publicação via Lovable (botão Publish, URL `*.lovable.app`).
-    - Notas sobre deploy manual (self-host) referenciando docs.
-13. **Execução via Docker**
-    - Criar `Dockerfile` multi-stage (Bun base, build → runtime `node:20-alpine` servindo `.output/server/index.mjs` em `:8080`).
-    - Exemplo pronto a colar (mostrado dentro do README como bloco, sem criar o arquivo nesta etapa).
-    - Comandos: `docker build -t gestaoti . && docker run -p 8080:8080 --env-file .env gestaoti`.
-14. **Execução via Docker Compose**
-    - `docker-compose.yml` com serviço `app` (porta 8080, `env_file: .env`, healthcheck em `/`).
-    - Comandos: `docker compose up --build`, `docker compose logs -f app`, `docker compose down`.
-15. **Troubleshooting** — itens reais já enfrentados:
-    - `Unauthorized: No authorization header` → middleware `attachSupabaseAuth` ausente em `src/start.ts`.
-    - `Expected 3 parts in JWT; got 1` → uso indevido de `supabaseAdmin` para Data API pública.
-    - Build falhando em loader protegido em rota pública → mover rota para `_authenticated/`.
-    - 404 em refresh → conferir arquivo em `src/routes/`.
-    - Erros de SSR em libs browser-only → mover import para handler/client-only.
-    - Vulnerabilidade `js-yaml` já mitigada (4.2.0 via lockfile).
-16. **Segurança**
-    - RLS habilitado em todas as tabelas `public.*`.
-    - Papéis em tabela separada `user_roles` + função `SECURITY DEFINER` `has_role` (sem escalonamento).
-    - Service role nunca exposto ao bundle do cliente.
-    - Chave anon pública é segura no front; segredos via `add_secret` (não em `.env` versionado).
-    - `dependency_scan` recomendado periodicamente (`bun audit` / npm audit).
-17. **Convenções de código** — Prettier, ESLint, Tailwind v4 com tokens em `src/styles.css`, shadcn `new-york`.
-18. **Licença / créditos** — placeholder.
+## Server function (backend)
 
-## Detalhes técnicos relevantes
-- O README ficará 100% em pt-BR.
-- Todos os comandos serão prontos para colar (bash).
-- Blocos Dockerfile / docker-compose serão **conteúdo do README**, não arquivos novos — o usuário pediu para *documentar* a execução via Docker; criação dos arquivos pode ser feita em iteração posterior se desejado.
-- Não modificarei nenhum outro arquivo do projeto.
+Novo arquivo `src/lib/users-status.functions.ts`:
 
-## Entregável
-Um único arquivo: `README.md` na raiz, substituindo o existente (se houver) sem perder marcações já presentes que façam sentido.
+- `setUserStatus` com `createServerFn({ method: "POST" })`
+- `.middleware([requireSupabaseAuth])`
+- `inputValidator` com `z.object({ userId: z.string().uuid(), status: z.enum(["Ativo","Inativo"]) })`
+- Handler:
+  1. `ensureAdmin` via `context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" })` — espelhando o padrão de `users-admin.functions.ts`.
+  2. Proteção do último administrador ativo: se alvo é admin e novo status é `Inativo`, validar com `count_active_admins` (>1) antes de inativar.
+  3. `await import("@/integrations/supabase/client.server")` e `supabaseAdmin.from("profiles").update({ status }).eq("user_id", userId)`.
+  4. Retornar `{ ok: true, status }`.
+
+Segurança: usuários sem perfil admin recebem erro do middleware (sem sessão) ou do `ensureAdmin` (sem permissão) — bloqueando chamadas diretas via navegador/API.
+
+## Camada de serviço (frontend)
+
+`src/lib/users-service.ts`:
+
+- Adicionar `status: "Ativo" | "Inativo"` em `ManagedUser`.
+- Selecionar `status` no `select(...)` e mapear (`status: p.status ?? (p.active ? "Ativo" : "Inativo")`).
+- Manter `active` no tipo para não quebrar o restante da tela.
+
+## UI — `_authenticated.administracao.tsx`
+
+Mudança cirúrgica apenas no conteúdo da célula da coluna SITUAÇÃO. Sem alterar classes, ícones, cores, ordem, header, filtros, paginação ou outros elementos.
+
+- Importar `useAuth`, `useServerFn`, `useQueryClient`, `toast` (sonner), `ConfirmDialog`, `setUserStatus`.
+- Determinar `isAdmin = can("user.manage")` (já calculado para acesso à página).
+- Estado local: `const [pendingToggle, setPendingToggle] = useState<ManagedUser | null>(null)` e `const [updatingId, setUpdatingId] = useState<string | null>(null)`.
+- Substituir o conteúdo atual da `<td>` (que renderiza `Ativo`/`Inativo` com ícone) por:
+  - Mesmo markup visual atual.
+  - Quando `isAdmin`: envolver em `<button type="button" className="...">` com classes que **preservem o estilo atual** (`inline-flex items-center gap-1 text-xs ...`), sem alterar tamanho/cor — apenas adicionar `cursor-pointer` e `disabled:opacity-60`. `onClick` abre o `ConfirmDialog` com `pendingToggle = u`.
+  - Quando não admin: manter exatamente o `<span>` atual (somente leitura).
+- Adicionar `<ConfirmDialog>` (já existe em `src/components/confirm-dialog.tsx`) com:
+  - Título: "Deseja alterar a situação deste usuário?"
+  - Confirmar / Cancelar
+  - `onConfirm`: chamar `setUserStatus({ data: { userId, status: novo } })`, em sucesso `toast.success("Situação do usuário atualizada com sucesso.")` + `queryClient.invalidateQueries({ queryKey: ["managed-users"] })`; em erro `toast.error("Não foi possível atualizar a situação do usuário.")`.
+
+Nada mais é alterado.
+
+## Critérios de aceite
+
+- Layout, CSS, ordem de colunas, badge visual de Ativo/Inativo, filtros, paginação e fluxo de edição de papel permanecem idênticos.
+- Admin: clique no texto "Ativo"/"Inativo" abre confirmação; ao confirmar, status alterna, lista atualiza sem reload, toast de sucesso.
+- Não-admin: texto continua somente leitura, sem cursor pointer, sem ação.
+- Tentativa direta via API por não-admin é rejeitada pelo `ensureAdmin`.
+- Último admin ativo não pode ser inativado (mensagem clara).
+- Coluna `status` existe em `profiles` com CHECK e default 'Ativo', sincronizada com `active` via trigger.
