@@ -116,15 +116,30 @@ function AdminPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {u.active ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-success">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <XCircle className="h-3.5 w-3.5" /> Inativo
-                      </span>
-                    )}
+                    {(() => {
+                      const content = u.status === "Ativo" ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-success">
+                          <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <XCircle className="h-3.5 w-3.5" /> Inativo
+                        </span>
+                      );
+                      if (!isAdmin) return content;
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => setPendingToggle(u)}
+                          disabled={statusMutation.isPending}
+                          className="cursor-pointer bg-transparent p-0 border-0 disabled:opacity-60"
+                          aria-label={`Alterar situação de ${u.name}`}
+                          title="Clique para alternar a situação"
+                        >
+                          {content}
+                        </button>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground tabular-nums">
                     {u.lastLogin ? new Date(u.lastLogin).toLocaleString("pt-BR") : "—"}
