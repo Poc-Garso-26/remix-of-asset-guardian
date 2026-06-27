@@ -55,6 +55,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Verifica se o usuário possui papel admin ou gerente
+    const { data: isAdmin } = await authClient.rpc("has_role", {
+      _user_id: userData.user.id,
+      _role: "admin",
+    });
+    const { data: isGerente } = await authClient.rpc("has_role", {
+      _user_id: userData.user.id,
+      _role: "gerente",
+    });
+    if (!isAdmin && !isGerente) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const body = (await req.json().catch(() => ({}))) as { assetId?: string };
     const assetId = body.assetId;
     if (!assetId) {
