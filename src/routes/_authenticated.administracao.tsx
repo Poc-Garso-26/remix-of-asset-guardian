@@ -122,7 +122,7 @@ function AdminPage() {
                           <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 text-xs text-destructive">
                           <XCircle className="h-3.5 w-3.5" /> Inativo
                         </span>
                       );
