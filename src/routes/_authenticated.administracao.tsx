@@ -25,10 +25,26 @@ export const Route = createFileRoute("/_authenticated/administracao")({
 });
 
 function AdminPage() {
-  const { can } = useAuth();
+  const { can, session } = useAuth();
   const { data: users = [], isLoading } = useManagedUsers();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedUser | null>(null);
+  const [pendingToggle, setPendingToggle] = useState<ManagedUser | null>(null);
+  const queryClient = useQueryClient();
+  const setUserStatusFn = useServerFn(setUserStatus);
+  const isAdmin = session?.user.role === "admin";
+  const statusMutation = useMutation({
+    mutationFn: (vars: { userId: string; status: "Ativo" | "Inativo" }) =>
+      setUserStatusFn({ data: vars }),
+    onSuccess: () => {
+      toast.success("Situação do usuário atualizada com sucesso.");
+      queryClient.invalidateQueries({ queryKey: ["managed-users"] });
+    },
+    onError: (err: unknown) => {
+      const msg = err instanceof Error ? err.message : "";
+      toast.error(msg || "Não foi possível atualizar a situação do usuário.");
+    },
+  });
   if (!can("user.manage")) return <Navigate to="/dashboard" replace />;
 
   return (
