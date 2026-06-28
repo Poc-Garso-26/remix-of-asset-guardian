@@ -20,12 +20,39 @@ export interface ManagedUser {
   lastLogin: string;
 }
 
-export async function listManagedUsers(): Promise<ManagedUser[]> {
+export interface ManagedUsersFilters {
+  q?: string;
+  nome?: string;
+  username?: string;
+  email?: string;
+  role?: "all" | Role;
+  status?: "all" | UserStatus;
+}
+
+function escapeIlike(value: string): string {
+  // Escape commas/parens that would break PostgREST .or() syntax.
+  return value.replace(/([,()])/g, "\\$1");
+}
+
+export async function listManagedUsers(filters: ManagedUsersFilters = {}): Promise<ManagedUser[]> {
+  let query = supabase
+    .from("profiles")
+    .select("id, user_id, nome, email, username, active, status, last_login, created_at")
+    .order("created_at", { ascending: false });
+
+  if (filters.nome?.trim()) query = query.ilike("nome", `%${filters.nome.trim()}%`);
+  if (filters.username?.trim()) query = query.ilike("username", `%${filters.username.trim()}%`);
+  if (filters.email?.trim()) query = query.ilike("email", `%${filters.email.trim()}%`);
+  if (filters.q?.trim()) {
+    const q = escapeIlike(filters.q.trim());
+    query = query.or(`nome.ilike.%${q}%,username.ilike.%${q}%,email.ilike.%${q}%`);
+  }
+  if (filters.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+
   const [{ data: profiles, error: pErr }, { data: roles, error: rErr }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, user_id, nome, email, username, active, status, last_login, created_at")
-      .order("created_at", { ascending: false }),
+    query,
     supabase.from("user_roles").select("user_id, role"),
   ]);
   if (pErr) throw pErr;
@@ -35,12 +62,11 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
   for (const r of roles ?? []) {
     const role = r.role as Role;
     const current = roleByUser.get(r.user_id);
-    // Hierarchy: admin > gerente > usuario
     const rank: Record<Role, number> = { admin: 3, gerente: 2, usuario: 1 };
     if (!current || rank[role] > rank[current]) roleByUser.set(r.user_id, role);
   }
 
-  return (profiles ?? []).map((p) => {
+  const mapped = (profiles ?? []).map((p) => {
     const active = p.active ?? true;
     const rawStatus = (p as { status?: string }).status;
     const status: UserStatus =
@@ -61,8 +87,16 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
       lastLogin: p.last_login ?? p.created_at,
     };
   });
+
+  if (filters.role && filters.role !== "all") {
+    return mapped.filter((u) => u.role === filters.role);
+  }
+  return mapped;
 }
 
-export function useManagedUsers() {
-  return useQuery({ queryKey: ["managed-users"], queryFn: listManagedUsers });
+export function useManagedUsers(filters: ManagedUsersFilters = {}) {
+  return useQuery({
+    queryKey: ["managed-users", filters],
+    queryFn: () => listManagedUsers(filters),
+  });
 }
