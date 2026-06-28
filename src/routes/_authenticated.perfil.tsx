@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { useAuth, roleLabel } from "@/lib/auth";
+import { useCurrentUserStatus } from "@/lib/users-service";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({ meta: [{ title: "Perfil — GestãoTI" }] }),
@@ -8,6 +10,7 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 
 function PerfilPage() {
   const { session, logout } = useAuth();
+  const { data: status } = useCurrentUserStatus(session?.user.id);
   if (!session) return null;
   const u = session.user;
 
@@ -40,6 +43,22 @@ function PerfilPage() {
           <div>
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">ID</dt>
             <dd className="mt-1 font-mono text-sm">{u.id}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-wider text-muted-foreground">Situação</dt>
+            <dd className="mt-1">
+              {status === "Ativo" ? (
+                <span className="inline-flex items-center gap-1 text-xs text-success">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
+                </span>
+              ) : status === "Inativo" ? (
+                <span className="inline-flex items-center gap-1 text-xs text-destructive">
+                  <XCircle className="h-3.5 w-3.5" /> Inativo
+                </span>
+              ) : (
+                <span className="text-sm text-muted-foreground">—</span>
+              )}
+            </dd>
           </div>
         </dl>
 
