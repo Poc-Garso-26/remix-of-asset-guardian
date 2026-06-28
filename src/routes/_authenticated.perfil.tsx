@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { useAuth, roleLabel } from "@/lib/auth";
+import { useCurrentUserStatus } from "@/lib/users-service";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({ meta: [{ title: "Perfil — GestãoTI" }] }),
