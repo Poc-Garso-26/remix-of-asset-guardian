@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 
 function PerfilPage() {
   const { session, logout } = useAuth();
+  const { data: status } = useCurrentUserStatus(session?.user.id);
   if (!session) return null;
   const u = session.user;
 
