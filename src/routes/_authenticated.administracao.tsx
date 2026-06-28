@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/administracao")({
 function AdminPage() {
   const { can, session } = useAuth();
   const [quickQ, setQuickQ] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "usuario">("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "gerente" | "usuario">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "Ativo" | "Inativo">("all");
   const [showFilters, setShowFilters] = useState(false);
   const [advFilters, setAdvFilters] = useState<{ nome?: string; username?: string; email?: string }>({});
