@@ -100,3 +100,26 @@ export function useManagedUsers(filters: ManagedUsersFilters = {}) {
     queryFn: () => listManagedUsers(filters),
   });
 }
+
+export async function getUserStatus(userId: string): Promise<UserStatus | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("status, active")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const rawStatus = (data as { status?: string }).status;
+  if (rawStatus === "Ativo" || rawStatus === "Inativo") return rawStatus;
+  const active = (data as { active?: boolean }).active;
+  if (typeof active === "boolean") return active ? "Ativo" : "Inativo";
+  return null;
+}
+
+export function useCurrentUserStatus(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["profile-status", userId],
+    queryFn: () => getUserStatus(userId!),
+    enabled: !!userId,
+  });
+}
