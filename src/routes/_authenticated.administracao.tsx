@@ -114,11 +114,12 @@ function AdminPage() {
 
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as "all" | "admin" | "usuario")}
+            onChange={(e) => setRoleFilter(e.target.value as "all" | "admin" | "gerente" | "usuario")}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="all">Todos os perfis</option>
             <option value="admin">Administrador</option>
+            <option value="gerente">Gerente</option>
             <option value="usuario">Usuário</option>
           </select>
 
