@@ -27,7 +27,20 @@ export const Route = createFileRoute("/_authenticated/administracao")({
 
 function AdminPage() {
   const { can, session } = useAuth();
-  const { data: users = [], isLoading } = useManagedUsers();
+  const [quickQ, setQuickQ] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "usuario">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "Ativo" | "Inativo">("all");
+  const [showFilters, setShowFilters] = useState(false);
+  const [advFilters, setAdvFilters] = useState<{ nome?: string; username?: string; email?: string }>({});
+  const queryFilters = {
+    q: quickQ || undefined,
+    nome: advFilters.nome || undefined,
+    username: advFilters.username || undefined,
+    email: advFilters.email || undefined,
+    role: roleFilter,
+    status: statusFilter,
+  };
+  const { data: users = [], isLoading } = useManagedUsers(queryFilters);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedUser | null>(null);
   const [pendingToggle, setPendingToggle] = useState<ManagedUser | null>(null);
