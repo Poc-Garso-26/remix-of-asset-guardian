@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/administracao")({
 function AdminPage() {
   const { can, session } = useAuth();
   const [quickQ, setQuickQ] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "usuario">("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "gerente" | "usuario">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "Ativo" | "Inativo">("all");
   const [showFilters, setShowFilters] = useState(false);
   const [advFilters, setAdvFilters] = useState<{ nome?: string; username?: string; email?: string }>({});
@@ -114,11 +114,12 @@ function AdminPage() {
 
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as "all" | "admin" | "usuario")}
+            onChange={(e) => setRoleFilter(e.target.value as "all" | "admin" | "gerente" | "usuario")}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="all">Todos os perfis</option>
             <option value="admin">Administrador</option>
+            <option value="gerente">Gerente</option>
             <option value="usuario">Usuário</option>
           </select>
 
