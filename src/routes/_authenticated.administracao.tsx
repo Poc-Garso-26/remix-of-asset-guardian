@@ -99,6 +99,79 @@ function AdminPage() {
         <Stat label="Usuários" value={users.filter((u) => u.role === "usuario").length} />
       </section>
 
+      {/* Toolbar */}
+      <div className="rounded-xl border border-border bg-card p-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              placeholder="Pesquisa rápida por nome, usuário ou e-mail…"
+              value={quickQ}
+              onChange={(e) => setQuickQ(e.target.value)}
+              className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            />
+          </div>
+
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value as "all" | "admin" | "usuario")}
+            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="all">Todos os perfis</option>
+            <option value="admin">Administrador</option>
+            <option value="usuario">Usuário</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as "all" | "Ativo" | "Inativo")}
+            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="all">Todas as situações</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+
+          <button
+            onClick={() => setShowFilters((s) => !s)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium",
+              showFilters ? "bg-accent text-accent-foreground" : "bg-card hover:bg-accent",
+            )}
+          >
+            <Filter className="h-4 w-4" /> Filtros avançados
+          </button>
+        </div>
+
+        {showFilters && (
+          <div className="mt-4 grid grid-cols-1 gap-3 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-4">
+            <FilterInput label="Nome" value={advFilters.nome} onChange={(v) => setAdvFilters((f) => ({ ...f, nome: v }))} />
+            <FilterInput label="Usuário" value={advFilters.username} onChange={(v) => setAdvFilters((f) => ({ ...f, username: v }))} />
+            <FilterInput label="E-mail" value={advFilters.email} onChange={(v) => setAdvFilters((f) => ({ ...f, email: v }))} />
+
+            <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
+              <button
+                onClick={() => {
+                  setAdvFilters({});
+                  setQuickQ("");
+                  setRoleFilter("all");
+                  setStatusFilter("all");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent"
+              >
+                <X className="h-4 w-4" /> Limpar filtros
+              </button>
+              <button
+                onClick={() => { /* busca é reativa */ }}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                <Search className="h-4 w-4" /> Pesquisar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <section className="overflow-hidden rounded-xl border border-border bg-card">
         <header className="flex items-center justify-between border-b border-border px-5 py-3">
           <h2 className="text-sm font-semibold">Usuários</h2>
