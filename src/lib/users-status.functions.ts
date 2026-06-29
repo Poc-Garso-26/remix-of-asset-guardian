@@ -47,5 +47,17 @@ export const setUserStatus = createServerFn({ method: "POST" })
       .eq("user_id", data.userId);
     if (error) throw new Error("Não foi possível atualizar a situação do usuário.");
 
+    // Revogar/restaurar sessão no Supabase Auth para que tokens em uso
+    // não permitam acesso após inativação, e que reativados possam logar.
+    // ban_duration: "876000h" ≈ 100 anos (efetivamente permanente até reativar)
+    const { error: banErr } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      ban_duration: data.status === "Inativo" ? "876000h" : "none",
+    });
+    if (banErr) {
+      console.error("[users-status] falha ao atualizar ban_duration", banErr);
+      throw new Error("Situação atualizada, mas falha ao revogar/restaurar sessão.");
+    }
+
     return { ok: true, status: data.status };
+
   });

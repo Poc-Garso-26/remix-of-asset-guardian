@@ -1,6 +1,11 @@
 // Edge Function: generate-asset-qrcode
 // Gera QR Code para um ativo, salva no bucket asset-qrcodes e atualiza a tabela.
+// QR Code é gerado localmente (sem chamadas a APIs externas) para evitar
+// vazamento de identificadores internos do inventário.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import QRCode from "https://esm.sh/qrcode@1.5.4";
+
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -111,17 +116,26 @@ Deno.serve(async (req) => {
       assetCode: asset.patrimony,
       serialNumber: asset.serial_number,
     });
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payload)}`;
 
-    const qrResp = await fetch(qrUrl);
-    if (!qrResp.ok) {
-      console.error("[qrcode] falha ao gerar QR", { status: qrResp.status });
+    // Geração local do QR Code (sem chamadas externas) para evitar
+    // vazamento de identificadores internos a serviços terceiros.
+    let imageBytes: Uint8Array;
+    try {
+      const dataUrl: string = await QRCode.toDataURL(payload, {
+        width: 300,
+        margin: 1,
+        errorCorrectionLevel: "M",
+      });
+      const base64 = dataUrl.split(",")[1] ?? "";
+      imageBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    } catch (qrErr) {
+      console.error("[qrcode] falha ao gerar QR", qrErr);
       return new Response(JSON.stringify({ error: "Falha ao gerar QR Code" }), {
-        status: 502,
+        status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const imageBytes = new Uint8Array(await qrResp.arrayBuffer());
+
 
     const filePath = `${asset.id}.png`;
     const { error: uploadErr } = await admin.storage
