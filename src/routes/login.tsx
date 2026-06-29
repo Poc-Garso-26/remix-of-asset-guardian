@@ -22,7 +22,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [registerOpen, setRegisterOpen] = useState(false);
+  
 
 
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
