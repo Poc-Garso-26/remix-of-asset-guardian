@@ -67,6 +67,7 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
   const isSelf = session?.user.id === user.user_id;
   const isDemotingSelfAdmin = isSelf && user.role === "admin" && selected !== "admin";
   const changed = selected !== user.role;
+  const isInactive = user.status === "Inativo";
 
   return (
     <>
