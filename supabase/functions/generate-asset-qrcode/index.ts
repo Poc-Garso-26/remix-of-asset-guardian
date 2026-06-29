@@ -1,6 +1,10 @@
 // Edge Function: generate-asset-qrcode
 // Gera QR Code para um ativo, salva no bucket asset-qrcodes e atualiza a tabela.
+// QR Code é gerado localmente (sem chamadas a APIs externas) para evitar
+// vazamento de identificadores internos do inventário.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
