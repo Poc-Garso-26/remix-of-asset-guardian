@@ -2,16 +2,9 @@ import { createFileRoute, useNavigate, Navigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Boxes, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { RegisterUserForm } from "@/components/register-user-form";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ThemeToggle } from "@/components/theme-toggle";
+
 
 
 
