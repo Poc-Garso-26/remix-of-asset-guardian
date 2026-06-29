@@ -70,7 +70,20 @@ export const setUserRole = createServerFn({ method: "POST" })
     await ensureAdmin(context.supabase as never, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Determine previous role (highest in hierarchy)
+    // Bloquear alteração de perfil de usuários inativos
+    const { data: targetProfile, error: profErr } = await supabaseAdmin
+      .from("profiles")
+      .select("status, active")
+      .eq("user_id", data.userId)
+      .maybeSingle();
+    if (profErr) throw new Error("Falha ao consultar situação do usuário.");
+    const rawStatus = (targetProfile as { status?: string } | null)?.status;
+    const isInactive =
+      rawStatus === "Inativo" ||
+      (rawStatus !== "Ativo" && (targetProfile as { active?: boolean } | null)?.active === false);
+    if (isInactive) {
+      throw new Error("Não é possível alterar o perfil de um usuário inativo.");
+    }
     const { data: existingRoles, error: rolesErr } = await supabaseAdmin
       .from("user_roles")
       .select("role")
