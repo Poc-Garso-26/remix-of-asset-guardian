@@ -135,44 +135,17 @@ function LoginPage() {
               Entrar
             </button>
 
-            <button
-              type="button"
-              onClick={() => setRegisterOpen(true)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted"
-            >
-              Cadastrar usuário
-            </button>
           </form>
-
-          <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Cadastrar usuário</DialogTitle>
-                <DialogDescription>
-                  Preencha os dados para criar uma conta com perfil de usuário.
-                </DialogDescription>
-              </DialogHeader>
-              <RegisterUserForm
-                key={registerOpen ? "open" : "closed"}
-                allowRoleSelection={false}
-                onCancel={() => setRegisterOpen(false)}
-                onSuccess={(u) => {
-                  setRegisterOpen(false);
-                  setEmail(u.email);
-                  setPassword("");
-                  setTimeout(() => document.getElementById("password")?.focus(), 0);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
 
 
           <div className="mt-8 rounded-lg border border-dashed border-border bg-muted/40 p-4 text-xs text-muted-foreground">
             <p className="font-medium text-foreground">Primeiro acesso?</p>
             <p className="mt-1">
-              Cadastre-se com seu e-mail. O primeiro usuário criado recebe automaticamente o perfil de Administrador.
+              O cadastro de novos usuários é restrito. Solicite a um administrador a
+              criação da sua conta em /administracao.
             </p>
           </div>
+
         </div>
       </div>
     </div>
