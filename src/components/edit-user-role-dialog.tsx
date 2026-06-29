@@ -67,6 +67,7 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
   const isSelf = session?.user.id === user.user_id;
   const isDemotingSelfAdmin = isSelf && user.role === "admin" && selected !== "admin";
   const changed = selected !== user.role;
+  const isInactive = user.status === "Inativo";
 
   return (
     <>
@@ -106,7 +107,11 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
 
             <div className="space-y-1.5">
               <Label htmlFor="edit-role">Novo perfil</Label>
-              <Select value={selected} onValueChange={(v) => setSelected(v as Role)}>
+              <Select
+                value={selected}
+                onValueChange={(v) => setSelected(v as Role)}
+                disabled={isInactive}
+              >
                 <SelectTrigger id="edit-role">
                   <SelectValue />
                 </SelectTrigger>
@@ -118,7 +123,17 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
               </Select>
             </div>
 
-            {isDemotingSelfAdmin && (
+            {isInactive && (
+              <div className="flex items-start gap-2 rounded-md border border-border bg-muted/50 p-3 text-xs text-muted-foreground">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <p>
+                  Não é possível alterar o perfil de um usuário com situação <strong>Inativo</strong>.
+                  Reative o usuário na tela de administração antes de alterar o perfil.
+                </p>
+              </div>
+            )}
+
+            {isDemotingSelfAdmin && !isInactive && (
               <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
@@ -135,7 +150,7 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
             </Button>
             <Button
               onClick={() => setConfirmOpen(true)}
-              disabled={!changed || mutation.isPending}
+              disabled={!changed || mutation.isPending || isInactive}
             >
               {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Salvar alteração
