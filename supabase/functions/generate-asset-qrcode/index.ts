@@ -3,7 +3,8 @@
 // QR Code é gerado localmente (sem chamadas a APIs externas) para evitar
 // vazamento de identificadores internos do inventário.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
+import QRCode from "https://esm.sh/qrcode@1.5.4";
+
 
 
 const corsHeaders = {
