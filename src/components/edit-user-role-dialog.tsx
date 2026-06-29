@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -89,6 +89,18 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
                 <span className="inline-flex items-center rounded-full border border-accent bg-accent/40 px-2 py-0.5 text-xs font-medium text-accent-foreground">
                   {roleLabel(user.role)}
                 </span>
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Situação:{" "}
+                {user.status === "Ativo" ? (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
+                    <XCircle className="h-3.5 w-3.5" /> Inativo
+                  </span>
+                )}
               </p>
             </div>
 
