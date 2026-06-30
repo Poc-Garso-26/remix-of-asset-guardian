@@ -363,7 +363,9 @@ const COLUMNS = {
   responsible: "Responsável",
   sector: "Setor",
   status: "Situação",
+  qrCode: "QR Code",
   createdAt: "Cadastro",
+
 } as const;
 
 function FilterInput({
