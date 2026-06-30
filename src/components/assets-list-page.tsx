@@ -232,31 +232,36 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                {Object.entries(COLUMNS).map(([key, label]) => (
-                  <th
-                    key={key}
-                    onClick={() => {
-                      if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-                      else { setSortKey(key as keyof typeof COLUMNS); setSortDir("asc"); }
-                    }}
-                    className="cursor-pointer px-4 py-3 text-left font-medium hover:text-foreground"
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      {label}
-                      {sortKey === key && <span className="text-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
-                    </span>
-                  </th>
-                ))}
+                {Object.entries(COLUMNS).map(([key, label]) => {
+                  const sortable = key !== "qrCode";
+                  return (
+                    <th
+                      key={key}
+                      onClick={() => {
+                        if (!sortable) return;
+                        if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+                        else { setSortKey(key as keyof typeof COLUMNS); setSortDir("asc"); }
+                      }}
+                      className={`px-4 py-3 text-left font-medium ${sortable ? "cursor-pointer hover:text-foreground" : ""}`}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {label}
+                        {sortable && sortKey === key && <span className="text-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
+                      </span>
+                    </th>
+                  );
+                })}
                 <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {isLoading && (
-                <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Carregando…</td></tr>
+                <tr><td colSpan={10} className="px-4 py-12 text-center text-muted-foreground">Carregando…</td></tr>
               )}
               {!isLoading && paged.length === 0 && (
-                <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Nenhum ativo encontrado.</td></tr>
+                <tr><td colSpan={10} className="px-4 py-12 text-center text-muted-foreground">Nenhum ativo encontrado.</td></tr>
               )}
+
               {paged.map((a) => (
                 <tr
                   key={a.id}
