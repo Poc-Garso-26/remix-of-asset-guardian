@@ -1,46 +1,31 @@
-## Objetivo
+## Diagnóstico
 
-Adicionar um filtro "QR Code" no painel de **Filtros avançados** da tela `/ativos`, permitindo restringir a lista de ativos pela presença/ausência do QR Code.
+Verifiquei o estado atual do projeto:
 
-## Comportamento
+- **Dev server Vite**: rodando normal em `:8080`, sem erros.
+- **Typecheck (`tsgo --noEmit`)**: passa sem erros.
+- **Rota `/ativos`**: responde corretamente (HTTP 307 → redireciona para `/auth` quando não autenticado, comportamento esperado pelo gate `_authenticated`).
+- **Logs do Vite**: apenas 3 *warnings* de depreciação — `createServerFn().inputValidator()` deve passar a se chamar `.validator()`. Não são erros, não quebram o build.
 
-Novo campo `select` em Filtros avançados, posicionado logo após "Sistema Operacional", com três opções:
+O aviso anterior **"Preview has not been built yet"** foi transitório: ocorre enquanto o Vite recompila após uma edição (o filtro de QR Code adicionado na rodada anterior). Após a recompilação concluir, a tela volta ao normal — o que já aconteceu. Não há nada quebrado no código.
 
-- **Todos** (padrão, não filtra)
-- **Com QR Code** (apenas ativos com `qrCodeUrl` preenchido)
-- **Sem QR Code** (apenas ativos sem `qrCodeUrl`)
+## Plano
 
-O filtro segue exatamente o mesmo padrão visual dos demais (mesmo label, mesma classe `rounded-md border border-input bg-background...`), respeita o botão "Limpar filtros" e participa do `useQuery` via `combined` (já reativo a `filters`).
+Como não há erro real para corrigir, o escopo é apenas **higiene** para remover os 3 warnings do log e evitar que apareçam como "ruído" em futuras compilações:
 
-## Implementação técnica
+### `src/lib/users-status.functions.ts`
+- Renomear `.inputValidator(` → `.validator(` (1 ocorrência, linha 11).
 
-**`src/lib/assets-service.ts`**
-1. Adicionar `qrCode?: "all" | "with" | "without"` em `AssetFilters`.
-2. Em `matches()`, adicionar:
-   ```ts
-   if (f.qrCode === "with" && !a.qrCodeUrl) return false;
-   if (f.qrCode === "without" && a.qrCodeUrl) return false;
-   ```
+### `src/lib/users-admin.functions.ts`
+- Renomear `.inputValidator(` → `.validator(` (2 ocorrências, linhas 28 e 64).
 
-**`src/components/assets-list-page.tsx`**
-1. Criar um pequeno componente `FilterSelect` análogo a `FilterInput` (mesmo wrapper `<label>` e estilo), ou inline um `<select>` com as mesmas classes.
-2. Adicionar o campo dentro do grid de filtros avançados (após "Sistema Operacional"):
-   ```tsx
-   <FilterSelect
-     label="QR Code"
-     value={filters.qrCode ?? "all"}
-     onChange={(v) => setFilters((f) => ({ ...f, qrCode: v as "all" | "with" | "without" }))}
-     options={[
-       { value: "all", label: "Todos" },
-       { value: "with", label: "Com QR Code" },
-       { value: "without", label: "Sem QR Code" },
-     ]}
-   />
-   ```
-3. O "Limpar filtros" já chama `setFilters({})`, então o reset funciona automaticamente.
+Nenhuma alteração de comportamento, schema, RLS, rotas, UI ou da tela `/ativos`. Apenas substituição do nome do método deprecado pela API atual do TanStack Start.
 
-## Fora do escopo
+### Verificação após aplicar
+1. Aguardar o Vite recompilar.
+2. Conferir que os logs do dev server não exibem mais o warning `inputValidator() is deprecated`.
+3. Abrir `/ativos` no preview e validar que a listagem (incluindo o filtro "QR Code") continua funcional.
 
-- Não altera schema, RLS, edge functions, nem o tipo `Asset`.
-- Não adiciona o filtro à URL (search params) — mantém o mesmo padrão dos outros campos de "Filtros avançados", que vivem apenas em `useState`.
-- Não altera a coluna "QR Code" nem o hover-card já implementados.
+### Fora de escopo
+- Mudanças em `assets-list-page.tsx`, `assets-service.ts`, schema, edge functions, auth ou roteamento.
+- Reinício manual do dev server (não é necessário).
