@@ -200,6 +200,18 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
             <FilterInput label="Responsável" value={filters.responsible} onChange={(v) => setFilters((f) => ({ ...f, responsible: v }))} />
             <FilterInput label="Setor" value={filters.sector} onChange={(v) => setFilters((f) => ({ ...f, sector: v }))} />
             <FilterInput label="Sistema Operacional" value={filters.operatingSystem} onChange={(v) => setFilters((f) => ({ ...f, operatingSystem: v }))} />
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-foreground">QR Code</span>
+              <select
+                value={filters.qrCode ?? "all"}
+                onChange={(e) => setFilters((f) => ({ ...f, qrCode: e.target.value as "all" | "with" | "without" }))}
+                className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              >
+                <option value="all">Todos</option>
+                <option value="with">Com QR Code</option>
+                <option value="without">Sem QR Code</option>
+              </select>
+            </label>
             <FilterInput label="Cadastro de" type="date" value={filters.createdFrom} onChange={(v) => setFilters((f) => ({ ...f, createdFrom: v }))} />
             <FilterInput label="Cadastro até" type="date" value={filters.createdTo} onChange={(v) => setFilters((f) => ({ ...f, createdTo: v }))} />
             <FilterInput label="Aquisição de" type="date" value={filters.acquiredFrom} onChange={(v) => setFilters((f) => ({ ...f, acquiredFrom: v }))} />
