@@ -1,25 +1,47 @@
 ## Objetivo
-Adicionar coluna **"QR Code"** na tabela de `/ativos`, imediatamente após **"Situação"**, exibindo miniatura do QR Code quando disponível (campo `qrCodeUrl` já existente no domínio `Asset`, carregado pela query atual via `assets_service`).
+Ao passar o mouse sobre a miniatura do QR Code na coluna "QR Code" de `/ativos`, exibir uma versão ampliada (mesmo tamanho da tela "Visualizar Ativo": `h-48 w-48` com `p-2`, fundo branco, borda) em um floating card, sem clique.
 
 ## Mudança única
 **`src/components/assets-list-page.tsx`**
 
-1. Inserir entrada `qrCode: "QR Code"` no objeto `COLUMNS` entre `status` e `createdAt` (define ordem do `<thead>` que é gerado por `Object.entries(COLUMNS)`).
+1. Importar `HoverCard`, `HoverCardTrigger`, `HoverCardContent` de `@/components/ui/hover-card` (já existente — Radix-based, lida com posicionamento, colisão de bordas, z-index e fechamento automático ao sair do trigger ou do conteúdo).
 
-2. Tornar a coluna `qrCode` **não-ordenável**: ajustar o `onClick` do `<th>` para ignorar a tecla quando `key === "qrCode"` e remover o cursor-pointer/seta apenas para essa coluna (sem alterar comportamento das demais).
+2. Substituir o `<img>` da célula `qrCode` por:
+   ```tsx
+   <HoverCard openDelay={120} closeDelay={80}>
+     <HoverCardTrigger asChild>
+       <img
+         src={a.qrCodeUrl}
+         alt=""
+         loading="lazy"
+         className="h-10 w-10 rounded-sm border border-border bg-white object-contain"
+         onError={(e) => { e.currentTarget.style.display = "none"; }}
+       />
+     </HoverCardTrigger>
+     <HoverCardContent
+       side="right"
+       align="start"
+       sideOffset={8}
+       collisionPadding={12}
+       className="w-auto p-2"
+     >
+       <img
+         src={a.qrCodeUrl}
+         alt={`QR Code do ativo ${a.patrimony}`}
+         className="h-48 w-48 rounded-md border border-border bg-white p-2"
+       />
+     </HoverCardContent>
+   </HoverCard>
+   ```
+   - Reutiliza a mesma URL já carregada na listagem (sem nova consulta, sem nova geração).
+   - O `HoverCardContent` só monta no DOM quando aberto (lazy via Radix Portal).
+   - O Portal garante z-index acima da tabela e evita deslocamento de linhas/colunas.
+   - `collisionPadding` mantém a imagem totalmente visível e reposiciona automaticamente perto das bordas.
+   - Envolver o `<img>` trigger num wrapper `onClick={(e) => e.stopPropagation()}` (a `<tr>` tem `onClick` de navegação — sem isso, hover + clique acidental abriria a página do ativo).
 
-3. Renderizar a célula `<td>` correspondente em cada linha, posicionada entre a célula de `StatusBadge` (linha 272) e a de `createdAt` (linha 273):
-   - Se `a.qrCodeUrl` truthy → `<img src={a.qrCodeUrl} alt="" loading="lazy" className="h-10 w-10 rounded-sm border border-border object-contain bg-white" onError={(e) => { e.currentTarget.style.display = "none"; }} />`. O `onError` cobre URL inválida, arquivo removido do Storage ou falha de carregamento (célula fica vazia, sem erro visual).
-   - Caso contrário → célula vazia (`<td className="px-4 py-3" />`).
-
-4. Atualizar os `colSpan` dos estados "Carregando…" e "Nenhum ativo encontrado." de `9` para `10` (8 colunas atuais + QR Code + Ações).
-
-5. Ajustar a chave `sortKey` para o tipo gerado por `keyof typeof COLUMNS` (já é) — a função `sorted` não precisa de caso especial: `qrCode` não é selecionável como sort. Garantir typesafety adicionando guarda `if (sortKey === "qrCode") return 0;` no comparator do `sorted`, ou simplesmente não tratando (já cai no `else` retornando 0 por falta de match).
-
-## Origem do QR Code
-- Campo `qr_code_url` em `public.assets`, mapeado para `Asset.qrCodeUrl` em `src/lib/assets-service.ts` (já no `SELECT *` da listagem). **Nenhuma query adicional por linha** — dado já vem no payload atual.
+3. Sem alterações no cabeçalho, ordenação, paginação, filtros, célula vazia para ativos sem QR, ou em qualquer outra coluna.
 
 ## Não alterado
-- Sem mudanças em schema, RLS, edge function `generate-asset-qrcode`, filtros, ordenação das demais colunas, paginação, permissões, ou `Asset`/`assetsService`.
+- Sem mudanças em schema, RLS, serviços, edge function, `Asset`, ou na tela "Visualizar Ativo".
 - Sem novos componentes ou arquivos.
-- Nenhum texto/badge/ícone/placeholder quando ausente — célula totalmente vazia, conforme requisito.
+- Layout da tabela permanece idêntico (miniatura `h-10 w-10`, célula com mesmo padding).

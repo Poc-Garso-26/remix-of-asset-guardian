@@ -12,6 +12,7 @@ import {
   type AssetType,
 } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -275,15 +276,32 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                   <td className="px-4 py-3">{a.responsible}</td>
                   <td className="px-4 py-3 text-muted-foreground">{a.sector}</td>
                   <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     {a.qrCodeUrl ? (
-                      <img
-                        src={a.qrCodeUrl}
-                        alt=""
-                        loading="lazy"
-                        className="h-10 w-10 rounded-sm border border-border bg-white object-contain"
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                      />
+                      <HoverCard openDelay={120} closeDelay={80}>
+                        <HoverCardTrigger asChild>
+                          <img
+                            src={a.qrCodeUrl}
+                            alt=""
+                            loading="lazy"
+                            className="h-10 w-10 rounded-sm border border-border bg-white object-contain"
+                            onError={(e) => { e.currentTarget.style.display = "none"; }}
+                          />
+                        </HoverCardTrigger>
+                        <HoverCardContent
+                          side="right"
+                          align="start"
+                          sideOffset={8}
+                          collisionPadding={12}
+                          className="w-auto p-2"
+                        >
+                          <img
+                            src={a.qrCodeUrl}
+                            alt={`QR Code do ativo ${a.patrimony}`}
+                            className="h-48 w-48 rounded-md border border-border bg-white p-2"
+                          />
+                        </HoverCardContent>
+                      </HoverCard>
                     ) : null}
                   </td>
                   <td className="px-4 py-3 tabular-nums text-muted-foreground">
