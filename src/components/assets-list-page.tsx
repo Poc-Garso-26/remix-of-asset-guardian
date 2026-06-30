@@ -12,6 +12,7 @@ import {
   type AssetType,
 } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
