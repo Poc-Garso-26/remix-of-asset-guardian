@@ -36,7 +36,7 @@ function DashboardPage() {
         </h1>
         <p className="mt-1 text-sm text-foreground/80">
           Você está conectado como <span className="font-medium text-foreground">{roleLabel(session!.user.role)}</span>.
-          Aqui está o panorama do parque de TI.
+          Aqui está o panorama do parque de TI atualizado.
         </p>
       </header>
 
