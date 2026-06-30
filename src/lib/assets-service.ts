@@ -145,6 +145,8 @@ function matches(a: Asset, f: AssetFilters): boolean {
   if (f.createdTo && a.createdAt.slice(0, 10) > f.createdTo) return false;
   if (f.acquiredFrom && (a.acquisitionDate || "") < f.acquiredFrom) return false;
   if (f.acquiredTo && (a.acquisitionDate || "") > f.acquiredTo) return false;
+  if (f.qrCode === "with" && !a.qrCodeUrl) return false;
+  if (f.qrCode === "without" && a.qrCodeUrl) return false;
   if (f.q) {
     const q = f.q.toLowerCase();
     const hay = [
