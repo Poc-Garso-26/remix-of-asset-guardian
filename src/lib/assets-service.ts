@@ -26,6 +26,7 @@ export interface AssetFilters {
   createdTo?: string;
   acquiredFrom?: string;
   acquiredTo?: string;
+  qrCode?: "all" | "with" | "without";
 }
 
 const SELECT =
