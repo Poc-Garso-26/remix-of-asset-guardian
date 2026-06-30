@@ -275,9 +275,21 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                   <td className="px-4 py-3">{a.responsible}</td>
                   <td className="px-4 py-3 text-muted-foreground">{a.sector}</td>
                   <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
+                  <td className="px-4 py-3">
+                    {a.qrCodeUrl ? (
+                      <img
+                        src={a.qrCodeUrl}
+                        alt=""
+                        loading="lazy"
+                        className="h-10 w-10 rounded-sm border border-border bg-white object-contain"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3 tabular-nums text-muted-foreground">
                     {new Date(a.createdAt).toLocaleDateString("pt-BR")}
                   </td>
+
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-1">
                       <IconLink to="/ativos/$id" params={{ id: a.id }} label="Visualizar">
