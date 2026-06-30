@@ -27,7 +27,7 @@ async function ensureAdmin(
 
 export const createUserAsAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         name: z.string().min(1).max(120),
@@ -63,7 +63,7 @@ export const createUserAsAdmin = createServerFn({ method: "POST" })
 
 export const setUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ userId: z.string().uuid(), role: roleEnum }).parse(input),
   )
   .handler(async ({ data, context }) => {

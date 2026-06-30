@@ -10,7 +10,7 @@ const statusEnum = z.enum(["Ativo", "Inativo"]);
 
 export const setUserStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ userId: z.string().uuid(), status: statusEnum }).parse(input),
   )
   .handler(async ({ data, context }) => {
