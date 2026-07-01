@@ -13,13 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth, roleLabel, type Role } from "@/lib/auth";
 import { setUserRole } from "@/lib/users-admin.functions";
@@ -41,7 +35,6 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
   useEffect(() => {
     if (user && open) setSelected(user.role);
   }, [user, open]);
-
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -72,7 +65,6 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Editar perfil de usuário</DialogTitle>
@@ -107,17 +99,13 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
 
             <div className="space-y-1.5">
               <Label htmlFor="edit-role">Novo perfil</Label>
-              <Select
-                value={selected}
-                onValueChange={(v) => setSelected(v as Role)}
-                disabled={isInactive}
-              >
+              <Select value={selected} onValueChange={(v) => setSelected(v as Role)} disabled={isInactive}>
                 <SelectTrigger id="edit-role">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="usuario">Usuário Padrão</SelectItem>
-                  <SelectItem value="gerente">Gestor</SelectItem>
+                  <SelectItem value="gerente">Gerente</SelectItem>
                   <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>
@@ -127,8 +115,8 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
               <div className="flex items-start gap-2 rounded-md border border-border bg-muted/50 p-3 text-xs text-muted-foreground">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
-                  Não é possível alterar o perfil de um usuário com situação <strong>Inativo</strong>.
-                  Reative o usuário na tela de administração antes de alterar o perfil.
+                  Não é possível alterar o perfil de um usuário com situação <strong>Inativo</strong>. Reative o usuário
+                  na tela de administração antes de alterar o perfil.
                 </p>
               </div>
             )}
@@ -137,8 +125,8 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
               <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
-                  Você está alterando seu próprio perfil de Administrador. A operação será bloqueada
-                  se você for o último administrador ativo do sistema.
+                  Você está alterando seu próprio perfil de Administrador. A operação será bloqueada se você for o
+                  último administrador ativo do sistema.
                 </p>
               </div>
             )}
@@ -148,10 +136,7 @@ export function EditUserRoleDialog({ user, open, onOpenChange }: Props) {
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
               Cancelar
             </Button>
-            <Button
-              onClick={() => setConfirmOpen(true)}
-              disabled={!changed || mutation.isPending || isInactive}
-            >
+            <Button onClick={() => setConfirmOpen(true)} disabled={!changed || mutation.isPending || isInactive}>
               {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Salvar alteração
             </Button>
