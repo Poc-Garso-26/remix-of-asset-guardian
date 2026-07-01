@@ -296,7 +296,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                             src={a.qrCodeUrl}
                             alt=""
                             loading="lazy"
-                            className="h-10 w-10 rounded-sm border border-border bg-white object-contain"
+                            className="h-7 w-7 rounded-sm border border-border bg-white object-contain"
                             onError={(e) => { e.currentTarget.style.display = "none"; }}
                           />
                         </HoverCardTrigger>
