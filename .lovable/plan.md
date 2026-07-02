@@ -1,31 +1,34 @@
-## Diagnóstico
+## Objetivo
+Ao excluir um ativo, remover também o arquivo do QR Code do bucket `asset-qrcodes` no Supabase Storage, evitando arquivos órfãos.
 
-Verifiquei o estado atual do projeto:
+## Abordagem
+Criar uma edge function `delete-asset-qrcode` (com verificação de JWT + role admin/gerente, mesmo padrão da `generate-asset-qrcode`) que apaga o(s) objeto(s) do bucket referentes ao `assetId`. Chamar essa function no `assetsService.remove` **antes** do `delete` da linha em `assets` (para que, se a remoção do storage falhar, o ativo não seja excluído silenciosamente sem o arquivo — ou seguir fire-and-forget, ver decisão abaixo).
 
-- **Dev server Vite**: rodando normal em `:8080`, sem erros.
-- **Typecheck (`tsgo --noEmit`)**: passa sem erros.
-- **Rota `/ativos`**: responde corretamente (HTTP 307 → redireciona para `/auth` quando não autenticado, comportamento esperado pelo gate `_authenticated`).
-- **Logs do Vite**: apenas 3 *warnings* de depreciação — `createServerFn().inputValidator()` deve passar a se chamar `.validator()`. Não são erros, não quebram o build.
+Alternativa mais simples (sem edge function): usar `supabase.storage.from('asset-qrcodes').remove([...])` direto do cliente. Como o bucket é privado e as políticas atuais permitem leitura autenticada, precisaríamos garantir política de DELETE para admin/gerente em `storage.objects`. A edge function é mais alinhada ao padrão atual do projeto (toda manipulação do bucket passa por function com service role).
 
-O aviso anterior **"Preview has not been built yet"** foi transitório: ocorre enquanto o Vite recompila após uma edição (o filtro de QR Code adicionado na rodada anterior). Após a recompilação concluir, a tela volta ao normal — o que já aconteceu. Não há nada quebrado no código.
+**Decisão recomendada:** edge function, fire-and-forget com log de warning em falha (mesmo padrão do `triggerQrCodeGeneration`), para não bloquear a UX de exclusão do ativo.
 
-## Plano
+## Passos
 
-Como não há erro real para corrigir, o escopo é apenas **higiene** para remover os 3 warnings do log e evitar que apareçam como "ruído" em futuras compilações:
+1. **Edge function `supabase/functions/delete-asset-qrcode/index.ts`**
+   - Validar JWT e role (`admin` ou `gerente`), igual à `generate-asset-qrcode`.
+   - Receber `{ assetId }`.
+   - Listar objetos no prefixo do ativo (padrão atual salva em `assets/{assetId}.png` ou similar — confirmar no código da function existente) e chamar `storage.from('asset-qrcodes').remove([...])`.
+   - Retornar `{ removed: number }`.
+   - Configurar no `supabase/config.toml` (verify_jwt = true).
 
-### `src/lib/users-status.functions.ts`
-- Renomear `.inputValidator(` → `.validator(` (1 ocorrência, linha 11).
+2. **`src/lib/assets-service.ts`**
+   - Adicionar helper `triggerQrCodeDeletion(assetId)` (fire-and-forget, warn em erro).
+   - Em `remove(id)`: chamar `triggerQrCodeDeletion(id)` antes do `delete` da linha (assim mesmo com CASCADE ainda temos referência ao id para o storage).
 
-### `src/lib/users-admin.functions.ts`
-- Renomear `.inputValidator(` → `.validator(` (2 ocorrências, linhas 28 e 64).
+3. **Deploy** da nova edge function.
 
-Nenhuma alteração de comportamento, schema, RLS, rotas, UI ou da tela `/ativos`. Apenas substituição do nome do método deprecado pela API atual do TanStack Start.
+## Fora de escopo
+- Migração/limpeza retroativa de QR Codes já órfãos no bucket.
+- Alteração da política de RLS do bucket.
+- Mudanças de UI.
 
-### Verificação após aplicar
-1. Aguardar o Vite recompilar.
-2. Conferir que os logs do dev server não exibem mais o warning `inputValidator() is deprecated`.
-3. Abrir `/ativos` no preview e validar que a listagem (incluindo o filtro "QR Code") continua funcional.
-
-### Fora de escopo
-- Mudanças em `assets-list-page.tsx`, `assets-service.ts`, schema, edge functions, auth ou roteamento.
-- Reinício manual do dev server (não é necessário).
+## Critério de aceitação
+- Excluir um ativo com QR Code gerado remove o arquivo correspondente do bucket `asset-qrcodes`.
+- Excluir um ativo sem QR Code não gera erro visível ao usuário.
+- Falha na exclusão do storage não impede a exclusão do ativo (apenas log de warning no console), mantendo o padrão fire-and-forget já usado na geração.
