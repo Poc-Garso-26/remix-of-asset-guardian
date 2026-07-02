@@ -302,6 +302,7 @@ export const assetsService = {
   },
 
   async remove(id: string): Promise<void> {
+    await triggerQrCodeDeletion(id);
     const { error } = await supabase.from("assets").delete().eq("id", id);
     if (error) throw error;
   },
@@ -331,6 +332,17 @@ async function triggerQrCodeGeneration(assetId: string): Promise<void> {
     if (error) console.warn("[qrcode] geração falhou", error);
   } catch (e) {
     console.warn("[qrcode] geração falhou", e);
+  }
+}
+
+async function triggerQrCodeDeletion(assetId: string): Promise<void> {
+  try {
+    const { error } = await supabase.functions.invoke("delete-asset-qrcode", {
+      body: { assetId },
+    });
+    if (error) console.warn("[qrcode] exclusão falhou", error);
+  } catch (e) {
+    console.warn("[qrcode] exclusão falhou", e);
   }
 }
 
