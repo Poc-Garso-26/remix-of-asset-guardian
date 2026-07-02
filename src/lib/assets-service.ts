@@ -302,6 +302,7 @@ export const assetsService = {
   },
 
   async remove(id: string): Promise<void> {
+    await triggerQrCodeDeletion(id);
     const { error } = await supabase.from("assets").delete().eq("id", id);
     if (error) throw error;
   },
