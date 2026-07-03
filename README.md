@@ -34,7 +34,7 @@ Construída em **React 19 + TanStack Start (SSR)**, **Vite 7**, **Tailwind CSS v
 | Autenticação | Supabase Auth (e-mail/senha) com sessão persistida em `localStorage` |
 | Papéis | `admin`, `gerente`, `usuario` (enum `app_role`), armazenados em tabela dedicada `user_roles` |
 | Ativos | CRUD de computadores, notebooks e impressoras com filtros e paginação |
-| QR Code | Geração on-demand por ativo via Supabase Edge Function `generate-asset-qrcode`, persistido no bucket privado `asset-qrcodes` |
+| QR Code | Geração on-demand por ativo via Edge Function `generate-asset-qrcode` (persistido no bucket privado `asset-qrcodes`) e remoção automática do PNG via `delete-asset-qrcode` ao excluir o ativo |
 | Relatórios | Exportação PDF (jsPDF + jspdf-autotable) com filtros aplicáveis |
 | Administração | Cadastro e gestão de papéis de usuários (`/administracao`) — somente admins |
 | Tema | Claro/escuro com tokens semânticos em `src/styles.css` |
