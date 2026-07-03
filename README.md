@@ -34,7 +34,7 @@ Construída em **React 19 + TanStack Start (SSR)**, **Vite 7**, **Tailwind CSS v
 | Autenticação | Supabase Auth (e-mail/senha) com sessão persistida em `localStorage` |
 | Papéis | `admin`, `gerente`, `usuario` (enum `app_role`), armazenados em tabela dedicada `user_roles` |
 | Ativos | CRUD de computadores, notebooks e impressoras com filtros e paginação |
-| QR Code | Geração on-demand por ativo via Supabase Edge Function `generate-asset-qrcode`, persistido no bucket privado `asset-qrcodes` |
+| QR Code | Geração on-demand por ativo via Edge Function `generate-asset-qrcode` (persistido no bucket privado `asset-qrcodes`) e remoção automática do PNG via `delete-asset-qrcode` ao excluir o ativo |
 | Relatórios | Exportação PDF (jsPDF + jspdf-autotable) com filtros aplicáveis |
 | Administração | Cadastro e gestão de papéis de usuários (`/administracao`) — somente admins |
 | Tema | Claro/escuro com tokens semânticos em `src/styles.css` |
@@ -144,7 +144,8 @@ Construída em **React 19 + TanStack Start (SSR)**, **Vite 7**, **Tailwind CSS v
 │   ├── config.toml                  # Configuração do projeto Supabase
 │   ├── migrations/                  # Migrações SQL versionadas
 │   └── functions/
-│       └── generate-asset-qrcode/   # Edge Function (Deno) para gerar QR
+│       ├── generate-asset-qrcode/   # Edge Function (Deno) para gerar QR
+│       └── delete-asset-qrcode/     # Edge Function (Deno) para remover QR do Storage
 ├── .lovable/                        # Metadados Lovable (plan.md, project.json)
 ├── vite.config.ts
 ├── tsconfig.json
@@ -270,9 +271,21 @@ Projeto Supabase utilizado: **`gkieaxljrlocsuythjqw`** (ajustável via variávei
 
 - Bucket **`asset-qrcodes`** (privado) — armazena PNGs gerados pela edge function `generate-asset-qrcode`.
 
-### Edge Function
+### Edge Functions
 
-- `supabase/functions/generate-asset-qrcode/index.ts` — gera QR Code do ativo e faz upload no bucket. Invocada via `supabase.functions.invoke('generate-asset-qrcode', { body: { assetId } })`.
+- `supabase/functions/generate-asset-qrcode/index.ts` — gera o QR Code do ativo e faz upload no bucket `asset-qrcodes`. Invocada em `create` e `update` via `supabase.functions.invoke('generate-asset-qrcode', { body: { assetId } })`.
+- `supabase/functions/delete-asset-qrcode/index.ts` — remove `{assetId}.png` do bucket `asset-qrcodes` antes de excluir o ativo do banco. Requer papel `admin` ou `gerente` (validado via `has_role`) e usa `SUPABASE_SERVICE_ROLE_KEY` internamente apenas para o `storage.remove`.
+
+Fluxo de exclusão de ativo:
+
+```text
+assetsService.remove(id)
+  └─► supabase.functions.invoke('delete-asset-qrcode', { assetId })
+        └─► storage.from('asset-qrcodes').remove([`${id}.png`])
+  └─► supabase.from('assets').delete().eq('id', id)
+```
+
+> A invocação da função de exclusão é _best-effort_: falhas são apenas logadas (`console.warn`) e não bloqueiam a remoção do ativo — evitando que um erro no Storage impeça a operação principal.
 
 ### Rodando migrações em outro projeto
 
@@ -490,6 +503,7 @@ docker compose logs -f app     # logs do container
 - **Chave anon é pública por design** (Supabase) — segura no bundle do cliente desde que as políticas RLS estejam corretas.
 - **Bearer JWT** validado em cada chamada server-side com `supabase.auth.getClaims(token)`.
 - **Bucket `asset-qrcodes` é privado** — acesso somente via URLs assinadas.
+- **Exclusão de ativo remove o QR do Storage** via edge function `delete-asset-qrcode`, restrita a papéis `admin`/`gerente`, evitando arquivos órfãos no bucket privado.
 - **Segredos sensíveis** não devem ir para `.env` versionado. Em produção (Lovable / Cloudflare), use o cofre de secrets da plataforma.
 - Auditoria periódica de dependências:
 
