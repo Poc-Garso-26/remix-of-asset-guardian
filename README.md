@@ -503,6 +503,7 @@ docker compose logs -f app     # logs do container
 - **Chave anon é pública por design** (Supabase) — segura no bundle do cliente desde que as políticas RLS estejam corretas.
 - **Bearer JWT** validado em cada chamada server-side com `supabase.auth.getClaims(token)`.
 - **Bucket `asset-qrcodes` é privado** — acesso somente via URLs assinadas.
+- **Exclusão de ativo remove o QR do Storage** via edge function `delete-asset-qrcode`, restrita a papéis `admin`/`gerente`, evitando arquivos órfãos no bucket privado.
 - **Segredos sensíveis** não devem ir para `.env` versionado. Em produção (Lovable / Cloudflare), use o cofre de secrets da plataforma.
 - Auditoria periódica de dependências:
 
