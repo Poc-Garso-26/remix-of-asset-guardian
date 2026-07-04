@@ -1,42 +1,34 @@
-# Gráfico "Situação dos Ativos" no Dashboard
+# Correções de inconsistências
 
-Adicionar um novo card na rota `/dashboard` com um gráfico Doughnut mostrando a distribuição de ativos por Situação (campo `status`).
+Após revisão do código e dos logs, foi identificada 1 inconsistência real; o restante da aplicação está saudável.
 
-## Escopo
+## 1. Hydration mismatch no `<html>` (erro no console)
 
-- Novo card ao lado / abaixo dos cards existentes em `src/routes/_authenticated.dashboard.tsx`.
-- Título: **Situação dos Ativos**.
-- Gráfico Doughnut à esquerda, legenda automática à direita (empilha abaixo em telas menores).
-- Tooltip por setor com: Situação, Quantidade, Percentual (`ex.: 72,5%`).
-- Skeleton durante loading, mensagem "Nenhum dado encontrado." quando vazio, tratamento de erro consistente.
+**Sintoma** (console):
+```
+A tree hydrated but some attributes of the server rendered HTML didn't match…
+<html> … + (server) sem class  … − (client) className="dark" data-theme="dark"
+```
 
-## Dados
+**Causa:** `src/routes/__root.tsx` renderiza `<html lang="en">` no servidor. Antes da hidratação, `themeInitScript` (injetado no `<head>` para evitar FOUC) adiciona `class="dark"` e `data-theme="dark"` no `<html>`. React compara e reclama. É esperado — o script existe justamente para mutar o DOM antes do React — mas precisa ser silenciado.
 
-- Reutiliza a mesma fonte do cadastro (`supabase.from("assets")`).
-- Estender `assetsService` com `statusDistribution()` que faz um `select("status")` enxuto (sem joins), agrupando no cliente por `status` (Postgres via PostgREST não faz `group by` nativo; buscar só a coluna `status` mantém a consulta leve).
-- Retorno: `Array<{ status: AssetStatus; label: string; count: number }>`.
-- Consumido via `useQuery({ queryKey: ["assets-status-distribution"] })`.
+**Correção:** adicionar `suppressHydrationWarning` no `<html>` (e no `<body>`, por segurança, já que extensões costumam mutá-lo).
 
-## UI / Design System
+```tsx
+<html lang="en" suppressHydrationWarning>
+  …
+  <body suppressHydrationWarning>
+```
 
-- Reutiliza componentes existentes: `Card` shadcn, `ChartContainer`/`ChartTooltip`/`ChartTooltipContent`/`ChartLegend`/`ChartLegendContent` (`src/components/ui/chart.tsx` — Recharts já instalado).
-- Renderiza `PieChart` com `Pie` (`innerRadius` ~60, `outerRadius` ~90) para efeito donut.
-- Cores por status através de tokens semânticos do tema (mapeando `ASSET_STATUS_TONE`):
-  - `em_uso` → `hsl(var(--success))`
-  - `estoque` → `hsl(var(--info))` (fallback `--primary` se não existir)
-  - `manutencao` → `hsl(var(--warning))`
-  - `baixado` → `hsl(var(--muted-foreground))`
-  - Fallback para status futuros: paleta cíclica `--chart-1..5` (ou geradas via HSL determinística sobre o nome) — sem alteração de código quando surgirem novas situações.
-- Labels via `ASSET_STATUS_LABEL`.
-- Skeleton (`src/components/ui/skeleton.tsx`) com forma de círculo + linhas para a legenda.
-- Estado de erro reaproveita o padrão já usado no dashboard (mensagem inline em `text-destructive`).
+Nenhuma outra alteração: o script FOUC continua funcionando, temas continuam iguais.
 
-## Arquivos
+## Itens verificados e OK
 
-- `src/lib/assets-service.ts` — adicionar `statusDistribution()`.
-- `src/components/assets-status-chart.tsx` (novo) — card auto-contido com query, loading, erro, vazio e gráfico.
-- `src/routes/_authenticated.dashboard.tsx` — inserir `<AssetsStatusChart />` numa nova linha da grid, sem alterar cards existentes.
+- Rotas `_authenticated/*` protegidas pelo layout gerenciado, sem duplicação de gate.
+- `assetsService` — sem regressões após adição de `statusDistribution()`.
+- Novo card do dashboard renderiza corretamente (confirmado no session replay).
+- Sem chamadas de servidor privilegiadas expostas.
 
 ## Fora de escopo
 
-- Nenhuma alteração em outros fluxos, filtros globais (dashboard não possui), backend, migrations ou dependências (Recharts já presente).
+- Sem alterações em UI, dados, RLS, migrations ou dependências.
