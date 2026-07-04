@@ -132,6 +132,12 @@ function DashboardPage() {
           </p>
         </div>
       </section>
+
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <AssetsStatusChart />
+        </div>
+      </section>
     </div>
   );
 }
