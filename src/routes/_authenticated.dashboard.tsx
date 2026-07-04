@@ -5,6 +5,7 @@ import { assetsService } from "@/lib/assets-service";
 import { ASSET_TYPE_LABEL } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
 import { useAuth, roleLabel } from "@/lib/auth";
+import { AssetsStatusChart } from "@/components/assets-status-chart";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — GestãoTI" }] }),
@@ -129,6 +130,12 @@ function DashboardPage() {
           <p className="text-xs text-foreground/75">
             Acompanhe o ritmo de incorporação de novos ativos ao inventário.
           </p>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <AssetsStatusChart />
         </div>
       </section>
     </div>

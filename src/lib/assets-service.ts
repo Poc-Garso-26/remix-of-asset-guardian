@@ -322,6 +322,30 @@ export const assetsService = {
       novosNoMes,
     };
   },
+
+  async statusDistribution(): Promise<
+    Array<{ status: AssetStatus; label: string; count: number }>
+  > {
+    const { data, error } = await supabase.from("assets").select("status").limit(10000);
+    if (error) throw error;
+    const counts = new Map<AssetStatus, number>();
+    for (const row of (data ?? []) as Array<{ status: AssetStatus }>) {
+      counts.set(row.status, (counts.get(row.status) ?? 0) + 1);
+    }
+    const labels: Record<string, string> = {
+      em_uso: "Em uso",
+      estoque: "Estoque",
+      manutencao: "Manutenção",
+      baixado: "Baixado",
+    };
+    return Array.from(counts.entries())
+      .map(([status, count]) => ({
+        status,
+        label: labels[status] ?? status,
+        count,
+      }))
+      .sort((a, b) => b.count - a.count);
+  },
 };
 
 async function triggerQrCodeGeneration(assetId: string): Promise<void> {
