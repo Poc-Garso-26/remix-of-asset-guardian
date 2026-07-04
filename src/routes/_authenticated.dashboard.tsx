@@ -5,6 +5,7 @@ import { assetsService } from "@/lib/assets-service";
 import { ASSET_TYPE_LABEL } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
 import { useAuth, roleLabel } from "@/lib/auth";
+import { AssetsStatusChart } from "@/components/assets-status-chart";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — GestãoTI" }] }),
