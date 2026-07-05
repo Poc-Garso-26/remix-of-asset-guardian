@@ -1,34 +1,46 @@
-# Correções de inconsistências
+# Aquisições de Ativos ao Longo do Tempo
 
-Após revisão do código e dos logs, foi identificada 1 inconsistência real; o restante da aplicação está saudável.
+Adicionar um novo gráfico de área ao `/dashboard` mostrando a evolução mensal de novos ativos cadastrados nos últimos 12 meses, seguindo o mesmo Design System já usado em `AssetsStatusChart`.
 
-## 1. Hydration mismatch no `<html>` (erro no console)
+## Layout
 
-**Sintoma** (console):
-```
-A tree hydrated but some attributes of the server rendered HTML didn't match…
-<html> … + (server) sem class  … − (client) className="dark" data-theme="dark"
-```
+Na `section` já existente que hospeda o gráfico de Situação (`grid lg:grid-cols-3`), o novo gráfico ocupa a coluna restante (`lg:col-span-1` ao lado do doughnut). Em telas menores, empilha naturalmente abaixo.
 
-**Causa:** `src/routes/__root.tsx` renderiza `<html lang="en">` no servidor. Antes da hidratação, `themeInitScript` (injetado no `<head>` para evitar FOUC) adiciona `class="dark"` e `data-theme="dark"` no `<html>`. React compara e reclama. É esperado — o script existe justamente para mutar o DOM antes do React — mas precisa ser silenciado.
-
-**Correção:** adicionar `suppressHydrationWarning` no `<html>` (e no `<body>`, por segurança, já que extensões costumam mutá-lo).
-
-```tsx
-<html lang="en" suppressHydrationWarning>
-  …
-  <body suppressHydrationWarning>
+```text
+┌──────────────────────────────┬───────────────┐
+│  Situação dos Ativos (donut) │  Aquisições   │
+│         lg:col-span-2        │  lg:col-span-1│
+└──────────────────────────────┴───────────────┘
 ```
 
-Nenhuma outra alteração: o script FOUC continua funcionando, temas continuam iguais.
+## O que construir
 
-## Itens verificados e OK
+1. **`src/lib/assets-service.ts`** — novo método `acquisitionsTimeline()`:
+   - `select("created_at, acquisition_date")` de `assets`, limite 10000.
+   - Preferir `acquisition_date`; fallback para `created_at` quando nulo.
+   - Agrupar por mês (`YYYY-MM`) nos últimos 12 meses, preenchendo meses sem dados com `count: 0`.
+   - Retorna `Array<{ month: string; label: string; count: number }>` ordenado cronologicamente. `label` no formato `"jan/25"` (pt-BR abreviado).
 
-- Rotas `_authenticated/*` protegidas pelo layout gerenciado, sem duplicação de gate.
-- `assetsService` — sem regressões após adição de `statusDistribution()`.
-- Novo card do dashboard renderiza corretamente (confirmado no session replay).
-- Sem chamadas de servidor privilegiadas expostas.
+2. **`src/components/assets-timeline-chart.tsx`** (novo) — segue o padrão de `assets-status-chart.tsx`:
+   - `Card` + `CardHeader` (título "Aquisições nos últimos 12 meses" + descrição curta) + `CardContent`.
+   - `ChartContainer` com `AreaChart` do Recharts: `XAxis dataKey="label"`, `YAxis` oculto, `CartesianGrid` sutil, `Area` com `type="monotone"`, `stroke="hsl(var(--primary))"`, `fill="url(#acqGradient)"` (gradient linear do primary → transparente).
+   - `ChartTooltip` + `ChartTooltipContent` do Design System.
+   - Estados: skeleton no loading, mensagem de erro com botão "Tentar novamente" (chamando `refetch`), estado vazio "Sem aquisições no período.".
 
-## Fora de escopo
+3. **`src/routes/_authenticated.dashboard.tsx`** — importar `AssetsTimelineChart` e inseri-lo dentro da mesma `section` do doughnut, na terceira coluna do grid.
 
-- Sem alterações em UI, dados, RLS, migrations ou dependências.
+## Detalhes técnicos
+
+- Data fetching: `useQuery` com `queryKey: ["assets", "acquisitions-timeline"]`, mesmo padrão de `AssetsStatusChart`.
+- Sem novas dependências (Recharts, shadcn/chart e date utils já disponíveis).
+- Sem alterações de schema, RLS ou migrations — usa apenas `SELECT` sobre `assets`.
+- Formatação de mês via `Intl.DateTimeFormat("pt-BR", { month: "short", year: "2-digit" })`.
+- Responsividade herdada do `ChartContainer` (aspect-video) — igual ao donut.
+- Acessibilidade: `aria-label` no card, tooltip acessível pelo componente do DS.
+
+## Critérios de aceite
+
+- Novo card aparece à direita do gráfico de Situação em `lg`, empilha em telas menores.
+- Mostra 12 meses (inclui meses zerados).
+- Loading, erro (com retry) e vazio tratados.
+- Zero regressão nas seções existentes do Dashboard.

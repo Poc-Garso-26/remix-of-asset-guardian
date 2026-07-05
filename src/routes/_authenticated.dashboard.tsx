@@ -6,6 +6,8 @@ import { ASSET_TYPE_LABEL } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
 import { useAuth, roleLabel } from "@/lib/auth";
 import { AssetsStatusChart } from "@/components/assets-status-chart";
+import { AssetsTimelineChart } from "@/components/assets-timeline-chart";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — GestãoTI" }] }),
@@ -136,6 +138,9 @@ function DashboardPage() {
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <AssetsStatusChart />
+        </div>
+        <div className="lg:col-span-1">
+          <AssetsTimelineChart />
         </div>
       </section>
     </div>
