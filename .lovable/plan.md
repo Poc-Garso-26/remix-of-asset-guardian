@@ -1,46 +1,20 @@
-# Aquisições de Ativos ao Longo do Tempo
+## Objetivo
+Inserir 10 novos registros na tabela `public.assets` com tipo Computador e status Estoque, sem alterar schema, RLS ou código da aplicação.
 
-Adicionar um novo gráfico de área ao `/dashboard` mostrando a evolução mensal de novos ativos cadastrados nos últimos 12 meses, seguindo o mesmo Design System já usado em `AssetsStatusChart`.
+## Schema verificado
+- `type` — enum `public.asset_type` → valor a usar: `computador`
+- `status` — enum `public.asset_status` → valor a usar: `estoque`
+- Obrigatórios (NOT NULL sem default): `type`, `patrimony`, `serial_number`, `brand`, `model`
+- Demais campos ficam nulos/default (`id`, `created_at`, `updated_at`, etc.)
+- Último patrimônio existente segue o padrão `PAT-00100`
 
-## Layout
+## Ação
+Executar uma migration com um único `INSERT INTO public.assets (type, patrimony, serial_number, brand, model, status) VALUES ...` contendo 10 linhas:
 
-Na `section` já existente que hospeda o gráfico de Situação (`grid lg:grid-cols-3`), o novo gráfico ocupa a coluna restante (`lg:col-span-1` ao lado do doughnut). Em telas menores, empilha naturalmente abaixo.
+- `patrimony`: `PAT-00101` a `PAT-00110` (únicos, sequência do padrão atual)
+- `serial_number`: `SN-` + sufixo hex único de 10 chars (padrão dos registros existentes)
+- `brand` / `model`: combinações coerentes de computador desktop (Dell OptiPlex 3090, HP EliteDesk 800 G6, Lenovo ThinkCentre M720, Positivo Master D570, Dell Vostro 3681, etc.)
+- `type`: `'computador'`
+- `status`: `'estoque'`
 
-```text
-┌──────────────────────────────┬───────────────┐
-│  Situação dos Ativos (donut) │  Aquisições   │
-│         lg:col-span-2        │  lg:col-span-1│
-└──────────────────────────────┴───────────────┘
-```
-
-## O que construir
-
-1. **`src/lib/assets-service.ts`** — novo método `acquisitionsTimeline()`:
-   - `select("created_at, acquisition_date")` de `assets`, limite 10000.
-   - Preferir `acquisition_date`; fallback para `created_at` quando nulo.
-   - Agrupar por mês (`YYYY-MM`) nos últimos 12 meses, preenchendo meses sem dados com `count: 0`.
-   - Retorna `Array<{ month: string; label: string; count: number }>` ordenado cronologicamente. `label` no formato `"jan/25"` (pt-BR abreviado).
-
-2. **`src/components/assets-timeline-chart.tsx`** (novo) — segue o padrão de `assets-status-chart.tsx`:
-   - `Card` + `CardHeader` (título "Aquisições nos últimos 12 meses" + descrição curta) + `CardContent`.
-   - `ChartContainer` com `AreaChart` do Recharts: `XAxis dataKey="label"`, `YAxis` oculto, `CartesianGrid` sutil, `Area` com `type="monotone"`, `stroke="hsl(var(--primary))"`, `fill="url(#acqGradient)"` (gradient linear do primary → transparente).
-   - `ChartTooltip` + `ChartTooltipContent` do Design System.
-   - Estados: skeleton no loading, mensagem de erro com botão "Tentar novamente" (chamando `refetch`), estado vazio "Sem aquisições no período.".
-
-3. **`src/routes/_authenticated.dashboard.tsx`** — importar `AssetsTimelineChart` e inseri-lo dentro da mesma `section` do doughnut, na terceira coluna do grid.
-
-## Detalhes técnicos
-
-- Data fetching: `useQuery` com `queryKey: ["assets", "acquisitions-timeline"]`, mesmo padrão de `AssetsStatusChart`.
-- Sem novas dependências (Recharts, shadcn/chart e date utils já disponíveis).
-- Sem alterações de schema, RLS ou migrations — usa apenas `SELECT` sobre `assets`.
-- Formatação de mês via `Intl.DateTimeFormat("pt-BR", { month: "short", year: "2-digit" })`.
-- Responsividade herdada do `ChartContainer` (aspect-video) — igual ao donut.
-- Acessibilidade: `aria-label` no card, tooltip acessível pelo componente do DS.
-
-## Critérios de aceite
-
-- Novo card aparece à direita do gráfico de Situação em `lg`, empilha em telas menores.
-- Mostra 12 meses (inclui meses zerados).
-- Loading, erro (com retry) e vazio tratados.
-- Zero regressão nas seções existentes do Dashboard.
+Nenhuma alteração de schema, policies, migrations estruturais, componentes, rotas ou lógica. Sem specs de computador/impressora e sem setor/localização (todos opcionais).
