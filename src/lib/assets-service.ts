@@ -323,6 +323,50 @@ export const assetsService = {
     };
   },
 
+  async acquisitionsTimeline(): Promise<
+    Array<{ month: string; label: string; count: number }>
+  > {
+    const { data, error } = await supabase
+      .from("assets")
+      .select("created_at, acquisition_date")
+      .limit(10000);
+    if (error) throw error;
+
+    const now = new Date();
+    const buckets: Array<{ month: string; label: string; count: number }> = [];
+    const monthFmt = new Intl.DateTimeFormat("pt-BR", {
+      month: "short",
+      year: "2-digit",
+    });
+    const keyOf = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+    const index = new Map<string, number>();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = keyOf(d);
+      const label = monthFmt.format(d).replace(".", "");
+      index.set(key, buckets.length);
+      buckets.push({ month: key, label, count: 0 });
+    }
+
+    for (const row of (data ?? []) as Array<{
+      created_at: string;
+      acquisition_date: string | null;
+    }>) {
+      const source = row.acquisition_date || row.created_at;
+      if (!source) continue;
+      const d = new Date(source);
+      if (Number.isNaN(d.getTime())) continue;
+      const key = keyOf(d);
+      const idx = index.get(key);
+      if (idx !== undefined) buckets[idx].count += 1;
+    }
+
+    return buckets;
+  },
+
+
   async statusDistribution(): Promise<
     Array<{ status: AssetStatus; label: string; count: number }>
   > {
