@@ -139,6 +139,9 @@ function DashboardPage() {
         <div className="lg:col-span-2">
           <AssetsStatusChart />
         </div>
+        <div className="lg:col-span-1">
+          <AssetsTimelineChart />
+        </div>
       </section>
     </div>
   );
