@@ -119,6 +119,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <aside
+        id="app-sidebar"
+        role={mobileOpen && !isDesktop ? "dialog" : undefined}
+        aria-modal={mobileOpen && !isDesktop ? true : undefined}
+        aria-label={mobileOpen && !isDesktop ? "Menu de navegação" : undefined}
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-64 -translate-x-full border-r border-sidebar-border bg-sidebar transition-[width,transform] duration-200 ease-in-out lg:static lg:translate-x-0",
           mobileOpen && "translate-x-0",
@@ -141,7 +145,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </div>
           <button
-            className="ml-auto rounded-md p-1 text-muted-foreground hover:bg-sidebar-accent lg:hidden"
+            ref={closeButtonRef}
+            className="ml-auto rounded-md p-1 text-muted-foreground hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
             onClick={() => setMobileOpen(false)}
             aria-label="Fechar menu"
           >
