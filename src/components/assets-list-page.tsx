@@ -247,20 +247,37 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
               <tr>
                 {Object.entries(COLUMNS).map(([key, label]) => {
                   const sortable = key !== "qrCode";
+                  const isActive = sortKey === key;
+                  const ariaSort: React.AriaAttributes["aria-sort"] = sortable
+                    ? isActive
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                    : undefined;
+                  const handleSort = () => {
+                    if (!sortable) return;
+                    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+                    else { setSortKey(key as keyof typeof COLUMNS); setSortDir("asc"); }
+                  };
                   return (
                     <th
                       key={key}
-                      onClick={() => {
-                        if (!sortable) return;
-                        if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-                        else { setSortKey(key as keyof typeof COLUMNS); setSortDir("asc"); }
-                      }}
-                      className={`px-4 py-3 text-left font-medium ${sortable ? "cursor-pointer hover:text-foreground" : ""}`}
+                      aria-sort={ariaSort}
+                      className="px-4 py-3 text-left font-medium"
                     >
-                      <span className="inline-flex items-center gap-1">
-                        {label}
-                        {sortable && sortKey === key && <span className="text-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
-                      </span>
+                      {sortable ? (
+                        <button
+                          type="button"
+                          onClick={handleSort}
+                          className="inline-flex items-center gap-1 rounded font-medium uppercase tracking-wider hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {label}
+                          {isActive && <span aria-hidden="true" className="text-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
+                        </button>
+                      ) : (
+                        <span className="inline-flex items-center gap-1">{label}</span>
+                      )}
                     </th>
                   );
                 })}
@@ -276,19 +293,23 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
               )}
 
               {paged.map((a) => (
-                <tr
-                  key={a.id}
-                  className="cursor-pointer hover:bg-muted/30"
-                  onClick={() => navigate({ to: "/ativos/$id", params: { id: a.id } })}
-                >
-                  <td className="px-4 py-3 font-mono text-xs">{a.patrimony}</td>
+                <tr key={a.id} className="hover:bg-muted/30">
+                  <td className="px-4 py-3 font-mono text-xs">
+                    <Link
+                      to="/ativos/$id"
+                      params={{ id: a.id }}
+                      className="rounded font-mono text-xs text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {a.patrimony}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">{ASSET_TYPE_LABEL[a.type]}</td>
                   <td className="px-4 py-3">{a.brand}</td>
                   <td className="px-4 py-3">{a.model}</td>
                   <td className="px-4 py-3">{a.responsible}</td>
                   <td className="px-4 py-3 text-muted-foreground">{a.sector}</td>
                   <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-4 py-3">
                     {a.qrCodeUrl ? (
                       <HoverCard openDelay={120} closeDelay={80}>
                         <HoverCardTrigger asChild>
@@ -320,7 +341,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                     {new Date(a.createdAt).toLocaleDateString("pt-BR")}
                   </td>
 
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <IconLink to="/ativos/$id" params={{ id: a.id }} label="Visualizar">
                         <Eye className="h-4 w-4" />
