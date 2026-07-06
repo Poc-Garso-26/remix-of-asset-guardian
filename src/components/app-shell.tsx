@@ -198,6 +198,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to="/perfil"
                 onClick={() => setMobileOpen(false)}
                 title={collapsed ? "Perfil" : undefined}
+                aria-label="Perfil"
                 className={itemClass(pathname === "/perfil")}
               >
                 <UserCircle className="h-4 w-4 shrink-0" />
@@ -208,6 +209,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button
                 onClick={() => { void logout(); }}
                 title={collapsed ? "Sair" : undefined}
+                aria-label="Sair"
                 className={cn(
                   "flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-destructive",
                   collapsed && "lg:justify-center lg:px-0",
@@ -222,7 +224,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {mobileOpen && (
-        <div
+        <button
+          type="button"
+          aria-label="Fechar menu"
           className="fixed inset-0 z-30 bg-foreground/20 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
@@ -232,22 +236,22 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur lg:px-8">
           <button
-            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            ref={menuButtonRef}
+            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={() => {
-              if (typeof window !== "undefined" && window.innerWidth < 1024) {
-                setMobileOpen(true);
+              if (!isDesktop) {
+                setMobileOpen((v) => !v);
               } else {
                 setCollapsed((v) => !v);
               }
             }}
+            aria-controls="app-sidebar"
             aria-label={
-              typeof window !== "undefined" && window.innerWidth < 1024
-                ? "Abrir menu"
-                : collapsed
-                  ? "Expandir menu"
-                  : "Recolher menu"
+              !isDesktop
+                ? mobileOpen ? "Fechar menu" : "Abrir menu"
+                : collapsed ? "Expandir menu" : "Recolher menu"
             }
-            aria-expanded={!collapsed}
+            aria-expanded={!isDesktop ? mobileOpen : !collapsed}
           >
             <span className="lg:hidden">
               <Menu className="h-4 w-4" />
