@@ -248,7 +248,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                 {Object.entries(COLUMNS).map(([key, label]) => {
                   const sortable = key !== "qrCode";
                   const isActive = sortKey === key;
-                  const ariaSort: React.AriaAttributes["aria-sort"] = sortable
+                  const ariaSort: "ascending" | "descending" | "none" | undefined = sortable
                     ? isActive
                       ? sortDir === "asc"
                         ? "ascending"
