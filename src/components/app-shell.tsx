@@ -173,6 +173,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     to={item.to}
                     onClick={() => setMobileOpen(false)}
                     title={collapsed ? item.label : undefined}
+                    aria-label={item.label}
                     className={itemClass(active)}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
