@@ -67,8 +67,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
+  const wasOpenRef = useRef(false);
   useEffect(() => {
-    if (!mobileOpen) menuButtonRef.current?.focus({ preventScroll: true });
+    if (!mobileOpen && wasOpenRef.current) {
+      menuButtonRef.current?.focus({ preventScroll: true });
+    }
+    wasOpenRef.current = mobileOpen;
   }, [mobileOpen]);
 
   // Hydrate from localStorage
