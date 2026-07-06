@@ -14,7 +14,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth, roleLabel, type Permission } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
