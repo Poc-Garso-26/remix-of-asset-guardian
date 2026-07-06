@@ -42,7 +42,34 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { session, logout, can } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [isDesktop, setIsDesktop] = useState<boolean>(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Track desktop breakpoint (>= 1024px, matches Tailwind `lg`)
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+
+  // Mobile drawer: Esc closes; move focus to close button; restore on close.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    closeButtonRef.current?.focus();
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) menuButtonRef.current?.focus({ preventScroll: true });
+  }, [mobileOpen]);
 
   // Hydrate from localStorage
   useEffect(() => {
