@@ -1,5 +1,5 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -328,15 +328,17 @@ function FilterInput({
   onChange: (v: string) => void;
   type?: string;
 }) {
+  const id = useId();
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-foreground">{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-xs font-medium text-foreground">{label}</label>
       <input
+        id={id}
         type={type}
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
       />
-    </label>
+    </div>
   );
 }
