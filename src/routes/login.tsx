@@ -61,9 +61,9 @@ function LoginPage() {
         </div>
 
         <div className="max-w-md space-y-4">
-          <h1 className="font-display text-5xl leading-[1.05]">
+          <h2 className="font-display text-5xl leading-[1.05]">
             Inventário completo do seu parque de TI, em um só lugar.
-          </h1>
+          </h2>
           <p className="text-sm text-primary-foreground/80">
             Cadastre, acompanhe e audite computadores, notebooks e impressoras
             com controle de acesso por perfil e relatórios prontos para impressão.
@@ -85,7 +85,7 @@ function LoginPage() {
             <p className="text-sm font-semibold tracking-tight">GestãoTI</p>
           </div>
 
-          <h2 className="text-2xl font-semibold tracking-tight">Entrar</h2>
+          <h1 className="text-2xl font-semibold tracking-tight">Entrar</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Use suas credenciais corporativas para acessar.
           </p>
