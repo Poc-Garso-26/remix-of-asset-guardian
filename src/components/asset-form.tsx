@@ -274,11 +274,17 @@ function Field({
   children: React.ReactNode;
   className?: string;
 }) {
+  const autoId = useId();
+  const child = isValidElement(children) ? (children as ReactElement<{ id?: string }>) : null;
+  const childId = child?.props?.id ?? autoId;
+  const rendered = child ? cloneElement(child, { id: childId }) : children;
   return (
-    <label className={cn("flex flex-col gap-1.5", className)}>
-      <span className="text-xs font-medium text-foreground">{label}</span>
-      {children}
+    <div className={cn("flex flex-col gap-1.5", className)}>
+      <label htmlFor={childId} className="text-xs font-medium text-foreground">
+        {label}
+      </label>
+      {rendered}
       {error && <span className="text-xs text-destructive">{error}</span>}
-    </label>
+    </div>
   );
 }
