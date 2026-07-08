@@ -113,6 +113,7 @@ function AdminPage() {
           </div>
 
           <select
+            aria-label="Filtrar por perfil"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value as "all" | "admin" | "gerente" | "usuario")}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -124,6 +125,7 @@ function AdminPage() {
           </select>
 
           <select
+            aria-label="Filtrar por situação"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as "all" | "Ativo" | "Inativo")}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -192,7 +194,7 @@ function AdminPage() {
                 <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border" aria-busy={isLoading} aria-live="polite">
               {users.map((u) => (
                 <tr key={u.id} className="hover:bg-muted/20">
                   <td className="px-4 py-3 font-medium">{u.name}</td>

@@ -1,50 +1,51 @@
-# Bloco B — Correções críticas de semântica (itens 1, 4, 5)
+# Bloco C — Acessibilidade (itens 10, 11, 12, 13, 17)
 
-Escopo restrito. Sem mudanças visuais — apenas estrutura semântica/acessível. Aplicar item por item, parando após cada um para reporte.
+Aplicação sequencial, um item por vez, pausando após cada um para validação. Sem mudanças visuais — apenas atributos ARIA e estrutura semântica.
 
-## Item 1 — Associação explícita `label`/`for`+`id`
+## Item 10 — Erros de formulário associados ao input (asset-form.tsx)
 
-**Arquivos:** `src/components/asset-form.tsx`, `src/components/assets-list-page.tsx`, `src/routes/_authenticated.administracao.tsx`.
+**Arquivo:** `src/components/asset-form.tsx` (helper `Field`)
 
-**Mudanças:**
-- `asset-form.tsx` → helper `Field`:
-  - Gerar `const id = useId()` dentro do componente.
-  - Trocar `<label>` wrapper por `<label htmlFor={id}>` com o mesmo `className`.
-  - Injetar o `id` no filho via `React.cloneElement(children, { id: (children as any).props.id ?? id })`, preservando `id` já definido (ex.: campos que já vierem com `id` próprio).
-  - Manter marcação, classes e layout idênticos.
-- `assets-list-page.tsx` → helper `FilterInput` (linha 422):
-  - Mesmo padrão: `useId()`, `<label htmlFor={id}>`, `<input id={id} ...>`.
-- `_authenticated.administracao.tsx` → helper `FilterInput` (linha 320):
-  - Mesmo padrão do acima.
+- Gerar `errorId` (derivado de `childId` + sufixo `-error`) quando `error` existir.
+- Injetar via `cloneElement` no filho: `aria-invalid={!!error}` e `aria-describedby={errorId}` (preservando qualquer `aria-describedby` pré-existente).
+- No `<span>` da mensagem: adicionar `id={errorId}` e `role="alert"`.
 
-**Fora:** não mexer nos call-sites, nem em `CepInput`/`PasswordInput` (já têm `id` próprio).
+## Item 11 — Erro global de login/cadastro anunciado
 
-**Parar e reportar** após concluir o item 1.
+**Arquivos:**
+- `src/routes/login.tsx` — container `errors.form` (ou equivalente do bloco de erro geral).
+- `src/components/register-user-form.tsx` — `<div>` de `errors.form`.
 
-## Item 4 — Landmark `<main>` no login
+Adicionar `role="alert"` e `aria-live="assertive"` no container de erro em ambos.
 
-**Arquivo:** `src/routes/login.tsx`.
+## Item 12 — Estados de carregamento anunciados
 
-**Mudança:** trocar a `<div className="flex items-center justify-center px-4 py-12 lg:px-12">` (coluna direita do formulário) por `<main className="...">`, preservando exatamente as mesmas classes e filhos. Nenhum outro ajuste.
+**Arquivos:**
+- `src/routes/_authenticated.dashboard.tsx`
+- `src/components/assets-list-page.tsx`
+- `src/routes/_authenticated.administracao.tsx`
 
-**Parar e reportar** após concluir o item 4.
+Nos containers/tabelas que exibem "Carregando…": aplicar `aria-busy={isLoading}` e `aria-live="polite"` no wrapper apropriado (tbody/section que troca de conteúdo).
 
-## Item 5 — Hierarquia de headings no login
+## Item 13 — Campos obrigatórios com indicação acessível
 
-**Arquivo:** `src/routes/login.tsx`.
+**Arquivo:** `src/components/asset-form.tsx`
 
-**Mudança:**
-- Painel esquerdo (marketing, `hidden lg:flex`): trocar o `<h1 className="font-display text-5xl leading-[1.05]">` por `<h2>` com as mesmas classes (o conteúdo continua idêntico visualmente).
-- Painel direito (formulário): trocar `<h2 className="text-2xl font-semibold tracking-tight">Entrar</h2>` por `<h1>` com as mesmas classes.
+- Adicionar prop opcional `required?: boolean` ao `Field`.
+- No `<label>`: renderizar sufixo `*` com `aria-hidden="true"` quando `required`.
+- Injetar `aria-required="true"` (e `required` quando o elemento suportar) no filho via `cloneElement`.
+- Marcar `required` em todos os campos que o schema Zod exige: `type`, `patrimony`, `serialNumber`, `brand`, `model`, `status`, `sector`, `responsible`, `location`, `acquisitionDate`.
 
-Resultado: sempre haverá um `<h1>` visível ("Entrar") independentemente do breakpoint, sem qualquer alteração de estilo.
+## Item 17 — `<select>` de filtros com label associado
 
-**Parar e reportar** após concluir o item 5, e em seguida enviar o resumo consolidado dos 3 itens para validação (visual + teclado/leitor de tela).
+**Arquivos:**
+- `src/components/assets-list-page.tsx` — selects da toolbar de filtros (tipo/situação).
+- `src/routes/_authenticated.administracao.tsx` — select(s) de perfil/filtros.
 
-## Validação
-- Typecheck automático da plataforma.
-- Nenhuma classe Tailwind alterada → layout deve permanecer pixel-idêntico.
-- Sem screenshots Playwright necessários salvo se surgir suspeita de regressão visual.
+Envolver cada `<select>` num wrapper com `<label className="sr-only" htmlFor={id}>` + `id` no select (usando `useId()`), seguindo o padrão do `FilterInput` do Bloco B. Alternativa equivalente: `aria-label` direto no select quando não houver espaço para wrapper.
 
-## Fora de escopo
-Todos os demais itens do relatório (Blocos C e D e itens não listados).
+## Regras
+
+- Sem mudanças de estilo/layout/classes visuais.
+- Pausa após cada item com relatório do que mudou e onde.
+- Resumo consolidado ao final dos 5 itens.
