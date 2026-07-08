@@ -152,6 +152,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
 
           {!fixedType && (
             <select
+              aria-label="Filtrar por tipo"
               value={search.type}
               onChange={(e) => {
                 updateSearch({ type: e.target.value as AssetsSearch["type"] });
