@@ -284,7 +284,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                 <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border" aria-busy={isLoading} aria-live="polite">
               {isLoading && (
                 <tr><td colSpan={10} className="px-4 py-12 text-center text-muted-foreground">Carregando…</td></tr>
               )}
