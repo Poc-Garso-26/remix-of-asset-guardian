@@ -268,23 +268,54 @@ function Field({
   error,
   children,
   className,
+  required,
 }: {
   label: string;
   error?: string;
   children: React.ReactNode;
   className?: string;
+  required?: boolean;
 }) {
   const autoId = useId();
-  const child = isValidElement(children) ? (children as ReactElement<{ id?: string }>) : null;
+  const child = isValidElement(children)
+    ? (children as ReactElement<{
+        id?: string;
+        "aria-invalid"?: boolean;
+        "aria-describedby"?: string;
+        "aria-required"?: boolean;
+        required?: boolean;
+      }>)
+    : null;
   const childId = child?.props?.id ?? autoId;
-  const rendered = child ? cloneElement(child, { id: childId }) : children;
+  const errorId = error ? `${childId}-error` : undefined;
+  const describedBy = error
+    ? [child?.props?.["aria-describedby"], errorId].filter(Boolean).join(" ")
+    : child?.props?.["aria-describedby"];
+  const rendered = child
+    ? cloneElement(child, {
+        id: childId,
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": describedBy,
+        "aria-required": required ? true : undefined,
+        required: required ? true : child.props.required,
+      })
+    : children;
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <label htmlFor={childId} className="text-xs font-medium text-foreground">
         {label}
+        {required && (
+          <span aria-hidden="true" className="ml-0.5 text-destructive">
+            *
+          </span>
+        )}
       </label>
       {rendered}
-      {error && <span className="text-xs text-destructive">{error}</span>}
+      {error && (
+        <span id={errorId} role="alert" className="text-xs text-destructive">
+          {error}
+        </span>
+      )}
     </div>
   );
 }
