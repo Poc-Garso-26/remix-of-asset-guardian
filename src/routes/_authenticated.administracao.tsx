@@ -113,6 +113,7 @@ function AdminPage() {
           </div>
 
           <select
+            aria-label="Filtrar por perfil"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value as "all" | "admin" | "gerente" | "usuario")}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -124,6 +125,7 @@ function AdminPage() {
           </select>
 
           <select
+            aria-label="Filtrar por situação"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as "all" | "Ativo" | "Inativo")}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
