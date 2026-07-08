@@ -168,6 +168,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
           )}
 
           <select
+            aria-label="Filtrar por situação"
             value={search.status}
             onChange={(e) => {
               updateSearch({ status: e.target.value as AssetsSearch["status"] });
