@@ -192,7 +192,7 @@ function AdminPage() {
                 <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border" aria-busy={isLoading} aria-live="polite">
               {users.map((u) => (
                 <tr key={u.id} className="hover:bg-muted/20">
                   <td className="px-4 py-3 font-medium">{u.name}</td>
