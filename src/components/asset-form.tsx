@@ -107,23 +107,23 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
       className="space-y-6"
     >
       <Section title="Identificação" description="Dados básicos do equipamento.">
-        <Field label="Tipo" error={form.formState.errors.type?.message}>
+        <Field label="Tipo" required error={form.formState.errors.type?.message}>
           <select {...form.register("type")} className={inputCls}>
             {(Object.keys(ASSET_TYPE_LABEL) as Array<keyof typeof ASSET_TYPE_LABEL>).map((t) => (
               <option key={t} value={t}>{ASSET_TYPE_LABEL[t]}</option>
             ))}
           </select>
         </Field>
-        <Field label="Patrimônio" error={form.formState.errors.patrimony?.message}>
+        <Field label="Patrimônio" required error={form.formState.errors.patrimony?.message}>
           <input {...form.register("patrimony")} className={inputCls} placeholder="Ex.: PC-1042" />
         </Field>
-        <Field label="Nº de série" error={form.formState.errors.serialNumber?.message}>
+        <Field label="Nº de série" required error={form.formState.errors.serialNumber?.message}>
           <input {...form.register("serialNumber")} className={inputCls} />
         </Field>
-        <Field label="Marca" error={form.formState.errors.brand?.message}>
+        <Field label="Marca" required error={form.formState.errors.brand?.message}>
           <input {...form.register("brand")} className={inputCls} />
         </Field>
-        <Field label="Modelo" error={form.formState.errors.model?.message}>
+        <Field label="Modelo" required error={form.formState.errors.model?.message}>
           <input {...form.register("model")} className={inputCls} />
         </Field>
         <Field label="CEP" error={form.formState.errors.cep?.message}>
@@ -138,12 +138,39 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
             }}
           />
         </Field>
-        <Field label="Situação" error={form.formState.errors.status?.message}>
+        <Field label="Situação" required error={form.formState.errors.status?.message}>
           <select {...form.register("status")} className={inputCls}>
             {(Object.keys(ASSET_STATUS_LABEL) as Array<keyof typeof ASSET_STATUS_LABEL>).map((s) => (
               <option key={s} value={s}>{ASSET_STATUS_LABEL[s]}</option>
             ))}
           </select>
+        </Field>
+      </Section>
+
+      <Section title="Alocação" description="Setor, responsável e localização do ativo.">
+        <Field label="Setor" required error={form.formState.errors.sector?.message}>
+          <input {...form.register("sector")} className={inputCls} />
+        </Field>
+        <Field label="Responsável" required error={form.formState.errors.responsible?.message}>
+          <input {...form.register("responsible")} className={inputCls} />
+        </Field>
+        <Field label="Localização" required error={form.formState.errors.location?.message}>
+          <input {...form.register("location")} className={inputCls} placeholder="Andar / Sala" />
+        </Field>
+        <Field label="Logradouro" error={form.formState.errors.logradouro?.message}>
+          <input {...form.register("logradouro")} className={inputCls} placeholder="Rua, Avenida..." />
+        </Field>
+        <Field label="Bairro" error={form.formState.errors.bairro?.message}>
+          <input {...form.register("bairro")} className={inputCls} />
+        </Field>
+        <Field label="Cidade" error={form.formState.errors.cidade?.message}>
+          <input {...form.register("cidade")} className={inputCls} />
+        </Field>
+        <Field label="UF" error={form.formState.errors.uf?.message}>
+          <input {...form.register("uf")} maxLength={2} className={cn(inputCls, "uppercase")} placeholder="SP" />
+        </Field>
+        <Field label="Data de aquisição" required error={form.formState.errors.acquisitionDate?.message}>
+          <input type="date" {...form.register("acquisitionDate")} className={inputCls} />
         </Field>
       </Section>
 
