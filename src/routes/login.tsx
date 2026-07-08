@@ -121,7 +121,7 @@ function LoginPage() {
             </div>
 
             {error && (
-              <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+              <div role="alert" aria-live="assertive" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
                 {error}
               </div>
             )}
