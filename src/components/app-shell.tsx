@@ -152,7 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <button
             ref={closeButtonRef}
-            className="ml-auto rounded-md p-1 text-muted-foreground hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+            className="ml-auto rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
             onClick={() => setMobileOpen(false)}
             aria-label="Fechar menu"
           >
