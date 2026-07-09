@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Eye, Pencil, Trash2, Search, X, Filter, FileDown, Plus } from "lucide-react";
 import { z } from "zod";
@@ -13,6 +13,7 @@ import {
 } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -313,31 +314,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                   <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
                   <td className="px-4 py-3">
                     {a.qrCodeUrl ? (
-                      <HoverCard openDelay={120} closeDelay={80}>
-                        <HoverCardTrigger asChild>
-                          <img
-                            src={a.qrCodeUrl}
-                            alt={`QR Code de ${a.patrimony}`}
-                            tabIndex={0}
-                            loading="lazy"
-                            className="h-7 w-7 rounded-sm border border-border bg-white object-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            onError={(e) => { e.currentTarget.style.display = "none"; }}
-                          />
-                        </HoverCardTrigger>
-                        <HoverCardContent
-                          side="right"
-                          align="start"
-                          sideOffset={8}
-                          collisionPadding={12}
-                          className="w-auto p-2"
-                        >
-                          <img
-                            src={a.qrCodeUrl}
-                            alt={`QR Code do ativo ${a.patrimony}`}
-                            className="h-48 w-48 rounded-md border border-border bg-white p-2"
-                          />
-                        </HoverCardContent>
-                      </HoverCard>
+                      <QrCodePreview url={a.qrCodeUrl} patrimony={a.patrimony} />
                     ) : null}
                   </td>
                   <td className="px-4 py-3 tabular-nums text-muted-foreground">
@@ -453,6 +430,61 @@ function FilterInput({
         className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
       />
     </div>
+  );
+}
+
+function useIsTouch() {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(hover: none) and (pointer: coarse)");
+    const onChange = () => setIsTouch(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return isTouch;
+}
+
+function QrCodePreview({ url, patrimony }: { url: string; patrimony: string }) {
+  const isTouch = useIsTouch();
+
+  const trigger = (
+    <img
+      src={url}
+      alt={`QR Code de ${patrimony}`}
+      tabIndex={0}
+      loading="lazy"
+      className="h-7 w-7 rounded-sm border border-border bg-white object-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      onError={(e) => { e.currentTarget.style.display = "none"; }}
+    />
+  );
+
+  const preview = (
+    <img
+      src={url}
+      alt={`QR Code do ativo ${patrimony}`}
+      className="h-48 w-48 rounded-md border border-border bg-white p-2"
+    />
+  );
+
+  if (isTouch) {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+        <PopoverContent side="right" align="start" sideOffset={8} collisionPadding={12} className="w-auto p-2">
+          {preview}
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  return (
+    <HoverCard openDelay={120} closeDelay={80}>
+      <HoverCardTrigger asChild>{trigger}</HoverCardTrigger>
+      <HoverCardContent side="right" align="start" sideOffset={8} collisionPadding={12} className="w-auto p-2">
+        {preview}
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
