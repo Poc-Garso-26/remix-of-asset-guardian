@@ -314,31 +314,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                   <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
                   <td className="px-4 py-3">
                     {a.qrCodeUrl ? (
-                      <HoverCard openDelay={120} closeDelay={80}>
-                        <HoverCardTrigger asChild>
-                          <img
-                            src={a.qrCodeUrl}
-                            alt={`QR Code de ${a.patrimony}`}
-                            tabIndex={0}
-                            loading="lazy"
-                            className="h-7 w-7 rounded-sm border border-border bg-white object-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            onError={(e) => { e.currentTarget.style.display = "none"; }}
-                          />
-                        </HoverCardTrigger>
-                        <HoverCardContent
-                          side="right"
-                          align="start"
-                          sideOffset={8}
-                          collisionPadding={12}
-                          className="w-auto p-2"
-                        >
-                          <img
-                            src={a.qrCodeUrl}
-                            alt={`QR Code do ativo ${a.patrimony}`}
-                            className="h-48 w-48 rounded-md border border-border bg-white p-2"
-                          />
-                        </HoverCardContent>
-                      </HoverCard>
+                      <QrCodePreview url={a.qrCodeUrl} patrimony={a.patrimony} />
                     ) : null}
                   </td>
                   <td className="px-4 py-3 tabular-nums text-muted-foreground">
