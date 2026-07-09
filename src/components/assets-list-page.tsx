@@ -273,7 +273,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                         <button
                           type="button"
                           onClick={handleSort}
-                          className="inline-flex items-center gap-1 rounded font-medium uppercase tracking-wider hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="inline-flex items-center gap-1 rounded py-1 font-medium uppercase tracking-wider hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           {label}
                           {isActive && <span aria-hidden="true" className="text-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
@@ -322,7 +322,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                   </td>
 
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="flex items-center justify-end gap-2">
                       <IconLink to="/ativos/$id" params={{ id: a.id }} label="Visualizar">
                         <Eye className="h-4 w-4" />
                       </IconLink>
@@ -506,7 +506,7 @@ function IconBtn({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "rounded-md p-1.5 text-muted-foreground transition hover:bg-accent",
+        "rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground transition hover:bg-accent",
         destructive && "hover:bg-destructive/10 hover:text-destructive",
       )}
     >
@@ -532,7 +532,7 @@ function IconLink({
       params={params}
       title={label}
       aria-label={label}
-      className="rounded-md p-1.5 text-muted-foreground transition hover:bg-accent"
+      className="rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground transition hover:bg-accent"
     >
       {children}
     </Link>
@@ -546,7 +546,7 @@ function PageBtn({
   return (
     <button
       {...props}
-      className="rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-accent disabled:opacity-50"
+      className="rounded-md border border-border bg-card px-3 py-1.5 min-h-9 text-xs font-medium text-foreground transition hover:bg-accent disabled:opacity-50"
     >
       {children}
     </button>

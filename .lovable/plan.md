@@ -1,35 +1,40 @@
-## Causa raiz
+Aplicar somente o Bloco NBR-1: aumentar a área de acionamento de elementos interativos para pelo menos 24×24 CSS px, conforme WCAG 2.5.8 / NBR 17225 Requisito.
 
-O Radix `HoverCard` é um primitivo desenhado só para hover/focus, não para toque. No mobile, o fluxo produz este ciclo travado:
+### Escopo limitado (apenas arquivos abaixo)
 
-1. **1º toque no QR** — o `<img>` recebe foco; o HoverCard abre por causa do focus (fallback do Radix para teclado).
-2. **Toque fora** — dispara `onPointerDownOutside`, o HoverCard fecha, **mas o `<img>` continua sendo o `document.activeElement`** (o toque fora em áreas sem elementos focáveis não move o foco no iOS/Android).
-3. **2º toque no mesmo QR** — como o elemento **já está focado**, o browser não dispara um novo `focus`, e o HoverCard não tem handler de `click`/`pointerup` no trigger. Resultado: nada reabre.
-4. Tocar em outro elemento move o foco → o próximo toque no QR volta a disparar `focus` e reabre. Isso confirma a hipótese.
+---
 
-Ou seja, `HoverCard` no touch depende de uma transição de foco que o segundo toque no mesmo alvo não produz.
+#### 1. `src/components/assets-list-page.tsx`
 
-## Correção
+Ajustes:
+- `IconBtn` / `IconLink` (ações Visualizar, Editar, Excluir): padronizar `min-h-9 min-w-9` (36px) e aumentar o espaçamento do container de `gap-1` para `gap-2`.
+- `PageBtn` (Anterior/Próxima): padronizar `min-h-9`.
+- Cabeçalhos de coluna ordenáveis (`<button>` dentro do `<th>`): adicionar padding vertical (ex.: `py-1`) para que a área clicável atinja pelo menos 24×24px, mesmo com texto em `uppercase/xs`.
 
-Trocar `HoverCard` por `Popover` **apenas quando o dispositivo é touch**, mantendo `HoverCard` no desktop (hover continua idêntico, requisito do usuário). `Popover` do Radix trata o trigger como toggle por clique/pointer, então tocar → abre; tocar fora → fecha; tocar de novo no mesmo trigger → abre (Radix ignora o `pointerDownOutside` quando o alvo é o próprio trigger).
+Restrições:
+- Não alterar tamanho visual do ícone (mantém 16px).
+- A área de toque aumenta via padding.
+- Não modificar cores, fontes, layout geral, tabela, paginação além do padding/gap.
 
-### Passos
+---
 
-1. **Detecção de touch** — reutilizar o hook existente `src/hooks/use-mobile.tsx` (ou adicionar um `useIsTouch()` baseado em `matchMedia('(hover: none) and (pointer: coarse)')` se o `use-mobile` for só breakpoint). Preferência: `(hover: none)`, que é o critério correto para o problema (não largura de tela).
-2. **Novo componente local** `QrCodePreview` dentro de `src/components/assets-list-page.tsx` (ou arquivo próprio se ficar grande) que:
-   - Se `hover: none` → renderiza `Popover` + `PopoverTrigger asChild` + `PopoverContent` com o mesmo conteúdo/estilo atual (imagem 48x48).
-   - Caso contrário → renderiza o `HoverCard` atual, sem mudanças.
-   - Trigger continua sendo o `<img>` com `tabIndex={0}`, `alt`, `loading="lazy"` e `onError` já existentes (mantém o item 15 da auditoria).
-3. **Substituir** o bloco `HoverCard` inline dentro do `<td>` do QR Code (linhas ~316–342) por `<QrCodePreview asset={a} />`.
-4. **Verificar** que `@/components/ui/popover` já existe (shadcn). Se não, adicionar via shadcn CLI — mas o projeto já usa Radix Dialog/HoverCard, provavelmente Popover já está disponível; confirmar antes de importar.
+#### 2. `src/components/app-shell.tsx`
 
-### Fora do escopo
+Ajuste:
+- Botão de fechar o drawer mobile (ícone `X` no header da sidebar): aumentar levemente o padding para que a área de acionamento fique acima de 24×24px com folga (não no limite exato). Ex.: de `p-1` para `p-1.5` ou `p-2`.
 
-- Nada muda no comportamento desktop/hover.
-- Nenhum outro item da auditoria é tocado.
-- Sem mudanças em serviços, tipos ou rotas.
+Restrições:
+- Não alterar layout visual do header da sidebar.
+- Apenas aumentar a área clicável/tocável do botão de fechar.
 
-## Validação
+---
 
-- Desktop: hover no QR → abre; sair → fecha; hover repetido → OK (inalterado).
-- Mobile (DevTools em modo touch ou celular real): tocar no mesmo QR várias vezes seguidas → abre/fecha consistentemente; tocar em outro QR também funciona; foco continua acessível via teclado (Enter/Space com Popover também abre).
+### O que NÃO será alterado
+
+- Nenhum outro componente (nem `theme-toggle`, nem inputs, nem badges, nem gráficos).
+- Nenhum critério do relatório além do item 1.
+- Nenhuma cor, token, tema, fonte, lógica ou funcionalidade.
+
+### Validação
+
+Após cada arquivo, pausarei e informarei o que mudou. No final, farei um resumo consolidado para validação visual em desktop (clique) e mobile (toque).
