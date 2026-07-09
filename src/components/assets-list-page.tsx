@@ -317,9 +317,10 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                         <HoverCardTrigger asChild>
                           <img
                             src={a.qrCodeUrl}
-                            alt=""
+                            alt={`QR Code de ${a.patrimony}`}
+                            tabIndex={0}
                             loading="lazy"
-                            className="h-7 w-7 rounded-sm border border-border bg-white object-contain"
+                            className="h-7 w-7 rounded-sm border border-border bg-white object-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             onError={(e) => { e.currentTarget.style.display = "none"; }}
                           />
                         </HoverCardTrigger>
