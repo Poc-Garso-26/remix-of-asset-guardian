@@ -64,34 +64,58 @@ export function AssetsTimelineChart() {
           </p>
         </div>
       ) : (
-        <ChartContainer config={config} className="aspect-square max-h-[260px] w-full">
-          <AreaChart data={data} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
-            <defs>
-              <linearGradient id="acqGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--color-count)" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="var(--color-count)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.35} />
-            <XAxis
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              interval="preserveStartEnd"
-            />
-            <YAxis hide allowDecimals={false} />
-            <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-            <Area
-              dataKey="count"
-              name="Aquisições"
-              type="monotone"
-              stroke="var(--color-count)"
-              strokeWidth={2}
-              fill="url(#acqGradient)"
-            />
-          </AreaChart>
-        </ChartContainer>
+        <div
+          role="img"
+          aria-label={`Gráfico de área: aquisições de ativos nos últimos 12 meses. Total ${total}. ${(data ?? [])
+            .map((r) => `${r.label}: ${r.count}`)
+            .join("; ")}.`}
+        >
+          <ChartContainer config={config} className="aspect-square max-h-[260px] w-full">
+            <AreaChart data={data} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
+              <defs>
+                <linearGradient id="acqGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-count)" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="var(--color-count)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.35} />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                interval="preserveStartEnd"
+              />
+              <YAxis hide allowDecimals={false} />
+              <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+              <Area
+                dataKey="count"
+                name="Aquisições"
+                type="monotone"
+                stroke="var(--color-count)"
+                strokeWidth={2}
+                fill="url(#acqGradient)"
+              />
+            </AreaChart>
+          </ChartContainer>
+          <table className="sr-only">
+            <caption>Aquisições de ativos nos últimos 12 meses</caption>
+            <thead>
+              <tr>
+                <th scope="col">Mês</th>
+                <th scope="col">Aquisições</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data ?? []).map((r) => (
+                <tr key={r.label}>
+                  <th scope="row">{r.label}</th>
+                  <td>{r.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

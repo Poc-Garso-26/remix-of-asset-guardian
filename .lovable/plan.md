@@ -1,39 +1,35 @@
+Aplicar sequencialmente os 4 itens do Bloco D, parando após cada um para reportar o que mudou. Sem alterações visuais além do estritamente necessário.
 
-## Diagnóstico após investigação
+## Item 20 — `min-h-screen` → `min-h-dvh`
 
-Versões instaladas:
-- `vite`: `^8.0.16`
-- `@lovable.dev/vite-tanstack-config`: `2.7.1`
-- `vite-tsconfig-paths`: `^6.0.2`
+- `src/routes/__root.tsx`: trocar em `NotFoundComponent` e `ErrorComponent`.
+- `src/components/app-shell.tsx`: trocar no wrapper raiz (`<div className="flex min-h-screen ...">`).
+- `src/routes/login.tsx`: trocar no container principal do login.
 
-Uso do plugin no repositório (busca com `rg`):
-- Zero referências em código do projeto (`src/`, `vite.config.ts`, `tsconfig.json`).
-- Presente apenas em `package.json`, `bun.lock` e `package-lock.json`.
-- `bun.lock` mostra: `vite-tsconfig-paths` é **peerDependency obrigatória** de `@lovable.dev/vite-tanstack-config@2.7.1` (`"vite-tsconfig-paths": ">=6.0.0"`).
+## Item 21 — Idioma do documento
 
-Ou seja: o wrapper que define nosso `vite.config.ts` **importa `vite-tsconfig-paths` internamente** e o exige como peer dep. Ele não é código morto.
+- `src/routes/__root.tsx`: `<html lang="en">` → `<html lang="pt-BR">` em `RootShell`.
 
-## Por que não é possível remover neste escopo
+## Item 23 — Skip link
 
-1. **Remover do `package.json`** → quebra a peer dep do wrapper; o `defineConfig` do `@lovable.dev/vite-tanstack-config` falha ao resolver o import em build/dev.
-2. **Substituir por opção nativa do Vite** → o Vite 8 **não expõe** um `resolve.tsconfigPaths: true` nativo. A resolução de `paths` do tsconfig continua sendo feita via plugin (oficialmente `vite-tsconfig-paths`) ou via alias manual em `resolve.alias`. Não há equivalente 1:1 nativo suportado.
-3. **Ejetar do wrapper** para controlar os plugins manualmente exigiria reconstruir em `vite.config.ts`: `tanstackStart`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `nitro`, `lovable-tagger` (componentTagger dev-only), `@lovable.dev/vite-plugin-dev-server-bridge`, `@lovable.dev/vite-plugin-hmr-gate`, `@tanstack/devtools-vite`, error loggers, dedupe de React/TanStack, detecção de sandbox (host/port/strictPort) e injeção de `VITE_*`. Isso viola explicitamente as restrições da tarefa (“não alterar estrutura das rotas / APIs / autenticação / build”) e tem alto risco de regressão silenciosa em SSR/Nitro/HMR.
+- `src/components/app-shell.tsx`:
+  - Adicionar `<a href="#main">Pular para conteúdo principal</a>` como primeiro filho do wrapper, com classes `sr-only focus:not-sr-only` + posicionamento absoluto no foco (usando tokens existentes: `focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring`).
+  - Adicionar `id="main"` no `<main>` já existente.
+- `src/routes/login.tsx`: garantir `id="main"` no `<main>` já adicionado no Bloco B (o login não faz parte do AppShell; skip link só no shell autenticado, conforme instrução "reaproveitar o <main> já adicionado no login, se aplicável" — apenas garantir o `id`, sem adicionar skip link duplicado ali).
 
-## Ação proposta
+## Item 26 — Descrição textual dos gráficos
 
-**Nenhuma alteração de código.** Registrar como pendência upstream:
+- `src/components/assets-status-chart.tsx`:
+  - Adicionar `role="img"` e `aria-label` dinâmico no container do gráfico (ex.: "Gráfico de rosca: distribuição dos ativos por situação — {label}: {count} ({pct}%); ...").
+  - Adicionar `<table className="sr-only">` com colunas Situação / Quantidade / Percentual, populada a partir de `chartData`.
+- `src/components/assets-timeline-chart.tsx`:
+  - Manter `aria-label` já existente e reforçar com `role="img"`.
+  - Adicionar `<table className="sr-only">` com colunas Mês / Aquisições a partir de `data`.
 
-- Atualização a ser feita em `@lovable.dev/vite-tanstack-config` (fora deste projeto) para substituir internamente o plugin quando/se o Vite expuser resolução nativa de `paths`.
-- Atualizar `.lovable/plan.md` para refletir a investigação (versões verificadas, motivo técnico, evidência de que o plugin é peer dep do wrapper).
+## Validação final
 
-## Entrega
-
-Relatório final no formato pedido (Alterações realizadas, tabela de validação, Auditoria final, Conclusão) informando que:
-- Nenhum arquivo de código-fonte foi modificado.
-- Build/TypeScript/Rotas/Supabase/Interface/Console permanecem no mesmo estado da auditoria anterior (nada foi tocado).
-- O warning específico do `vite-tsconfig-paths` continua presente e depende de release upstream.
-- Nota de saúde permanece igual à auditoria anterior — não é possível melhorá-la sem ejetar do wrapper.
-
-## Observação
-
-Se você quiser mesmo assim seguir com a **ejeção do wrapper** (opção de alto risco que descartei acima), me diga explicitamente e eu abro um plano separado detalhando reconstrução plugin-a-plugin, matriz de testes de regressão (SSR, HMR, build de produção Nitro, Tailwind v4, componentTagger, error overlay) e rollback.
+Após aplicar os 4 itens, resumir arquivos alterados e orientar validação:
+1. Tab na primeira interação → skip link visível.
+2. Redimensionar para mobile → conteúdo não corta com barras do navegador.
+3. Inspecionar `<html lang>` = `pt-BR`.
+4. Leitor de tela lê rótulo dos gráficos + tabela oculta.

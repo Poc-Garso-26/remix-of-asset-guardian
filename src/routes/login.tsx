@@ -42,7 +42,7 @@ function LoginPage() {
   }
 
   return (
-    <div className="relative grid min-h-screen lg:grid-cols-2">
+    <div className="relative grid min-h-dvh lg:grid-cols-2">
       <div className="absolute right-4 top-4 z-10">
         <ThemeToggle />
       </div>
@@ -76,7 +76,7 @@ function LoginPage() {
       </div>
 
       {/* Right form */}
-      <main className="flex items-center justify-center px-4 py-12 lg:px-12">
+      <main id="main" className="flex items-center justify-center px-4 py-12 lg:px-12">
         <div className="w-full max-w-sm">
           <div className="mb-8 flex items-center gap-2 lg:hidden">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
