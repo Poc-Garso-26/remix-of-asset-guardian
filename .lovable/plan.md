@@ -1,35 +1,35 @@
-Aplicar sequencialmente os 4 itens do Bloco D, parando após cada um para reportar o que mudou. Sem alterações visuais além do estritamente necessário.
+## Causa raiz
 
-## Item 20 — `min-h-screen` → `min-h-dvh`
+O Radix `HoverCard` é um primitivo desenhado só para hover/focus, não para toque. No mobile, o fluxo produz este ciclo travado:
 
-- `src/routes/__root.tsx`: trocar em `NotFoundComponent` e `ErrorComponent`.
-- `src/components/app-shell.tsx`: trocar no wrapper raiz (`<div className="flex min-h-screen ...">`).
-- `src/routes/login.tsx`: trocar no container principal do login.
+1. **1º toque no QR** — o `<img>` recebe foco; o HoverCard abre por causa do focus (fallback do Radix para teclado).
+2. **Toque fora** — dispara `onPointerDownOutside`, o HoverCard fecha, **mas o `<img>` continua sendo o `document.activeElement`** (o toque fora em áreas sem elementos focáveis não move o foco no iOS/Android).
+3. **2º toque no mesmo QR** — como o elemento **já está focado**, o browser não dispara um novo `focus`, e o HoverCard não tem handler de `click`/`pointerup` no trigger. Resultado: nada reabre.
+4. Tocar em outro elemento move o foco → o próximo toque no QR volta a disparar `focus` e reabre. Isso confirma a hipótese.
 
-## Item 21 — Idioma do documento
+Ou seja, `HoverCard` no touch depende de uma transição de foco que o segundo toque no mesmo alvo não produz.
 
-- `src/routes/__root.tsx`: `<html lang="en">` → `<html lang="pt-BR">` em `RootShell`.
+## Correção
 
-## Item 23 — Skip link
+Trocar `HoverCard` por `Popover` **apenas quando o dispositivo é touch**, mantendo `HoverCard` no desktop (hover continua idêntico, requisito do usuário). `Popover` do Radix trata o trigger como toggle por clique/pointer, então tocar → abre; tocar fora → fecha; tocar de novo no mesmo trigger → abre (Radix ignora o `pointerDownOutside` quando o alvo é o próprio trigger).
 
-- `src/components/app-shell.tsx`:
-  - Adicionar `<a href="#main">Pular para conteúdo principal</a>` como primeiro filho do wrapper, com classes `sr-only focus:not-sr-only` + posicionamento absoluto no foco (usando tokens existentes: `focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring`).
-  - Adicionar `id="main"` no `<main>` já existente.
-- `src/routes/login.tsx`: garantir `id="main"` no `<main>` já adicionado no Bloco B (o login não faz parte do AppShell; skip link só no shell autenticado, conforme instrução "reaproveitar o <main> já adicionado no login, se aplicável" — apenas garantir o `id`, sem adicionar skip link duplicado ali).
+### Passos
 
-## Item 26 — Descrição textual dos gráficos
+1. **Detecção de touch** — reutilizar o hook existente `src/hooks/use-mobile.tsx` (ou adicionar um `useIsTouch()` baseado em `matchMedia('(hover: none) and (pointer: coarse)')` se o `use-mobile` for só breakpoint). Preferência: `(hover: none)`, que é o critério correto para o problema (não largura de tela).
+2. **Novo componente local** `QrCodePreview` dentro de `src/components/assets-list-page.tsx` (ou arquivo próprio se ficar grande) que:
+   - Se `hover: none` → renderiza `Popover` + `PopoverTrigger asChild` + `PopoverContent` com o mesmo conteúdo/estilo atual (imagem 48x48).
+   - Caso contrário → renderiza o `HoverCard` atual, sem mudanças.
+   - Trigger continua sendo o `<img>` com `tabIndex={0}`, `alt`, `loading="lazy"` e `onError` já existentes (mantém o item 15 da auditoria).
+3. **Substituir** o bloco `HoverCard` inline dentro do `<td>` do QR Code (linhas ~316–342) por `<QrCodePreview asset={a} />`.
+4. **Verificar** que `@/components/ui/popover` já existe (shadcn). Se não, adicionar via shadcn CLI — mas o projeto já usa Radix Dialog/HoverCard, provavelmente Popover já está disponível; confirmar antes de importar.
 
-- `src/components/assets-status-chart.tsx`:
-  - Adicionar `role="img"` e `aria-label` dinâmico no container do gráfico (ex.: "Gráfico de rosca: distribuição dos ativos por situação — {label}: {count} ({pct}%); ...").
-  - Adicionar `<table className="sr-only">` com colunas Situação / Quantidade / Percentual, populada a partir de `chartData`.
-- `src/components/assets-timeline-chart.tsx`:
-  - Manter `aria-label` já existente e reforçar com `role="img"`.
-  - Adicionar `<table className="sr-only">` com colunas Mês / Aquisições a partir de `data`.
+### Fora do escopo
 
-## Validação final
+- Nada muda no comportamento desktop/hover.
+- Nenhum outro item da auditoria é tocado.
+- Sem mudanças em serviços, tipos ou rotas.
 
-Após aplicar os 4 itens, resumir arquivos alterados e orientar validação:
-1. Tab na primeira interação → skip link visível.
-2. Redimensionar para mobile → conteúdo não corta com barras do navegador.
-3. Inspecionar `<html lang>` = `pt-BR`.
-4. Leitor de tela lê rótulo dos gráficos + tabela oculta.
+## Validação
+
+- Desktop: hover no QR → abre; sair → fecha; hover repetido → OK (inalterado).
+- Mobile (DevTools em modo touch ou celular real): tocar no mesmo QR várias vezes seguidas → abre/fecha consistentemente; tocar em outro QR também funciona; foco continua acessível via teclado (Enter/Space com Popover também abre).
