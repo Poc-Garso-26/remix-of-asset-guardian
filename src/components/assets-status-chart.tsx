@@ -97,54 +97,77 @@ export function AssetsStatusChart() {
           <p className="text-sm text-muted-foreground">Nenhum dado encontrado.</p>
         </div>
       ) : (
-        <ChartContainer config={config} className="mx-auto aspect-square max-h-[260px] w-full">
-          <PieChart>
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  hideLabel
-                  formatter={(value, _name, item) => {
-                    const count = Number(value);
-                    const pct = total > 0 ? (count / total) * 100 : 0;
-                    const label = (item?.payload as { label?: string })?.label ?? "";
-                    const fill = (item?.payload as { fill?: string })?.fill;
-                    return (
-                      <div className="flex w-full items-center gap-2">
-                        <span
-                          className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
-                          style={{ background: fill }}
-                        />
-                        <div className="flex flex-1 items-center justify-between gap-3">
-                          <span className="text-muted-foreground">{label}</span>
-                          <span className="font-mono font-medium tabular-nums text-foreground">
-                            {count} ({pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%)
-                          </span>
+        <div role="img" aria-label={ariaLabel}>
+          <ChartContainer config={config} className="mx-auto aspect-square max-h-[260px] w-full">
+            <PieChart>
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    hideLabel
+                    formatter={(value, _name, item) => {
+                      const count = Number(value);
+                      const pct = total > 0 ? (count / total) * 100 : 0;
+                      const label = (item?.payload as { label?: string })?.label ?? "";
+                      const fill = (item?.payload as { fill?: string })?.fill;
+                      return (
+                        <div className="flex w-full items-center gap-2">
+                          <span
+                            className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                            style={{ background: fill }}
+                          />
+                          <div className="flex flex-1 items-center justify-between gap-3">
+                            <span className="text-muted-foreground">{label}</span>
+                            <span className="font-mono font-medium tabular-nums text-foreground">
+                              {count} ({pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%)
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  }}
-                />
-              }
-            />
-            <Pie
-              data={chartData}
-              dataKey="count"
-              nameKey="status"
-              innerRadius={60}
-              outerRadius={90}
-              strokeWidth={2}
-              paddingAngle={2}
-            >
-              {chartData.map((entry) => (
-                <Cell key={entry.status} fill={entry.fill} />
+                      );
+                    }}
+                  />
+                }
+              />
+              <Pie
+                data={chartData}
+                dataKey="count"
+                nameKey="status"
+                innerRadius={60}
+                outerRadius={90}
+                strokeWidth={2}
+                paddingAngle={2}
+              >
+                {chartData.map((entry) => (
+                  <Cell key={entry.status} fill={entry.fill} />
+                ))}
+              </Pie>
+              <ChartLegend
+                content={<ChartLegendContent nameKey="status" />}
+                verticalAlign="bottom"
+              />
+            </PieChart>
+          </ChartContainer>
+          <table className="sr-only">
+            <caption>Distribuição dos ativos por situação</caption>
+            <thead>
+              <tr>
+                <th scope="col">Situação</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Percentual</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chartData.map((r) => (
+                <tr key={r.status}>
+                  <th scope="row">{r.label}</th>
+                  <td>{r.count}</td>
+                  <td>
+                    {((r.count / total) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
+                  </td>
+                </tr>
               ))}
-            </Pie>
-            <ChartLegend
-              content={<ChartLegendContent nameKey="status" />}
-              verticalAlign="bottom"
-            />
-          </PieChart>
-        </ChartContainer>
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
