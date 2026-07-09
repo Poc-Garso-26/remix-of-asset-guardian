@@ -42,7 +42,7 @@ function LoginPage() {
   }
 
   return (
-    <div className="relative grid min-h-screen lg:grid-cols-2">
+    <div className="relative grid min-h-dvh lg:grid-cols-2">
       <div className="absolute right-4 top-4 z-10">
         <ThemeToggle />
       </div>
