@@ -1,36 +1,46 @@
-Aplicar 5 correções de acessibilidade avulsas, uma por vez, parando após cada uma para validação.
+# Auditoria de Logs & Saúde da Aplicação (somente diagnóstico)
 
-## Item 9 — Contraste "Ativo"/"Inativo"
-**Arquivos:** `src/routes/_authenticated.administracao.tsx`, `src/routes/_authenticated.perfil.tsx`.
+Escopo: console do navegador, logs do Vite (dev-server), logs de autenticação Supabase, network requests, arquivos-chave do bootstrap. Nenhuma alteração será feita.
 
-- Verificar `text-success` e `text-destructive` sobre `bg-card` nos dois temas.
-- No tema escuro `--pi-success` = oklch(0.72 0.14 150) e `--pi-danger` (equivalente) sobre card escuro tendem a passar; no tema claro, `--pi-success` = oklch(0.58 0.14 150) fica no limite (~4.0:1). Ajuste: usar variante *text-emphasis* já disponível (`--pi-success-text-emphasis` = oklch(0.42 0.13 150) no claro / oklch(0.85 no escuro) e equivalente para danger), trocando as classes por utilitárias baseadas nesses tokens — sem alterar a paleta.
-- Implementação mínima: substituir `text-success`/`text-destructive` nos badges de "Ativo"/"Inativo" por `text-[color:var(--pi-success-text-emphasis)]` e `text-[color:var(--pi-danger-text-emphasis)]` (ambos os arquivos), garantindo ≥4.5:1 em ambos os temas. Nenhuma outra mudança visual.
+## Achados
 
-## Item 14 — Contexto em botões de paginação
-**Arquivo:** `src/components/assets-list-page.tsx` (linhas ~380–381).
+| Gravidade | Arquivo | Erro / Sintoma | Causa | Solução | Correção automática | Risco |
+|---|---|---|---|---|---|---|
+| Médio | `src/routes/__root.tsx` (linhas 102–108) | Hydration mismatch: `data-tsd-source` diverge entre SSR (`105:7`) e cliente (`102:7`) no `<head>` e no `<script>` do tema | O plugin de "source tracking" (`data-tsd-source`) injeta atributos com números de linha diferentes entre a árvore SSR e a compilada no cliente. Fica visível porque o `<head>` não está marcado com `suppressHydrationWarning` (apenas `<html>` e `<body>` estão) | Adicionar `suppressHydrationWarning` no `<head>` e no `<script>` inline do tema, ou desabilitar o instrumentador `data-tsd-source` em produção/preview | Sim | Baixo |
+| Médio | `vite.config.ts` | Warning na inicialização do Vite: *"The plugin `vite-tsconfig-paths` is detected. Vite now supports tsconfig paths resolution natively via `resolve.tsconfigPaths`"* | Plugin redundante — Vite 8 resolve paths do tsconfig nativamente | Remover `vite-tsconfig-paths` do `plugins` e habilitar `resolve.tsconfigPaths: true` | Sim | Baixo |
+| Baixo | `src/lib/auth.tsx` (`useEffect`, hydrate + `onAuthStateChange`) | Potencial doble-fetch de profile/roles em `INITIAL_SESSION` + `getSession()` | `onAuthStateChange` dispara `INITIAL_SESSION` no mount, e `getSession()` também roda no mesmo effect — ambos chamam `hydrate` | Filtrar eventos (`SIGNED_IN`/`SIGNED_OUT`/`USER_UPDATED`) no listener, como recomenda a integração TanStack+Supabase | Sim | Baixo |
+| Baixo | `src/lib/auth.tsx` (linhas ~120–128) | `setTimeout(..., 0)` dentro do callback do `onAuthStateChange` | Padrão antigo para escapar do "callback lock" do Supabase; hoje desnecessário e dificulta cancelamento (não é limpo no unmount) | Substituir por `queueMicrotask` ou chamar direto após checagem `mounted` | Sim | Baixo |
+| Baixo | `src/integrations/supabase/auth-attacher.ts` | `supabase.auth.getSession()` executado em toda chamada de server function | Custo pequeno, mas gera IO em `localStorage` a cada RPC | Cachear o token na sessão em memória ou usar middleware específico que leia da store do AuthProvider | Não | Médio |
+| Baixo | `src/lib/users-admin.functions.ts` (`ensureAdmin` — parâmetro tipado como `never`/objeto adhoc) | Uso de `as never` no cast de `context.supabase` | Contorna a inferência de tipos da middleware; pode mascarar mudanças de contrato futuras | Tipar `SupabaseClient<Database>` corretamente na assinatura | Sim | Baixo |
+| Baixo | `src/lib/users-admin.functions.ts` (createUserAsAdmin) | Após `auth.admin.createUser`, o insert em `user_roles` roda sem tratamento explícito de erro (só quando `role !== 'usuario'`) | Se o insert falhar (RLS/duplicidade), a criação do usuário no Auth persiste sem role — estado inconsistente | Envolver em transação lógica: em erro do insert, rollback via `auth.admin.deleteUser`, ou tratar e retornar erro claro | Não | Médio |
+| Baixo | `src/lib/users-service.ts` (`listManagedUsers`) | Duas queries paralelas (`profiles` + `user_roles`) mescladas em memória; sem paginação | Para volumes grandes de usuários (>1000) atinge o limite default do PostgREST | Adicionar `.range()` e paginação server-side ou view SQL com join | Não | Médio |
+| Baixo | `src/routes/__root.tsx` | `AuthProvider` envolve toda a árvore, mas apenas rotas `_authenticated` precisam dele. `ThemeProvider` OK | Sem impacto funcional, apenas escopo mais amplo do necessário | Manter — refatoração opcional | Não | Baixo |
+| Informativo | `supabase/config.toml` / Auth | Leaked-password protection já foi habilitado no bloco anterior de segurança; conferir se `HaveIBeenPwned` está ativo no dashboard | — | Verificar no painel Supabase Auth > Policies | Não | Baixo |
+| Informativo | Console | Nenhum erro de runtime além do hydration mismatch nos últimos logs (janela curta desde `2026-07-09T00:06:55Z`) | — | Monitorar após correção do item 1 | — | — |
+| Informativo | Network | Snapshot atual sem requests com erro | — | Reexecutar auditoria após navegação real autenticada | — | — |
+| Informativo | Auth logs | Único evento recente: `logout` com HTTP 204 (esperado) | — | — | — | — |
 
-Adicionar `aria-label` dinâmico:
-- Anterior → `Página anterior, página {page-1} de {totalPages}` (ou `Sem página anterior` quando `page === 1`).
-- Próxima → `Próxima página, página {page+1} de {totalPages}` (ou `Sem próxima página` quando `page >= totalPages`).
+## Pontos de atenção preventivos
 
-## Item 15 — QR Code acessível por teclado
-**Arquivo:** `src/components/assets-list-page.tsx` (HoverCard ~316–325).
+- **SSR × `localStorage`**: `AuthProvider` roda no cliente; ok, porém há chamada `supabase.auth.getSession()` no mount. Confirmar que nenhum loader público chama server fn com `requireSupabaseAuth` (validado em `_authenticated` layout).
+- **Realtime**: nenhum canal encontrado nos arquivos amostrados. Se for adicionado, seguir o padrão `useEffect` + `removeChannel`.
+- **Edge Functions** (`generate-asset-qrcode`, `delete-asset-qrcode`): não inspecionadas em profundidade. Recomenda-se auditar logs específicos após uso real (bucket `asset-qrcodes` está privado — verificar signed URLs).
+- **`console.error` em `role-audit` (`users-admin.functions.ts`)**: falha de auditoria é apenas logada; considerar métrica/alerta.
+- **Performance**: consultas em `listManagedUsers` fazem `select *` implícito em `user_roles` — hoje pequeno, futuramente adicionar índice `(user_id)` (provavelmente já existe via UNIQUE).
 
-- Trocar `alt=""` do trigger por `alt={\`QR Code de ${a.patrimony}\`}`.
-- Adicionar `tabIndex={0}` no elemento gatilho para torná-lo focável (HoverCard do Radix abre em focus além de hover).
+## Resumo executivo
 
-## Item 16 — Foco visível no toggle de situação
-**Arquivo:** `src/routes/_authenticated.administracao.tsx` (botão dentro de `<td>` com `bg-transparent p-0 border-0`).
+- Erros **críticos**: 0
+- Erros **altos**: 0
+- Erros **médios**: 2 (hydration mismatch no `<head>`; warning do plugin Vite)
+- Erros **baixos**: 6
+- **Warnings**: 1 explícito (vite-tsconfig-paths) + 1 React (hydration)
+- **Melhorias sugeridas**: 8
 
-Adicionar ao `className`: `rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card`.
+### Nota de saúde: **8,5 / 10**
 
-## Item 19 — Texto "SITUAÇÃO" em case normal
-**Arquivo:** `src/routes/_authenticated.administracao.tsx`.
+Justificativa: aplicação estável, sem erros críticos ou de runtime bloqueantes na janela analisada; autenticação e RLS bem estruturados (roles em tabela separada, `has_role` SECURITY DEFINER, middleware validando JWT). Os pontos que impedem nota 10 são: (1) hydration mismatch reportado pelo React no `<head>` — visível em produção, poluindo console e podendo mascarar futuros mismatches; (2) plugin obsoleto no Vite; (3) padrões subótimos no `AuthProvider` (double-fetch potencial, `setTimeout(0)`); (4) ausência de rollback no fluxo `createUserAsAdmin`. Todos são corrigíveis com baixo risco.
 
-Trocar o literal `SITUAÇÃO` do `<th>` por `Situação`. O `<thead>` já aplica `uppercase` via CSS, então o efeito visual permanece.
+---
 
-## Regras
-- Nenhuma outra alteração de estilo, layout ou paleta além do necessário no item 9.
-- Pausa após cada item com relatório do que mudou.
-- Resumo consolidado ao final.
+**Observação:** este plano é apenas um relatório diagnóstico. Nenhum arquivo será modificado. Para aplicar as correções sugeridas, aprove esta análise e envie um novo pedido indicando quais itens deseja implementar.
