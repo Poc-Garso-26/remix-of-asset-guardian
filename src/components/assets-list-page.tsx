@@ -433,6 +433,61 @@ function FilterInput({
   );
 }
 
+function useIsTouch() {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(hover: none) and (pointer: coarse)");
+    const onChange = () => setIsTouch(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return isTouch;
+}
+
+function QrCodePreview({ url, patrimony }: { url: string; patrimony: string }) {
+  const isTouch = useIsTouch();
+
+  const trigger = (
+    <img
+      src={url}
+      alt={`QR Code de ${patrimony}`}
+      tabIndex={0}
+      loading="lazy"
+      className="h-7 w-7 rounded-sm border border-border bg-white object-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      onError={(e) => { e.currentTarget.style.display = "none"; }}
+    />
+  );
+
+  const preview = (
+    <img
+      src={url}
+      alt={`QR Code do ativo ${patrimony}`}
+      className="h-48 w-48 rounded-md border border-border bg-white p-2"
+    />
+  );
+
+  if (isTouch) {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+        <PopoverContent side="right" align="start" sideOffset={8} collisionPadding={12} className="w-auto p-2">
+          {preview}
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  return (
+    <HoverCard openDelay={120} closeDelay={80}>
+      <HoverCardTrigger asChild>{trigger}</HoverCardTrigger>
+      <HoverCardContent side="right" align="start" sideOffset={8} collisionPadding={12} className="w-auto p-2">
+        {preview}
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
 function IconBtn({
   children,
   label,
