@@ -189,7 +189,7 @@ function AdminPage() {
                 <th className="px-4 py-3 text-left font-medium">Usuário</th>
                 <th className="px-4 py-3 text-left font-medium">E-mail</th>
                 <th className="px-4 py-3 text-left font-medium">Perfil</th>
-                <th className="px-4 py-3 text-left font-medium">SITUAÇÃO</th>
+                <th className="px-4 py-3 text-left font-medium">Situação</th>
                 <th className="px-4 py-3 text-left font-medium">Último acesso</th>
                 <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
@@ -208,11 +208,11 @@ function AdminPage() {
                   <td className="px-4 py-3">
                     {(() => {
                       const content = u.status === "Ativo" ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-success">
+                        <span className="inline-flex items-center gap-1 text-xs text-[color:var(--pi-success-text-emphasis)]">
                           <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
                         </span>
                       ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-destructive">
+                      <span className="inline-flex items-center gap-1 text-xs text-[color:var(--pi-danger-text-emphasis)]">
                           <XCircle className="h-3.5 w-3.5" /> Inativo
                         </span>
                       );
@@ -222,7 +222,7 @@ function AdminPage() {
                           type="button"
                           onClick={() => setPendingToggle(u)}
                           disabled={statusMutation.isPending}
-                          className="cursor-pointer bg-transparent p-0 border-0 disabled:opacity-60"
+                          className="cursor-pointer bg-transparent p-0 border-0 rounded disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
                           aria-label={`Alterar situação de ${u.name}`}
                           title="Clique para alternar a situação"
                         >

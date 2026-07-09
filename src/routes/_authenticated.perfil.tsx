@@ -48,11 +48,11 @@ function PerfilPage() {
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">Situação</dt>
             <dd className="mt-1">
               {status === "Ativo" ? (
-                <span className="inline-flex items-center gap-1 text-xs text-success">
+                <span className="inline-flex items-center gap-1 text-xs text-[color:var(--pi-success-text-emphasis)]">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
                 </span>
               ) : status === "Inativo" ? (
-                <span className="inline-flex items-center gap-1 text-xs text-destructive">
+                <span className="inline-flex items-center gap-1 text-xs text-[color:var(--pi-danger-text-emphasis)]">
                   <XCircle className="h-3.5 w-3.5" /> Inativo
                 </span>
               ) : (
