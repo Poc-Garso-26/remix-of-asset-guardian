@@ -1,33 +1,39 @@
-# Corrigir os 2 achados de gravidade Média
 
-## Item 1 — Hydration mismatch no `<head>` (`src/routes/__root.tsx`)
+## Diagnóstico após investigação
 
-**Alteração:** adicionar `suppressHydrationWarning` no `<head>` e no `<script>` inline do tema em `RootShell` (linhas 105–106). Isso silencia o mismatch causado pelo atributo `data-tsd-source` (injetado pelo instrumentador de source-tracking do Lovable), que reporta números de linha diferentes entre SSR e cliente.
+Versões instaladas:
+- `vite`: `^8.0.16`
+- `@lovable.dev/vite-tanstack-config`: `2.7.1`
+- `vite-tsconfig-paths`: `^6.0.2`
 
-Antes:
-```tsx
-<head>
-  <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-  <HeadContent />
-</head>
-```
+Uso do plugin no repositório (busca com `rg`):
+- Zero referências em código do projeto (`src/`, `vite.config.ts`, `tsconfig.json`).
+- Presente apenas em `package.json`, `bun.lock` e `package-lock.json`.
+- `bun.lock` mostra: `vite-tsconfig-paths` é **peerDependency obrigatória** de `@lovable.dev/vite-tanstack-config@2.7.1` (`"vite-tsconfig-paths": ">=6.0.0"`).
 
-Depois:
-```tsx
-<head suppressHydrationWarning>
-  <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-  <HeadContent />
-</head>
-```
+Ou seja: o wrapper que define nosso `vite.config.ts` **importa `vite-tsconfig-paths` internamente** e o exige como peer dep. Ele não é código morto.
 
-Sem impacto visual, funcional ou de SEO. Apenas remove o warning do console.
+## Por que não é possível remover neste escopo
 
-## Item 2 — Warning `vite-tsconfig-paths` (`vite.config.ts`)
+1. **Remover do `package.json`** → quebra a peer dep do wrapper; o `defineConfig` do `@lovable.dev/vite-tanstack-config` falha ao resolver o import em build/dev.
+2. **Substituir por opção nativa do Vite** → o Vite 8 **não expõe** um `resolve.tsconfigPaths: true` nativo. A resolução de `paths` do tsconfig continua sendo feita via plugin (oficialmente `vite-tsconfig-paths`) ou via alias manual em `resolve.alias`. Não há equivalente 1:1 nativo suportado.
+3. **Ejetar do wrapper** para controlar os plugins manualmente exigiria reconstruir em `vite.config.ts`: `tanstackStart`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `nitro`, `lovable-tagger` (componentTagger dev-only), `@lovable.dev/vite-plugin-dev-server-bridge`, `@lovable.dev/vite-plugin-hmr-gate`, `@tanstack/devtools-vite`, error loggers, dedupe de React/TanStack, detecção de sandbox (host/port/strictPort) e injeção de `VITE_*`. Isso viola explicitamente as restrições da tarefa (“não alterar estrutura das rotas / APIs / autenticação / build”) e tem alto risco de regressão silenciosa em SSR/Nitro/HMR.
 
-**Análise após inspeção do arquivo:** o `vite.config.ts` do projeto usa `@lovable.dev/vite-tanstack-config`, cujo comentário no topo declara explicitamente que o plugin `tsConfigPaths` já é incluído internamente e **não** deve ser adicionado manualmente. Ou seja, o warning é emitido pelo wrapper da Lovable, não por código do projeto.
+## Ação proposta
 
-**Ação:** **nenhuma alteração no código do projeto.** Corrigir esse warning exige atualização do pacote upstream `@lovable.dev/vite-tanstack-config` para migrar de `vite-tsconfig-paths` (plugin) para `resolve.tsconfigPaths: true` (nativo do Vite 8). Fica registrado como pendência de upstream — sem impacto funcional.
+**Nenhuma alteração de código.** Registrar como pendência upstream:
 
-## Verificação
+- Atualização a ser feita em `@lovable.dev/vite-tanstack-config` (fora deste projeto) para substituir internamente o plugin quando/se o Vite expuser resolução nativa de `paths`.
+- Atualizar `.lovable/plan.md` para refletir a investigação (versões verificadas, motivo técnico, evidência de que o plugin é peer dep do wrapper).
 
-Após aplicar o Item 1: recarregar a página `/login`, abrir o console e confirmar que a mensagem "A tree hydrated but some attributes of the server rendered HTML didn't match…" com o diff de `data-tsd-source` não aparece mais.
+## Entrega
+
+Relatório final no formato pedido (Alterações realizadas, tabela de validação, Auditoria final, Conclusão) informando que:
+- Nenhum arquivo de código-fonte foi modificado.
+- Build/TypeScript/Rotas/Supabase/Interface/Console permanecem no mesmo estado da auditoria anterior (nada foi tocado).
+- O warning específico do `vite-tsconfig-paths` continua presente e depende de release upstream.
+- Nota de saúde permanece igual à auditoria anterior — não é possível melhorá-la sem ejetar do wrapper.
+
+## Observação
+
+Se você quiser mesmo assim seguir com a **ejeção do wrapper** (opção de alto risco que descartei acima), me diga explicitamente e eu abro um plano separado detalhando reconstrução plugin-a-plugin, matriz de testes de regressão (SSR, HMR, build de produção Nitro, Tailwind v4, componentTagger, error overlay) e rollback.
