@@ -222,7 +222,7 @@ function AdminPage() {
                           type="button"
                           onClick={() => setPendingToggle(u)}
                           disabled={statusMutation.isPending}
-                          className="cursor-pointer bg-transparent p-0 border-0 disabled:opacity-60"
+                          className="cursor-pointer bg-transparent p-0 border-0 rounded disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
                           aria-label={`Alterar situação de ${u.name}`}
                           title="Clique para alternar a situação"
                         >
