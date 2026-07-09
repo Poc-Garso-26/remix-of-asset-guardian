@@ -58,6 +58,12 @@ export function AssetsStatusChart() {
     return { chartData, config, total };
   }, [data]);
 
+  const ariaLabel = total === 0
+    ? "Gráfico de rosca: distribuição dos ativos por situação. Sem dados."
+    : `Gráfico de rosca: distribuição dos ativos por situação. Total ${total}. ${chartData
+        .map((r) => `${r.label}: ${r.count} (${((r.count / total) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%)`)
+        .join("; ")}.`;
+
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <div className="mb-4">
