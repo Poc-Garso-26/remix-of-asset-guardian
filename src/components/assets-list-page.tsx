@@ -377,8 +377,16 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
             <span className="font-medium text-foreground">{totalPages}</span>
           </span>
           <div className="flex items-center gap-1">
-            <PageBtn disabled={page === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</PageBtn>
-            <PageBtn disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</PageBtn>
+            <PageBtn
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              aria-label={page === 1 ? "Sem página anterior" : `Página anterior, página ${page - 1} de ${totalPages}`}
+            >Anterior</PageBtn>
+            <PageBtn
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              aria-label={page >= totalPages ? "Sem próxima página" : `Próxima página, página ${page + 1} de ${totalPages}`}
+            >Próxima</PageBtn>
           </div>
         </div>
       </div>
