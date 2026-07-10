@@ -212,8 +212,8 @@
   --pi-info-border-subtle: oklch(0.4 0.1 230);
   --pi-info-contrast: oklch(0.18 0.02 250);
 
-  --pi-border: oklch(1 0 0 / 12%);
-  --pi-border-strong: oklch(1 0 0 / 22%);
+  --pi-border: oklch(1 0 0 / 35%);
+  --pi-border-strong: oklch(1 0 0 / 55%);
   --pi-muted: oklch(0.27 0.02 250);
   --pi-muted-color: oklch(0.72 0.02 250);
   --pi-ring: oklch(0.7 0.14 255);
