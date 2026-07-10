@@ -268,7 +268,7 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
 }
 
 const inputCls =
-  "w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20";
+  "w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background";
 
 function Section({
   title,
