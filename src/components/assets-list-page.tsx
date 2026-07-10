@@ -147,7 +147,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                 updateSearch({ q: e.target.value });
                 setPage(1);
               }}
-              className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
             />
           </div>
 
@@ -208,7 +208,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
               <select
                 value={filters.qrCode ?? "all"}
                 onChange={(e) => setFilters((f) => ({ ...f, qrCode: e.target.value as "all" | "with" | "without" }))}
-                className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+                className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
               >
                 <option value="all">Todos</option>
                 <option value="with">Com QR Code</option>
@@ -427,7 +427,7 @@ function FilterInput({
         type={type}
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+        className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       />
     </div>
   );
