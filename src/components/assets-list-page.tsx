@@ -267,6 +267,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                     <th
                       key={key}
                       aria-sort={ariaSort}
+                      scope="col"
                       className="px-4 py-3 text-left font-medium"
                     >
                       {sortable ? (
