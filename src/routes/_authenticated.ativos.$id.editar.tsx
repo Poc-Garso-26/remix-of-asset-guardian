@@ -35,7 +35,7 @@ function EditAssetPage() {
   if (!asset) {
     return (
       <div className="mx-auto max-w-xl rounded-xl border border-border bg-card p-12 text-center">
-        <h2 className="font-display text-2xl">Ativo não encontrado</h2>
+        <h1 className="font-display text-2xl">Ativo não encontrado</h1>
         <Link to="/ativos" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
           Voltar para a lista
         </Link>
