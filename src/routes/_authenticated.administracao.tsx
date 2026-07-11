@@ -255,6 +255,13 @@ function AdminPage() {
                   </td>
                 </tr>
               )}
+              {!isLoading && users.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+                    Nenhum usuário encontrado.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
