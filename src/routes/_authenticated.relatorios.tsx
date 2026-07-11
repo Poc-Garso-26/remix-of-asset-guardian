@@ -161,12 +161,12 @@ function RelatoriosPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-2.5 text-left font-medium">Patrimônio</th>
-                <th className="px-4 py-2.5 text-left font-medium">Tipo</th>
-                <th className="px-4 py-2.5 text-left font-medium">Marca/Modelo</th>
-                <th className="px-4 py-2.5 text-left font-medium">Responsável</th>
-                <th className="px-4 py-2.5 text-left font-medium">Setor</th>
-                <th className="px-4 py-2.5 text-left font-medium">Situação</th>
+                <th scope="col" className="px-4 py-2.5 text-left font-medium">Patrimônio</th>
+                <th scope="col" className="px-4 py-2.5 text-left font-medium">Tipo</th>
+                <th scope="col" className="px-4 py-2.5 text-left font-medium">Marca/Modelo</th>
+                <th scope="col" className="px-4 py-2.5 text-left font-medium">Responsável</th>
+                <th scope="col" className="px-4 py-2.5 text-left font-medium">Setor</th>
+                <th scope="col" className="px-4 py-2.5 text-left font-medium">Situação</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
