@@ -251,7 +251,10 @@ function AdminPage() {
               {isLoading && (
                 <tr>
                   <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
-                    <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+                    <span role="status" aria-live="polite" className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      <span className="sr-only">Carregando…</span>
+                    </span>
                   </td>
                 </tr>
               )}

@@ -33,8 +33,9 @@ function AssetDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="flex h-64 items-center justify-center" role="status" aria-live="polite">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-hidden="true" />
+        <span className="sr-only">Carregando…</span>
       </div>
     );
   }
