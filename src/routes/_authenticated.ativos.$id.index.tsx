@@ -33,8 +33,9 @@ function AssetDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="flex h-64 items-center justify-center" role="status" aria-live="polite">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-hidden="true" />
+        <span className="sr-only">Carregando…</span>
       </div>
     );
   }
@@ -42,7 +43,7 @@ function AssetDetailsPage() {
   if (!asset) {
     return (
       <div className="mx-auto max-w-xl rounded-xl border border-border bg-card p-12 text-center">
-        <h2 className="font-display text-2xl">Ativo não encontrado</h2>
+        <h1 className="font-display text-2xl">Ativo não encontrado</h1>
         <p className="mt-2 text-sm text-muted-foreground">O ativo solicitado pode ter sido removido.</p>
         <Link to="/ativos" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
           Voltar para a lista
