@@ -1,36 +1,41 @@
-## Plço de ação — Bloco FINAL-1
+# Plano de ação — Bloco FINAL-2
 
-Escopo: apenas os itens 1 e 2 (Crítico) do relatório de varredura final. Nenhum outro arquivo ou item será modificado.
+Escopo: apenas os itens 3 e 4 (Importante) do relatório de varredura final. Nenhum outro arquivo ou item será modificado.
 
-### Item 1 — Traduzir páginas de erro/404 para português
+## Item 3 — Adicionar `scope="col"` em todas as tabelas
 
-Arquivo: `src/routes/__root.tsx`
+Arquivos: `src/components/assets-list-page.tsx`, `src/routes/_authenticated.administracao.tsx`, `src/routes/_authenticated.relatorios.tsx`.
 
-- `NotFoundComponent`:
-  - Título "404" permanece (número).
-  - "Page not found" → "Página não encontrada".
-  - "The page you're looking for doesn't exist or has been moved." → "A página que você procura não existe ou foi movida.".
-  - "Go home" → "Voltar para o início".
-- `ErrorComponent`:
-  - "This page didn't load" → "Esta página não carregou".
-  - "Something went wrong on our end. You can try refreshing or head back home." → "Algo deu errado do nosso lado. Você pode tentar recarregar ou voltar para o início.".
-  - "Try again" → "Tentar novamente".
-  - "Go home" → "Voltar para o início".
+- `assets-list-page.tsx`:
+  - No cabeçalho dinâmico, adicionar `scope="col"` no `<th>` que renderiza cada coluna de `COLUMNS`.
+  - No cabeçalho fixo, adicionar `scope="col"` no `<th>` da coluna "Ações".
+- `_authenticated.administracao.tsx`:
+  - Adicionar `scope="col"` nos 7 `<th>`: Nome, Usuário, E-mail, Perfil, Situação, Último acesso, Ações.
+- `_authenticated.relatorios.tsx`:
+  - Adicionar `scope="col"` nos 6 `<th>`: Patrimônio, Tipo, Marca/Modelo, Responsável, Setor, Situação.
 
-Nenhuma alteração de estilo, layout, cor ou classe será feita — apenas o texto.
+Nenhuma classe, estilo ou layout será alterado — apenas o atributo de acessibilidade.
 
-### Item 2 — Corrigir hierarquia de headings na tela de Login
+## Item 4 — Empty state na tabela de administração
 
-Arquivo: `src/routes/login.tsx`
+Arquivo: `src/routes/_authenticated.administracao.tsx`.
 
-- No painel esquerdo de marketing, o título "Inventário completo do seu parque de TI, em um só lugar." está atualmente em `<h2>`.
-- Rebaixar para `<p>` (mantendo classes e aparência visuais), já que é conteúdo decorativo/marketing.
-- O `<h1>"Entrar"</h1>` no formulário direito permanece como único heading de nível 1 da página.
+- Quando `users.length === 0 && !isLoading`, renderizar uma linha no `tbody`:
+  ```jsx
+  <tr>
+    <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+      Nenhum usuário encontrado.
+    </td>
+  </tr>
+  ```
+- `colSpan={7}` corresponde ao número real de colunas da tabela (Nome, Usuário, E-mail, Perfil, Situação, Último acesso, Ações).
+- Manter o estado de carregamento (`isLoading`) inalterado.
 
-### Execução e validação
+## Execução e validação
 
-1. Aplicar item 1 em `src/routes/__root.tsx` e informar o que mudou.
-2. Aplicar item 2 em `src/routes/login.tsx` e informar o que mudou.
-3. Ao final, entregar resumo consolidado com todos os textos alterados e a confirmação de que a hierarquia de headings foi corrigida.
+1. Aplicar item 3 nos três arquivos e informar o que mudou em cada um.
+2. Aplicar item 4 no arquivo de administração e informar o que mudou.
+3. Ao final, entregar resumo consolidado com as tabelas alteradas e a confirmação do empty state.
+4. Executar `bun run build` para validar que não houve regressão.
 
 Nenhum outro arquivo será tocado.

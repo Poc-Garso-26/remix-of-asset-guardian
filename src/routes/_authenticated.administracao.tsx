@@ -185,13 +185,13 @@ function AdminPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 text-left font-medium">Nome</th>
-                <th className="px-4 py-3 text-left font-medium">Usuário</th>
-                <th className="px-4 py-3 text-left font-medium">E-mail</th>
-                <th className="px-4 py-3 text-left font-medium">Perfil</th>
-                <th className="px-4 py-3 text-left font-medium">Situação</th>
-                <th className="px-4 py-3 text-left font-medium">Último acesso</th>
-                <th className="px-4 py-3 text-right font-medium">Ações</th>
+                <th scope="col" className="px-4 py-3 text-left font-medium">Nome</th>
+                <th scope="col" className="px-4 py-3 text-left font-medium">Usuário</th>
+                <th scope="col" className="px-4 py-3 text-left font-medium">E-mail</th>
+                <th scope="col" className="px-4 py-3 text-left font-medium">Perfil</th>
+                <th scope="col" className="px-4 py-3 text-left font-medium">Situação</th>
+                <th scope="col" className="px-4 py-3 text-left font-medium">Último acesso</th>
+                <th scope="col" className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border" aria-busy={isLoading} aria-live="polite">
@@ -252,6 +252,13 @@ function AdminPage() {
                 <tr>
                   <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
                     <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+                  </td>
+                </tr>
+              )}
+              {!isLoading && users.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+                    Nenhum usuário encontrado.
                   </td>
                 </tr>
               )}
