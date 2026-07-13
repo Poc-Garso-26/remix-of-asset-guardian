@@ -238,7 +238,7 @@ function AdminPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="gap-1.5"
+                      className="min-h-9 min-w-9 gap-1.5"
                       onClick={() => setEditing(u)}
                       aria-label="Editar perfil"
                       title="Editar perfil"
