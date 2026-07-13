@@ -43,6 +43,12 @@ function LoginPage() {
 
   return (
     <div className="relative grid min-h-dvh lg:grid-cols-2">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-20 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        Pular para conteúdo principal
+      </a>
       <div className="absolute right-4 top-4 z-10">
         <ThemeToggle />
       </div>
