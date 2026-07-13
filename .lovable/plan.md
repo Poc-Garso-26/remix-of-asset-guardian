@@ -1,41 +1,29 @@
-# Plano de ação — Bloco FINAL-2
+Plano de ação — Bloco FINAL-4
 
-Escopo: apenas os itens 3 e 4 (Importante) do relatório de varredura final. Nenhum outro arquivo ou item será modificado.
+Escopo: apenas os itens 7 e 9 (prioridade Importante) do relatório de varredura final. Nenhum outro arquivo ou item será modificado.
 
-## Item 3 — Adicionar `scope="col"` em todas as tabelas
+## Item 7 — Associar mensagens de erro aos campos de senha
 
-Arquivos: `src/components/assets-list-page.tsx`, `src/routes/_authenticated.administracao.tsx`, `src/routes/_authenticated.relatorios.tsx`.
+Arquivo: `src/components/register-user-form.tsx`
 
-- `assets-list-page.tsx`:
-  - No cabeçalho dinâmico, adicionar `scope="col"` no `<th>` que renderiza cada coluna de `COLUMNS`.
-  - No cabeçalho fixo, adicionar `scope="col"` no `<th>` da coluna "Ações".
-- `_authenticated.administracao.tsx`:
-  - Adicionar `scope="col"` nos 7 `<th>`: Nome, Usuário, E-mail, Perfil, Situação, Último acesso, Ações.
-- `_authenticated.relatorios.tsx`:
-  - Adicionar `scope="col"` nos 6 `<th>`: Patrimônio, Tipo, Marca/Modelo, Responsável, Setor, Situação.
+- Adicionar `id="error-password"` e `id="error-confirm"` nas mensagens de erro (`<p className="text-xs text-destructive">`) dos campos Senha e Confirmar senha.
+- Adicionar `aria-invalid={!!errors.password}` e `aria-describedby={errors.password ? "error-password" : undefined}` no `<PasswordInput id="reg-password">`.
+- Adicionar `aria-invalid={!!errors.confirm}` e `aria-describedby={errors.confirm ? "error-confirm" : undefined}` no `<PasswordInput id="reg-confirm">`.
 
-Nenhuma classe, estilo ou layout será alterado — apenas o atributo de acessibilidade.
+Nenhuma classe, estilo ou layout será alterado — apenas os atributos de acessibilidade.
 
-## Item 4 — Empty state na tabela de administração
+## Item 9 — Aumentar área de toque do botão "Voltar para ativos"
 
-Arquivo: `src/routes/_authenticated.administracao.tsx`.
+Arquivo: `src/routes/_authenticated.ativos.$id.index.tsx`
 
-- Quando `users.length === 0 && !isLoading`, renderizar uma linha no `tbody`:
-  ```jsx
-  <tr>
-    <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
-      Nenhum usuário encontrado.
-    </td>
-  </tr>
-  ```
-- `colSpan={7}` corresponde ao número real de colunas da tabela (Nome, Usuário, E-mail, Perfil, Situação, Último acesso, Ações).
-- Manter o estado de carregamento (`isLoading`) inalterado.
+- No botão de voltar (linhas 67-72), adicionar `min-h-9` às classes existentes para garantir área de toque mínima de 36px de altura, conforme padrão do Bloco NBR-1.
+- O tamanho do texto (`text-xs`) será mantido, já que a correção visa apenas a altura da área de acionamento.
 
 ## Execução e validação
 
-1. Aplicar item 3 nos três arquivos e informar o que mudou em cada um.
-2. Aplicar item 4 no arquivo de administração e informar o que mudou.
-3. Ao final, entregar resumo consolidado com as tabelas alteradas e a confirmação do empty state.
+1. Aplicar item 7 no formulário de cadastro e informar o que mudou.
+2. Aplicar item 9 na tela de detalhes do ativo e informar o que mudou.
+3. Ao final, entregar resumo consolidado com os arquivos alterados e as mudanças de acessibilidade aplicadas.
 4. Executar `bun run build` para validar que não houve regressão.
 
-Nenhum outro arquivo será tocado.
+Nenhum outro arquivo será tocado. Os Blocos FINAL-1, FINAL-2 e FINAL-3 permanecem intactos.

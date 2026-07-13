@@ -113,13 +113,29 @@ export function RegisterUserForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="reg-password">Senha</Label>
-          <PasswordInput id="reg-password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
-          {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+          <PasswordInput
+            id="reg-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? "error-password" : undefined}
+          />
+          {errors.password && <p id="error-password" className="text-xs text-destructive">{errors.password}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="reg-confirm">Confirmar senha</Label>
-          <PasswordInput id="reg-confirm" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required />
-          {errors.confirm && <p className="text-xs text-destructive">{errors.confirm}</p>}
+          <PasswordInput
+            id="reg-confirm"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoComplete="new-password"
+            required
+            aria-invalid={!!errors.confirm}
+            aria-describedby={errors.confirm ? "error-confirm" : undefined}
+          />
+          {errors.confirm && <p id="error-confirm" className="text-xs text-destructive">{errors.confirm}</p>}
         </div>
       </div>
 
