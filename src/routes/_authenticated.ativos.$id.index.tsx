@@ -66,7 +66,7 @@ function AssetDetailsPage() {
         <div>
           <button
             onClick={() => navigate({ to: "/ativos" })}
-            className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+            className="mb-3 inline-flex min-h-9 items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="h-3 w-3" /> Voltar para ativos
           </button>
