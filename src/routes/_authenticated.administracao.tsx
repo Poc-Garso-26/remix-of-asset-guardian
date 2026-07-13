@@ -223,7 +223,8 @@ function AdminPage() {
                           onClick={() => setPendingToggle(u)}
                           disabled={statusMutation.isPending}
                           className="cursor-pointer bg-transparent p-0 border-0 rounded disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-                          aria-label={`Alterar situação de ${u.name}`}
+                          aria-pressed={u.status === "Ativo"}
+                          aria-label={`${u.status === "Ativo" ? "Inativar" : "Ativar"} ${u.name}`}
                           title="Clique para alternar a situação"
                         >
                           {content}
@@ -238,7 +239,7 @@ function AdminPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="gap-1.5"
+                      className="min-h-9 min-w-9 gap-1.5"
                       onClick={() => setEditing(u)}
                       aria-label="Editar perfil"
                       title="Editar perfil"
