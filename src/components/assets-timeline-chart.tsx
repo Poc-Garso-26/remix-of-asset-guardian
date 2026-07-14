@@ -98,7 +98,8 @@ export function AssetsTimelineChart() {
               />
             </AreaChart>
           </ChartContainer>
-          <table className="sr-only">
+          <div className="sr-only">
+            <table>
             <caption>Aquisições de ativos nos últimos 12 meses</caption>
             <thead>
               <tr>
@@ -114,7 +115,8 @@ export function AssetsTimelineChart() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </div>

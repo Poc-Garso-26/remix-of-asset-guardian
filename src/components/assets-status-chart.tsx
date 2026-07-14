@@ -146,7 +146,8 @@ export function AssetsStatusChart() {
               />
             </PieChart>
           </ChartContainer>
-          <table className="sr-only">
+          <div className="sr-only">
+            <table>
             <caption>Distribuição dos ativos por situação</caption>
             <thead>
               <tr>
@@ -166,7 +167,8 @@ export function AssetsStatusChart() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </div>
