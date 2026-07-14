@@ -1,29 +1,32 @@
-Plano de ação — Bloco FINAL-4
+## Plano: correção pontual de visibilidade dos textos descritivos dos gráficos
 
-Escopo: apenas os itens 7 e 9 (prioridade Importante) do relatório de varredura final. Nenhum outro arquivo ou item será modificado.
+### Contexto
+No item 26 (Bloco D) foram adicionadas descrições textuais alternativas e tabelas de dados brutos aos gráficos `AssetsStatusChart` e `AssetsTimelineChart`. O usuário relatou que esses textos ficaram visíveis na tela, duplicando o título/subtítulo de cada card.
 
-## Item 7 — Associar mensagens de erro aos campos de senha
+### Escopo
+Aplicar apenas a correção pontual de visibilidade. Nenhuma outra alteração nos gráficos.
 
-Arquivo: `src/components/register-user-form.tsx`
+### Arquivos
+- `src/components/assets-status-chart.tsx`
+- `src/components/assets-timeline-chart.tsx`
 
-- Adicionar `id="error-password"` e `id="error-confirm"` nas mensagens de erro (`<p className="text-xs text-destructive">`) dos campos Senha e Confirmar senha.
-- Adicionar `aria-invalid={!!errors.password}` e `aria-describedby={errors.password ? "error-password" : undefined}` no `<PasswordInput id="reg-password">`.
-- Adicionar `aria-invalid={!!errors.confirm}` e `aria-describedby={errors.confirm ? "error-confirm" : undefined}` no `<PasswordInput id="reg-confirm">`.
+### Passos
 
-Nenhuma classe, estilo ou layout será alterado — apenas os atributos de acessibilidade.
+1. **Revisar `AssetsStatusChart`**
+   - Localizar a tabela de dados brutos e o texto descritivo abaixo do gráfico.
+   - Se estiverem visíveis, aplicar `sr-only` (mantendo-os no DOM para leitores de tela).
+   - Preservar `role="img"` e `aria-label` do gráfico.
 
-## Item 9 — Aumentar área de toque do botão "Voltar para ativos"
+2. **Revisar `AssetsTimelineChart`**
+   - Localizar a tabela de dados brutos e o texto descritivo abaixo do gráfico.
+   - Se estiverem visíveis, aplicar `sr-only`.
+   - Preservar `role="img"` e `aria-label` do gráfico.
 
-Arquivo: `src/routes/_authenticated.ativos.$id.index.tsx`
+3. **Validar**
+   - Executar `bun run build` para garantir que não houve regressão.
+   - Informar ao usuário o que foi alterado em cada arquivo.
 
-- No botão de voltar (linhas 67-72), adicionar `min-h-9` às classes existentes para garantir área de toque mínima de 36px de altura, conforme padrão do Bloco NBR-1.
-- O tamanho do texto (`text-xs`) será mantido, já que a correção visa apenas a altura da área de acionamento.
-
-## Execução e validação
-
-1. Aplicar item 7 no formulário de cadastro e informar o que mudou.
-2. Aplicar item 9 na tela de detalhes do ativo e informar o que mudou.
-3. Ao final, entregar resumo consolidado com os arquivos alterados e as mudanças de acessibilidade aplicadas.
-4. Executar `bun run build` para validar que não houve regressão.
-
-Nenhum outro arquivo será tocado. Os Blocos FINAL-1, FINAL-2 e FINAL-3 permanecem intactos.
+### Resultado esperado
+- O texto/tabela descritiva deixa de ser visível na tela.
+- Leitores de tela continuam anunciando a descrição via `aria-label` e/ou tabela `sr-only`.
+- O dashboard continua funcionando normalmente.
