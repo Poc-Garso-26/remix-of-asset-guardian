@@ -141,15 +141,25 @@ export function AppShell({ children }: { children: ReactNode }) {
             collapsed && "lg:justify-center lg:px-2",
           )}
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Boxes className="h-4 w-4" />
-          </div>
-          <div className={cn("flex flex-col leading-tight", collapsed && "lg:hidden")}>
-            <span className="text-sm font-semibold tracking-tight">GestãoTI</span>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Ativos de TI
-            </span>
-          </div>
+          <Link
+            to="/dashboard"
+            aria-label="GestãoTI — Ir para a página inicial"
+            className={cn(
+              "flex flex-1 items-center gap-2 rounded-md py-1.5 pr-2 transition-colors",
+              "hover:bg-sidebar-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              collapsed && "lg:justify-center lg:pr-1.5",
+            )}
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Boxes className="h-4 w-4" />
+            </div>
+            <div className={cn("flex flex-col leading-tight", collapsed && "lg:hidden")}>
+              <span className="text-sm font-semibold tracking-tight">GestãoTI</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                Ativos de TI
+              </span>
+            </div>
+          </Link>
           <button
             ref={closeButtonRef}
             className="ml-auto rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
