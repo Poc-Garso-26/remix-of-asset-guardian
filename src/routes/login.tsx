@@ -76,7 +76,7 @@ function LoginPage() {
           </p>
         </div>
 
-        <p className="text-xs text-primary-foreground/60">
+        <p className="text-xs text-primary-foreground/80">
           © {new Date().getFullYear()} GestãoTI · Todos os direitos reservados à Prodabel.
         </p>
       </div>
