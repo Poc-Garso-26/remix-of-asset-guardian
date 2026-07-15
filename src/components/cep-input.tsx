@@ -31,6 +31,8 @@ export const CepInput = React.forwardRef<HTMLInputElement, Props>(
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
     const lastFetchedRef = React.useRef<string>("");
+    const errorId = React.useId();
+    const statusId = React.useId();
 
     const digits = value.replace(/\D/g, "");
 
@@ -91,6 +93,7 @@ export const CepInput = React.forwardRef<HTMLInputElement, Props>(
             aria-label="CEP"
             aria-busy={loading}
             aria-invalid={!!error}
+            aria-describedby={error ? errorId : undefined}
             className={cn(
               "w-full rounded-md border border-input bg-background px-3 py-2 pr-9 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
               inputClassName,
@@ -104,7 +107,14 @@ export const CepInput = React.forwardRef<HTMLInputElement, Props>(
             />
           )}
         </div>
-        {error && <span className="text-xs text-destructive">{error}</span>}
+        <span id={statusId} role="status" aria-live="polite" className="sr-only">
+          {loading ? "Consultando CEP…" : ""}
+        </span>
+        {error && (
+          <span id={errorId} role="alert" className="text-xs text-destructive">
+            {error}
+          </span>
+        )}
       </div>
     );
   },
