@@ -34,9 +34,10 @@ function DashboardPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Visão geral
         </p>
-        <h1 className="mt-1 font-display text-4xl tracking-tight">
+        <h1 className="sr-only">Visão Geral</h1>
+        <p className="mt-1 font-display text-4xl tracking-tight">
           Olá, {session?.user.name.split(" ")[0]}
-        </h1>
+        </p>
         <p className="mt-1 text-sm text-foreground/80">
           Você está conectado como <span className="font-medium text-foreground">{roleLabel(session!.user.role)}</span>.
           Aqui está o panorama do parque de TI.
