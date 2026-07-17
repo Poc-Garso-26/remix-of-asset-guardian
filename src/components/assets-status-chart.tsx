@@ -59,6 +59,14 @@ export function AssetsStatusChart() {
     return { chartData, config, total };
   }, [data]);
 
+  useEffect(() => {
+    const root = chartRef.current;
+    if (!root) return;
+    root.querySelectorAll<HTMLElement>("svg, [tabindex]").forEach((el) => {
+      el.setAttribute("tabindex", "-1");
+    });
+  }, [chartData]);
+
   const ariaLabel = total === 0
     ? "Gráfico de rosca: distribuição dos ativos por situação. Sem dados."
     : `Gráfico de rosca: distribuição dos ativos por situação. Total ${total}. ${chartData
