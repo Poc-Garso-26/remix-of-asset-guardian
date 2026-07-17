@@ -38,6 +38,7 @@ function labelForStatus(status: string): string {
 }
 
 export function AssetsStatusChart() {
+  const chartRef = useRef<HTMLDivElement>(null);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["assets-status-distribution"],
     queryFn: () => assetsService.statusDistribution(),
