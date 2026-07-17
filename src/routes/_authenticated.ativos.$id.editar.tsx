@@ -49,7 +49,7 @@ function EditAssetPage() {
       <header>
         <button
           onClick={() => navigate({ to: "/ativos/$id", params: { id } })}
-          className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          className="mb-3 inline-flex min-h-9 items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-3 w-3" /> Voltar ao ativo
         </button>
