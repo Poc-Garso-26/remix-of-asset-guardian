@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Cell, Pie, PieChart } from "recharts";
 import { assetsService } from "@/lib/assets-service";
@@ -38,6 +38,7 @@ function labelForStatus(status: string): string {
 }
 
 export function AssetsStatusChart() {
+  const chartRef = useRef<HTMLDivElement>(null);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["assets-status-distribution"],
     queryFn: () => assetsService.statusDistribution(),
@@ -57,6 +58,14 @@ export function AssetsStatusChart() {
     );
     return { chartData, config, total };
   }, [data]);
+
+  useEffect(() => {
+    const root = chartRef.current;
+    if (!root) return;
+    root.querySelectorAll<HTMLElement>("svg, [tabindex]").forEach((el) => {
+      el.setAttribute("tabindex", "-1");
+    });
+  }, [chartData]);
 
   const ariaLabel = total === 0
     ? "Gráfico de rosca: distribuição dos ativos por situação. Sem dados."
@@ -97,7 +106,7 @@ export function AssetsStatusChart() {
           <p className="text-sm text-muted-foreground">Nenhum dado encontrado.</p>
         </div>
       ) : (
-        <div role="img" aria-label={ariaLabel}>
+        <div ref={chartRef} role="img" aria-label={ariaLabel}>
           <ChartContainer config={config} className="mx-auto aspect-square max-h-[260px] w-full">
             <PieChart>
               <ChartTooltip

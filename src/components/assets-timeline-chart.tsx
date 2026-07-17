@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { assetsService } from "@/lib/assets-service";
@@ -15,6 +15,7 @@ const config: ChartConfig = {
 };
 
 export function AssetsTimelineChart() {
+  const chartRef = useRef<HTMLDivElement>(null);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["assets", "acquisitions-timeline"],
     queryFn: () => assetsService.acquisitionsTimeline(),
@@ -24,6 +25,14 @@ export function AssetsTimelineChart() {
     () => (data ?? []).reduce((sum, r) => sum + r.count, 0),
     [data],
   );
+
+  useEffect(() => {
+    const root = chartRef.current;
+    if (!root) return;
+    root.querySelectorAll<HTMLElement>("svg, [tabindex]").forEach((el) => {
+      el.setAttribute("tabindex", "-1");
+    });
+  }, [data]);
 
   return (
     <div
@@ -65,6 +74,7 @@ export function AssetsTimelineChart() {
         </div>
       ) : (
         <div
+          ref={chartRef}
           role="img"
           aria-label={`Gráfico de área: aquisições de ativos nos últimos 12 meses. Total ${total}. ${(data ?? [])
             .map((r) => `${r.label}: ${r.count}`)
