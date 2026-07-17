@@ -15,6 +15,7 @@ const config: ChartConfig = {
 };
 
 export function AssetsTimelineChart() {
+  const chartRef = useRef<HTMLDivElement>(null);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["assets", "acquisitions-timeline"],
     queryFn: () => assetsService.acquisitionsTimeline(),
@@ -24,6 +25,14 @@ export function AssetsTimelineChart() {
     () => (data ?? []).reduce((sum, r) => sum + r.count, 0),
     [data],
   );
+
+  useEffect(() => {
+    const root = chartRef.current;
+    if (!root) return;
+    root.querySelectorAll<HTMLElement>("svg, [tabindex]").forEach((el) => {
+      el.setAttribute("tabindex", "-1");
+    });
+  }, [data]);
 
   return (
     <div
