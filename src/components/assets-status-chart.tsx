@@ -106,7 +106,7 @@ export function AssetsStatusChart() {
           <p className="text-sm text-muted-foreground">Nenhum dado encontrado.</p>
         </div>
       ) : (
-        <div role="img" aria-label={ariaLabel}>
+        <div ref={chartRef} role="img" aria-label={ariaLabel}>
           <ChartContainer config={config} className="mx-auto aspect-square max-h-[260px] w-full">
             <PieChart>
               <ChartTooltip
