@@ -41,6 +41,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
   const qc = useQueryClient();
 
   const [filters, setFilters] = useState<AssetFilters>({});
+  const [appliedFilters, setAppliedFilters] = useState<AssetFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState<keyof typeof COLUMNS>("createdAt");
@@ -51,13 +52,14 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
 
   const combined: AssetFilters = useMemo(
     () => ({
-      ...filters,
+      ...appliedFilters,
       type: effectiveType,
       status: search.status as AssetStatus | "all",
-      q: search.q || filters.q,
+      q: search.q || appliedFilters.q,
     }),
-    [filters, search, effectiveType],
+    [appliedFilters, search, effectiveType],
   );
+
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["assets", combined],
