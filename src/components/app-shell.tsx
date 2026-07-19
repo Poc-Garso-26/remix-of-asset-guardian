@@ -111,7 +111,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       "flex items-center gap-3 rounded-md px-2.5 py-2 text-sm transition-colors",
       collapsed && "lg:justify-center lg:px-0",
       active
-        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+        ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold shadow-sm"
         : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
     );
 
