@@ -41,6 +41,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
   const qc = useQueryClient();
 
   const [filters, setFilters] = useState<AssetFilters>({});
+  const [appliedFilters, setAppliedFilters] = useState<AssetFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState<keyof typeof COLUMNS>("createdAt");
@@ -51,13 +52,14 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
 
   const combined: AssetFilters = useMemo(
     () => ({
-      ...filters,
+      ...appliedFilters,
       type: effectiveType,
       status: search.status as AssetStatus | "all",
-      q: search.q || filters.q,
+      q: search.q || appliedFilters.q,
     }),
-    [filters, search, effectiveType],
+    [appliedFilters, search, effectiveType],
   );
+
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["assets", combined],
@@ -197,6 +199,9 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
 
         {showFilters && (
           <div className="mt-4 grid grid-cols-1 gap-3 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-4">
+            <p className="sm:col-span-2 lg:col-span-4 text-xs text-muted-foreground">
+              Preencha os campos abaixo e clique em <strong className="font-medium text-foreground">Pesquisar</strong> para aplicar os filtros avançados.
+            </p>
             <FilterInput label="Patrimônio" value={filters.patrimony} onChange={(v) => setFilters((f) => ({ ...f, patrimony: v }))} />
             <FilterInput label="Nº de série" value={filters.serialNumber} onChange={(v) => setFilters((f) => ({ ...f, serialNumber: v }))} />
             <FilterInput label="Marca" value={filters.brand} onChange={(v) => setFilters((f) => ({ ...f, brand: v }))} />
@@ -225,6 +230,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
               <button
                 onClick={() => {
                   setFilters({});
+                  setAppliedFilters({});
                   updateSearch({ type: fixedType ? "all" : "all", status: "all", q: "" });
                   setPage(1);
                 }}
@@ -233,7 +239,10 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                 <X className="h-4 w-4" /> Limpar filtros
               </button>
               <button
-                onClick={() => setPage(1)}
+                onClick={() => {
+                  setAppliedFilters(filters);
+                  setPage(1);
+                }}
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Search className="h-4 w-4" /> Pesquisar
@@ -241,6 +250,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
             </div>
           </div>
         )}
+
       </div>
 
       {/* Table */}
