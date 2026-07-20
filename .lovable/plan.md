@@ -1,36 +1,35 @@
+# Bloco G-3 — Tooltips dos gráficos acessíveis via teclado
+
 ## Objetivo
-Rodar varredura automatizada com Playwright + axe-core no preview local e auditar por código os itens 6 (toasts), 7 (ConfirmDialog) e 8 (CepInput). Aplicar apenas correções pontuais para não-conformidades encontradas nesses três itens.
+Tornar as informações dos gráficos do Dashboard (rosca de situação e linha de aquisições) disponíveis para quem navega por teclado sem depender de hover do mouse, e melhorar o rótulo de mês no tooltip do timeline.
 
-## Etapa 1 — Varredura automatizada (axe-core via Playwright)
+## Alterações
 
-Script em `/tmp/browser/axe/run.py` que:
-1. Restaura a sessão Supabase injetada (`LOVABLE_BROWSER_AUTH_STATUS`) para acessar rotas autenticadas.
-2. Percorre as rotas principais: `/login`, `/dashboard`, `/ativos`, `/ativos/computadores`, `/ativos/notebooks`, `/ativos/impressoras`, `/ativos/novo`, `/relatorios`, `/administracao`, `/perfil`.
-3. Em cada rota injeta `axe-core` via CDN e executa `axe.run` com tags `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa`.
-4. Consolida violações por rota (id, impacto, nós afetados) em `/tmp/browser/axe/report.json` + resumo textual.
-5. Captura screenshot de cada rota para referência visual.
+### 1) `src/components/assets-status-chart.tsx` — foco por fatia
+- Remover, do `useEffect` atual, a força de `tabindex="-1"` nos setores individuais (`<path>` das fatias). Continuar zerando o tabindex apenas do `<svg>` raiz e de wrappers `[tabindex]` genéricos do Recharts, mas **preservar/definir** `tabIndex=0` nos elementos `.recharts-sector` (uma fatia por status).
+- Adicionar `aria-label` em cada sector (ex.: `"Em uso: 12 (35,3%)"`) via `useEffect` para expor a informação também a leitores de tela que percorrem por Tab (redundante com a tabela `sr-only`, mas útil).
+- Controlar tooltip por estado (`activeIndex`) usando as props do `<Pie>` (`activeIndex`, `activeShape` default do Recharts) e disparar `setActiveIndex` tanto em `onMouseEnter`/`onMouseLeave` do Pie quanto via handlers `focus`/`blur` aplicados no `useEffect` aos `.recharts-sector`. No blur do último sector, limpar `activeIndex` para esconder o tooltip.
+- Nenhuma mudança visual: o tooltip renderizado é o mesmo `ChartTooltipContent` já configurado.
 
-Se `LOVABLE_BROWSER_AUTH_STATUS` não estiver `injected`, varrer apenas `/login` e reportar limitação.
+### 2) `src/components/assets-timeline-chart.tsx` — foco por ponto + rótulo completo
+- Trocar `<Area>` por combinação de área + `dot` visível/focável: usar `dot={{ r: 3 }}` e `activeDot={{ r: 5 }}` para que o Recharts gere `<circle class="recharts-dot">` por ponto.
+- No `useEffect` existente: manter `tabindex="-1"` no `<svg>` raiz e em wrappers genéricos; **atribuir** `tabIndex=0` em cada `.recharts-dot` e associar handlers de `focus`/`blur` que atualizam um estado `activeLabel` usado para forçar o tooltip via prop `active`/`payload` (padrão suportado pelo `Tooltip` do Recharts controlado — ou, alternativamente, disparar programaticamente `mouseenter` no ponto via `dispatchEvent`, mantendo estado simples).
+- Adicionar `aria-label` em cada dot com o rótulo completo do mês + contagem (ex.: `"dezembro de 2025: 4 aquisições"`).
 
-## Etapa 2 — Auditoria por código
+### 3) Rótulo completo de mês
+- Em `src/lib/assets-service.ts` (`acquisitionsTimeline`): adicionar um segundo campo `fullLabel` no bucket usando `Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" })` (ex.: `"dezembro de 2025"`). Manter `label` curto atual para o eixo X.
+- Em `assets-timeline-chart.tsx`: passar um `labelFormatter` ao `ChartTooltipContent` que troque o `label` curto pelo `fullLabel` do payload; também usar `fullLabel` no `aria-label` dos dots e na tabela `sr-only`.
 
-**Item 6 — Toasts (sonner):** revisar `src/routes/__root.tsx` e `src/components/ui/sonner.tsx`. Já verificado: `<Toaster richColors position="top-right" />` sem props que desativem `aria-live`; wrapper apenas customiza classes. Conforme — nada a corrigir.
+### 4) Preservar Bloco G-1
+Os SVGs raiz e wrappers genéricos continuam com `tabindex="-1"`. Apenas os elementos de dados (`.recharts-sector`, `.recharts-dot`) recebem `tabIndex=0`, exatamente os pontos onde o tooltip deve aparecer.
 
-**Item 7 — ConfirmDialog:** `src/components/confirm-dialog.tsx` usa Radix `AlertDialog`, que gerencia retorno de foco ao gatilho automaticamente. Chamadas em `assets-list-page.tsx`, `administracao.tsx`, `edit-user-role-dialog.tsx` e `ativos.$id.index.tsx` são controladas por estado (`open`/`onOpenChange`) — Radix devolve o foco ao trigger sempre que o open toggler for um botão focado antes. Conforme — nada a corrigir.
+## Como testar
+1. No `/dashboard`, tabular até o gráfico de rosca: o Tab deve parar em cada fatia (uma por status). A cada foco, o tooltip aparece com "Situação: N (P%)". Shift+Tab reverte.
+2. Continuar tabulando até o gráfico de linha: o Tab passa por cada ponto mensal; o tooltip mostra "dezembro de 2025 — Aquisições: N" (mês por extenso + ano).
+3. Passar o mouse continua funcionando igual. Leitor de tela: tabela `sr-only` inalterada; adicionalmente, cada fatia/ponto anuncia seu `aria-label`.
+4. Build (`bun run build` implícito pelo harness) sem erros.
 
-**Item 8 — CepInput:** `src/components/cep-input.tsx` usa apenas `aria-busy` no input para loading e um `<span>` estático para erro. Não anuncia carregamento nem erro em região viva. Não conforme — corrigir.
-
-## Etapa 3 — Correção pontual (apenas se confirmada)
-
-Em `src/components/cep-input.tsx`:
-- Adicionar região `role="status" aria-live="polite"` (visualmente `sr-only`) com texto "Consultando CEP…" enquanto `loading === true`.
-- Trocar o `<span>` de erro por elemento com `role="alert"` (mantendo classes de estilo).
-- Associar o erro ao input via `aria-describedby` apontando para o id do elemento de erro (gerado com `useId`).
-
-Nenhuma outra alteração no componente ou nos consumidores.
-
-## Etapa 4 — Relatório final
-Entregar ao usuário:
-- Resumo do axe por rota (violações críticas/sérias, com id da regra e seletor).
-- Status dos itens 6, 7, 8 (conforme / corrigido) com arquivos alterados.
-- Recomendações remanescentes que só podem ser validadas manualmente (leitor de tela).
+## Arquivos
+- `src/components/assets-status-chart.tsx`
+- `src/components/assets-timeline-chart.tsx`
+- `src/lib/assets-service.ts`

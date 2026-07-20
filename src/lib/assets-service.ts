@@ -324,7 +324,7 @@ export const assetsService = {
   },
 
   async acquisitionsTimeline(): Promise<
-    Array<{ month: string; label: string; count: number }>
+    Array<{ month: string; label: string; fullLabel: string; count: number }>
   > {
     const { data, error } = await supabase
       .from("assets")
@@ -333,10 +333,14 @@ export const assetsService = {
     if (error) throw error;
 
     const now = new Date();
-    const buckets: Array<{ month: string; label: string; count: number }> = [];
+    const buckets: Array<{ month: string; label: string; fullLabel: string; count: number }> = [];
     const monthFmt = new Intl.DateTimeFormat("pt-BR", {
       month: "short",
       year: "2-digit",
+    });
+    const fullMonthFmt = new Intl.DateTimeFormat("pt-BR", {
+      month: "long",
+      year: "numeric",
     });
     const keyOf = (d: Date) =>
       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -346,8 +350,9 @@ export const assetsService = {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = keyOf(d);
       const label = monthFmt.format(d).replace(".", "");
+      const fullLabel = fullMonthFmt.format(d);
       index.set(key, buckets.length);
-      buckets.push({ month: key, label, count: 0 });
+      buckets.push({ month: key, label, fullLabel, count: 0 });
     }
 
     for (const row of (data ?? []) as Array<{
@@ -365,6 +370,7 @@ export const assetsService = {
 
     return buckets;
   },
+
 
 
   async statusDistribution(): Promise<

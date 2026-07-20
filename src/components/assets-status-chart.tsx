@@ -61,11 +61,58 @@ export function AssetsStatusChart() {
 
   useEffect(() => {
     const root = chartRef.current;
-    if (!root) return;
-    root.querySelectorAll<HTMLElement>("svg, [tabindex]").forEach((el) => {
+    if (!root || chartData.length === 0) return;
+
+    // Bloco G-1: SVG raiz e wrappers genéricos não devem receber foco.
+    root.querySelectorAll<HTMLElement>("svg").forEach((el) => {
       el.setAttribute("tabindex", "-1");
     });
-  }, [chartData]);
+    root.querySelectorAll<HTMLElement>(".recharts-wrapper[tabindex]").forEach((el) => {
+      el.setAttribute("tabindex", "-1");
+    });
+
+    // Bloco G-3: fatias individuais devem ser focáveis por teclado.
+    const sectors = Array.from(
+      root.querySelectorAll<SVGPathElement>(".recharts-pie-sector path.recharts-sector"),
+    );
+    const cleanups: Array<() => void> = [];
+    sectors.forEach((sector, i) => {
+      const entry = chartData[i];
+      if (!entry) return;
+      const pct = total > 0 ? (entry.count / total) * 100 : 0;
+      const pctStr = pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+      sector.setAttribute("tabindex", "0");
+      sector.setAttribute("role", "img");
+      sector.setAttribute(
+        "aria-label",
+        `${entry.label}: ${entry.count} (${pctStr}%)`,
+      );
+      sector.style.outline = "none";
+      const fire = (type: string) => {
+        sector.dispatchEvent(
+          new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
+        );
+      };
+      const onFocus = () => {
+        fire("mouseover");
+        fire("mouseenter");
+      };
+      const onBlur = () => {
+        fire("mouseout");
+        fire("mouseleave");
+      };
+      sector.addEventListener("focus", onFocus);
+      sector.addEventListener("blur", onBlur);
+      cleanups.push(() => {
+        sector.removeEventListener("focus", onFocus);
+        sector.removeEventListener("blur", onBlur);
+      });
+    });
+
+    return () => {
+      cleanups.forEach((fn) => fn());
+    };
+  }, [chartData, total]);
 
   const ariaLabel = total === 0
     ? "Gráfico de rosca: distribuição dos ativos por situação. Sem dados."

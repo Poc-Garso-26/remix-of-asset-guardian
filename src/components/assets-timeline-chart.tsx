@@ -28,10 +28,55 @@ export function AssetsTimelineChart() {
 
   useEffect(() => {
     const root = chartRef.current;
-    if (!root) return;
-    root.querySelectorAll<HTMLElement>("svg, [tabindex]").forEach((el) => {
+    if (!root || !data || data.length === 0) return;
+
+    // Bloco G-1: SVG raiz e wrappers genéricos não devem receber foco.
+    root.querySelectorAll<HTMLElement>("svg").forEach((el) => {
       el.setAttribute("tabindex", "-1");
     });
+    root.querySelectorAll<HTMLElement>(".recharts-wrapper[tabindex]").forEach((el) => {
+      el.setAttribute("tabindex", "-1");
+    });
+
+    // Bloco G-3: pontos individuais devem ser focáveis por teclado.
+    const dots = Array.from(
+      root.querySelectorAll<SVGCircleElement>(".recharts-area-dots .recharts-dot"),
+    );
+    const cleanups: Array<() => void> = [];
+    dots.forEach((dot, i) => {
+      const entry = data[i];
+      if (!entry) return;
+      dot.setAttribute("tabindex", "0");
+      dot.setAttribute("role", "img");
+      dot.setAttribute(
+        "aria-label",
+        `${entry.fullLabel}: ${entry.count} ${entry.count === 1 ? "aquisição" : "aquisições"}`,
+      );
+      (dot as unknown as SVGElement).style.outline = "none";
+      const fire = (type: string) => {
+        dot.dispatchEvent(
+          new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
+        );
+      };
+      const onFocus = () => {
+        fire("mouseover");
+        fire("mouseenter");
+      };
+      const onBlur = () => {
+        fire("mouseout");
+        fire("mouseleave");
+      };
+      dot.addEventListener("focus", onFocus);
+      dot.addEventListener("blur", onBlur);
+      cleanups.push(() => {
+        dot.removeEventListener("focus", onFocus);
+        dot.removeEventListener("blur", onBlur);
+      });
+    });
+
+    return () => {
+      cleanups.forEach((fn) => fn());
+    };
   }, [data]);
 
   return (
@@ -77,7 +122,7 @@ export function AssetsTimelineChart() {
           ref={chartRef}
           role="img"
           aria-label={`Gráfico de área: aquisições de ativos nos últimos 12 meses. Total ${total}. ${(data ?? [])
-            .map((r) => `${r.label}: ${r.count}`)
+            .map((r) => `${r.fullLabel}: ${r.count}`)
             .join("; ")}.`}
         >
           <ChartContainer config={config} className="aspect-square max-h-[260px] w-full">
@@ -97,7 +142,18 @@ export function AssetsTimelineChart() {
                 interval="preserveStartEnd"
               />
               <YAxis hide allowDecimals={false} />
-              <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator="line"
+                    labelFormatter={(_label, payload) => {
+                      const full = (payload?.[0]?.payload as { fullLabel?: string } | undefined)
+                        ?.fullLabel;
+                      return full ?? _label;
+                    }}
+                  />
+                }
+              />
               <Area
                 dataKey="count"
                 name="Aquisições"
@@ -105,6 +161,8 @@ export function AssetsTimelineChart() {
                 stroke="var(--color-count)"
                 strokeWidth={2}
                 fill="url(#acqGradient)"
+                dot={{ r: 3, strokeWidth: 2 }}
+                activeDot={{ r: 5 }}
               />
             </AreaChart>
           </ChartContainer>
@@ -120,7 +178,7 @@ export function AssetsTimelineChart() {
             <tbody>
               {(data ?? []).map((r) => (
                 <tr key={r.label}>
-                  <th scope="row">{r.label}</th>
+                  <th scope="row">{r.fullLabel}</th>
                   <td>{r.count}</td>
                 </tr>
               ))}
