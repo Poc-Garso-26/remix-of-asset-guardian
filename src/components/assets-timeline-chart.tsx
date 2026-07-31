@@ -84,7 +84,7 @@ export function AssetsTimelineChart() {
       ) : (
         <div
           ref={chartRef}
-          role="img"
+          role="group"
           aria-label={`Gráfico de área: aquisições de ativos nos últimos 12 meses. Total ${total}. ${(data ?? [])
             .map((r) => `${r.fullLabel}: ${r.count}`)
             .join("; ")}.`}
