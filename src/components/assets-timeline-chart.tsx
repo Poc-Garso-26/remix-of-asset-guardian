@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { assetsService } from "@/lib/assets-service";
+import { useChartKeyboardA11y } from "@/lib/use-chart-keyboard-a11y";
 import {
   ChartContainer,
   ChartTooltip,
@@ -9,6 +10,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
+
 
 const config: ChartConfig = {
   count: { label: "Aquisições", color: "var(--primary)" },
@@ -26,58 +28,20 @@ export function AssetsTimelineChart() {
     [data],
   );
 
-  useEffect(() => {
-    const root = chartRef.current;
-    if (!root || !data || data.length === 0) return;
+  const dotLabels = useMemo(
+    () =>
+      (data ?? []).map(
+        (entry) =>
+          `${entry.fullLabel}: ${entry.count} ${entry.count === 1 ? "aquisição" : "aquisições"}`,
+      ),
+    [data],
+  );
 
-    // Bloco G-1: SVG raiz e wrappers genéricos não devem receber foco.
-    root.querySelectorAll<HTMLElement>("svg").forEach((el) => {
-      el.setAttribute("tabindex", "-1");
-    });
-    root.querySelectorAll<HTMLElement>(".recharts-wrapper[tabindex]").forEach((el) => {
-      el.setAttribute("tabindex", "-1");
-    });
+  useChartKeyboardA11y(chartRef, {
+    selector: ".recharts-area-dots .recharts-dot, .recharts-area-dot",
+    labels: dotLabels,
+  });
 
-    // Bloco G-3: pontos individuais devem ser focáveis por teclado.
-    const dots = Array.from(
-      root.querySelectorAll<SVGCircleElement>(".recharts-area-dots .recharts-dot"),
-    );
-    const cleanups: Array<() => void> = [];
-    dots.forEach((dot, i) => {
-      const entry = data[i];
-      if (!entry) return;
-      dot.setAttribute("tabindex", "0");
-      dot.setAttribute("role", "img");
-      dot.setAttribute(
-        "aria-label",
-        `${entry.fullLabel}: ${entry.count} ${entry.count === 1 ? "aquisição" : "aquisições"}`,
-      );
-      (dot as unknown as SVGElement).style.outline = "none";
-      const fire = (type: string) => {
-        dot.dispatchEvent(
-          new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
-        );
-      };
-      const onFocus = () => {
-        fire("mouseover");
-        fire("mouseenter");
-      };
-      const onBlur = () => {
-        fire("mouseout");
-        fire("mouseleave");
-      };
-      dot.addEventListener("focus", onFocus);
-      dot.addEventListener("blur", onBlur);
-      cleanups.push(() => {
-        dot.removeEventListener("focus", onFocus);
-        dot.removeEventListener("blur", onBlur);
-      });
-    });
-
-    return () => {
-      cleanups.forEach((fn) => fn());
-    };
-  }, [data]);
 
   return (
     <div
@@ -120,7 +84,7 @@ export function AssetsTimelineChart() {
       ) : (
         <div
           ref={chartRef}
-          role="img"
+          role="group"
           aria-label={`Gráfico de área: aquisições de ativos nos últimos 12 meses. Total ${total}. ${(data ?? [])
             .map((r) => `${r.fullLabel}: ${r.count}`)
             .join("; ")}.`}

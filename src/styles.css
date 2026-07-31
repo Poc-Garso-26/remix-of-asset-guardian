@@ -325,4 +325,15 @@
   .high-contrast :focus-visible {
     outline-width: 3px;
   }
+
+  /* Bloco G-3: foco visível nas fatias/pontos dos gráficos.
+     Vence os outline-none aplicados pelo ChartContainer. */
+  [data-chart-focusable]:focus,
+  [data-chart-focusable]:focus-visible {
+    outline: 2px solid var(--pi-ring) !important;
+    outline-offset: 2px;
+    stroke: var(--pi-ring);
+    stroke-width: 3;
+  }
 }
+
