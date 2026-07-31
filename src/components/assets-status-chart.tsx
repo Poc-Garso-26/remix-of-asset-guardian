@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Cell, Pie, PieChart } from "recharts";
 import { assetsService } from "@/lib/assets-service";
 import { ASSET_STATUS_LABEL, type AssetStatus } from "@/lib/assets-types";
+import { useChartKeyboardA11y } from "@/lib/use-chart-keyboard-a11y";
 import {
   ChartContainer,
   ChartLegend,
@@ -12,6 +13,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
+
 
 const KNOWN_COLORS: Record<AssetStatus, string> = {
   em_uso: "var(--success)",
