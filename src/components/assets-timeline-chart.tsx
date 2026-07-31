@@ -28,58 +28,20 @@ export function AssetsTimelineChart() {
     [data],
   );
 
-  useEffect(() => {
-    const root = chartRef.current;
-    if (!root || !data || data.length === 0) return;
+  const dotLabels = useMemo(
+    () =>
+      (data ?? []).map(
+        (entry) =>
+          `${entry.fullLabel}: ${entry.count} ${entry.count === 1 ? "aquisição" : "aquisições"}`,
+      ),
+    [data],
+  );
 
-    // Bloco G-1: SVG raiz e wrappers genéricos não devem receber foco.
-    root.querySelectorAll<HTMLElement>("svg").forEach((el) => {
-      el.setAttribute("tabindex", "-1");
-    });
-    root.querySelectorAll<HTMLElement>(".recharts-wrapper[tabindex]").forEach((el) => {
-      el.setAttribute("tabindex", "-1");
-    });
+  useChartKeyboardA11y(chartRef, {
+    selector: ".recharts-area-dots .recharts-dot, .recharts-area-dot",
+    labels: dotLabels,
+  });
 
-    // Bloco G-3: pontos individuais devem ser focáveis por teclado.
-    const dots = Array.from(
-      root.querySelectorAll<SVGCircleElement>(".recharts-area-dots .recharts-dot"),
-    );
-    const cleanups: Array<() => void> = [];
-    dots.forEach((dot, i) => {
-      const entry = data[i];
-      if (!entry) return;
-      dot.setAttribute("tabindex", "0");
-      dot.setAttribute("role", "img");
-      dot.setAttribute(
-        "aria-label",
-        `${entry.fullLabel}: ${entry.count} ${entry.count === 1 ? "aquisição" : "aquisições"}`,
-      );
-      (dot as unknown as SVGElement).style.outline = "none";
-      const fire = (type: string) => {
-        dot.dispatchEvent(
-          new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
-        );
-      };
-      const onFocus = () => {
-        fire("mouseover");
-        fire("mouseenter");
-      };
-      const onBlur = () => {
-        fire("mouseout");
-        fire("mouseleave");
-      };
-      dot.addEventListener("focus", onFocus);
-      dot.addEventListener("blur", onBlur);
-      cleanups.push(() => {
-        dot.removeEventListener("focus", onFocus);
-        dot.removeEventListener("blur", onBlur);
-      });
-    });
-
-    return () => {
-      cleanups.forEach((fn) => fn());
-    };
-  }, [data]);
 
   return (
     <div
