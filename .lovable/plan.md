@@ -1,35 +1,28 @@
-# Bloco G-3 — Tooltips dos gráficos acessíveis via teclado
+# Bloco G-3 (retomada) — corrigir navegação por teclado nos gráficos
 
-## Objetivo
-Tornar as informações dos gráficos do Dashboard (rosca de situação e linha de aquisições) disponíveis para quem navega por teclado sem depender de hover do mouse, e melhorar o rótulo de mês no tooltip do timeline.
+## Diagnóstico
 
-## Alterações
+Investiguei o DOM ao vivo e o código. O `LOVABLE_BROWSER_AUTH_STATUS` deste projeto é `external_unmanaged`, então não consigo abrir `/dashboard` autenticado no sandbox para medir `document.activeElement` — a verificação final por teclado terá de ser sua. O que consegui confirmar por código explica os sintomas relatados:
 
-### 1) `src/components/assets-status-chart.tsx` — foco por fatia
-- Remover, do `useEffect` atual, a força de `tabindex="-1"` nos setores individuais (`<path>` das fatias). Continuar zerando o tabindex apenas do `<svg>` raiz e de wrappers `[tabindex]` genéricos do Recharts, mas **preservar/definir** `tabIndex=0` nos elementos `.recharts-sector` (uma fatia por status).
-- Adicionar `aria-label` em cada sector (ex.: `"Em uso: 12 (35,3%)"`) via `useEffect` para expor a informação também a leitores de tela que percorrem por Tab (redundante com a tabela `sr-only`, mas útil).
-- Controlar tooltip por estado (`activeIndex`) usando as props do `<Pie>` (`activeIndex`, `activeShape` default do Recharts) e disparar `setActiveIndex` tanto em `onMouseEnter`/`onMouseLeave` do Pie quanto via handlers `focus`/`blur` aplicados no `useEffect` aos `.recharts-sector`. No blur do último sector, limpar `activeIndex` para esconder o tooltip.
-- Nenhuma mudança visual: o tooltip renderizado é o mesmo `ChartTooltipContent` já configurado.
+1. **Causa raiz principal — o efeito roda antes dos elementos existirem.** Os gráficos ficam dentro de `ChartContainer`, que usa o `ResponsiveContainer` do Recharts. Ele só renderiza o `<svg>` depois que o `ResizeObserver` mede a largura do contêiner, ou seja, **depois** do `useEffect`. Como as dependências do efeito (`[chartData, total]` / `[data]`) não mudam mais após a chegada dos dados, `querySelectorAll('.recharts-sector')` retorna vazio e o efeito nunca reexecuta. Nada recebe `tabindex`.
+2. **Agravante no gráfico de linha:** os pontos (`.recharts-area-dots .recharts-dot`) só são montados no fim da animação de entrada da área — bem depois do efeito.
+3. **Foco invisível mesmo se aplicado:** `src/components/ui/chart.tsx` força `[&_.recharts-sector]:outline-none`, `[&_.recharts-layer]:outline-none` e `[&_.recharts-surface]:outline-none`, e o código atual ainda define `style.outline = "none"` em cada fatia/ponto. Portanto, mesmo com foco, não haveria indicação visual.
+4. **Rótulo não anunciado:** o wrapper tem `role="img"`. Elementos dentro de um `role="img"` são tratados como presentacionais pelas tecnologias assistivas, então o `aria-label` de cada fatia focada seria ignorado.
+5. **Compatibilidade de SVG:** `tabindex` em `<path>`/`<circle>` funciona em Chrome/Firefox atuais, mas convém adicionar `focusable="true"` por segurança em navegadores mais antigos/WebKit.
 
-### 2) `src/components/assets-timeline-chart.tsx` — foco por ponto + rótulo completo
-- Trocar `<Area>` por combinação de área + `dot` visível/focável: usar `dot={{ r: 3 }}` e `activeDot={{ r: 5 }}` para que o Recharts gere `<circle class="recharts-dot">` por ponto.
-- No `useEffect` existente: manter `tabindex="-1"` no `<svg>` raiz e em wrappers genéricos; **atribuir** `tabIndex=0` em cada `.recharts-dot` e associar handlers de `focus`/`blur` que atualizam um estado `activeLabel` usado para forçar o tooltip via prop `active`/`payload` (padrão suportado pelo `Tooltip` do Recharts controlado — ou, alternativamente, disparar programaticamente `mouseenter` no ponto via `dispatchEvent`, mantendo estado simples).
-- Adicionar `aria-label` em cada dot com o rótulo completo do mês + contagem (ex.: `"dezembro de 2025: 4 aquisições"`).
+## O que será mudado
 
-### 3) Rótulo completo de mês
-- Em `src/lib/assets-service.ts` (`acquisitionsTimeline`): adicionar um segundo campo `fullLabel` no bucket usando `Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" })` (ex.: `"dezembro de 2025"`). Manter `label` curto atual para o eixo X.
-- Em `assets-timeline-chart.tsx`: passar um `labelFormatter` ao `ChartTooltipContent` que troque o `label` curto pelo `fullLabel` do payload; também usar `fullLabel` no `aria-label` dos dots e na tabela `sr-only`.
+Em `src/components/assets-status-chart.tsx` e `src/components/assets-timeline-chart.tsx`:
 
-### 4) Preservar Bloco G-1
-Os SVGs raiz e wrappers genéricos continuam com `tabindex="-1"`. Apenas os elementos de dados (`.recharts-sector`, `.recharts-dot`) recebem `tabIndex=0`, exatamente os pontos onde o tooltip deve aparecer.
+- **Unificar em um único efeito** que primeiro neutraliza o foco dos elementos genéricos (`<svg>`, `.recharts-wrapper[tabindex]`, preservando o Bloco G-1) e depois aplica foco aos elementos de dados.
+- **Aguardar a renderização real** com um `MutationObserver` no contêiner do gráfico: a cada mutação, reaplica a marcação; para de observar quando o número esperado de fatias/pontos já está marcado (com fallback que continua observando enquanto o componente estiver montado, para sobreviver a re-renders e resize).
+- Em cada fatia/ponto: `tabindex="0"`, `focusable="true"`, `role="img"`, `aria-label` com valor e percentual (rosca) ou mês completo e quantidade (linha) — mantendo o disparo dos eventos de mouse no `focus`/`blur` para exibir o tooltip existente, sem mudar a aparência dele.
+- **Indicação visual de foco:** remover o `outline: none` inline e adicionar regra CSS de foco visível para esses elementos (contorno sólido de 2px com offset, usando token de cor existente), com especificidade suficiente para vencer os `outline-none` de `chart.tsx`. Sem foco, a aparência dos gráficos fica idêntica.
+- **Remover o `role="img"` do wrapper** (mantendo o `aria-label` como `aria-roledescription`/`aria-label` em um contêiner `role="group"`), para que fatias e pontos focados sejam anunciados. A tabela `sr-only` e o `labelFormatter` ficam intocados, como você pediu.
 
-## Como testar
-1. No `/dashboard`, tabular até o gráfico de rosca: o Tab deve parar em cada fatia (uma por status). A cada foco, o tooltip aparece com "Situação: N (P%)". Shift+Tab reverte.
-2. Continuar tabulando até o gráfico de linha: o Tab passa por cada ponto mensal; o tooltip mostra "dezembro de 2025 — Aquisições: N" (mês por extenso + ano).
-3. Passar o mouse continua funcionando igual. Leitor de tela: tabela `sr-only` inalterada; adicionalmente, cada fatia/ponto anuncia seu `aria-label`.
-4. Build (`bun run build` implícito pelo harness) sem erros.
+## Como você valida
 
-## Arquivos
-- `src/components/assets-status-chart.tsx`
-- `src/components/assets-timeline-chart.tsx`
-- `src/lib/assets-service.ts`
+1. `/dashboard`, Tab a partir do link "Ver todos": o foco deve entrar fatia por fatia na rosca, com contorno visível e tooltip aparecendo.
+2. Continuar tabulando: o foco percorre cada ponto mensal do gráfico de linha.
+3. No console: `document.activeElement` deve retornar `path.recharts-sector` / `circle.recharts-dot` e `document.activeElement.getAttribute('aria-label')` o texto correspondente.
+4. Hover com mouse permanece igual.
