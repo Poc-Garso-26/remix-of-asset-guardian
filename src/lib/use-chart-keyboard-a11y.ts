@@ -46,7 +46,15 @@ export function useChartKeyboardA11y(
         .forEach((el) => {
           setIfNeeded(el, "tabindex", "-1");
         });
-
+      // Camadas internas do Recharts (ex.: g.recharts-pie) recebem tabindex=0
+      // por padrão e criariam paradas de foco sem informação.
+      root
+        .querySelectorAll<SVGElement>(
+          '.recharts-layer[tabindex="0"]:not([data-chart-focusable])',
+        )
+        .forEach((el) => {
+          setIfNeeded(el, "tabindex", "-1");
+        });
 
       // 2. Elementos de dados focáveis por teclado.
       //    O Recharts define tabIndex={-1} nas fatias como prop de React e
@@ -73,19 +81,37 @@ export function useChartKeyboardA11y(
         if (node.dataset["chartFocusable"] === "true") return;
         node.dataset["chartFocusable"] = "true";
 
-        const fire = (type: string) => {
-          node.dispatchEvent(
-            new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
+        // Gráficos cartesianos (área/linha) posicionam o tooltip a partir das
+        // coordenadas do mouse sobre o contêiner, então além dos eventos no
+        // próprio elemento disparamos eventos com as coordenadas do seu centro.
+        const fire = (type: string, target: EventTarget = node) => {
+          const rect = node.getBoundingClientRect();
+          target.dispatchEvent(
+            new MouseEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + rect.height / 2,
+            }),
           );
         };
+        const wrapper = () => node.closest<HTMLElement>(".recharts-wrapper");
         const onFocus = () => {
           fire("mouseover");
           fire("mouseenter");
           fire("mousemove");
+          const w = wrapper();
+          if (w) {
+            fire("mouseenter", w);
+            fire("mousemove", w);
+          }
         };
         const onBlur = () => {
           fire("mouseout");
           fire("mouseleave");
+          const w = wrapper();
+          if (w) fire("mouseleave", w);
         };
         node.addEventListener("focus", onFocus);
         node.addEventListener("blur", onBlur);
@@ -93,6 +119,7 @@ export function useChartKeyboardA11y(
           node.removeEventListener("focus", onFocus);
           node.removeEventListener("blur", onBlur);
         });
+
       });
     };
 
