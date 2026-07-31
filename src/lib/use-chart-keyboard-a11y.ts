@@ -44,20 +44,29 @@ export function useChartKeyboardA11y(
         });
 
       // 2. Elementos de dados focáveis por teclado.
+      //    O Recharts define tabIndex={-1} nas fatias como prop de React e
+      //    reaplica isso a cada quadro da animação, então precisamos reforçar
+      //    os atributos sempre que eles forem sobrescritos.
       const nodes = Array.from(root.querySelectorAll<SVGElement>(selector));
       nodes.forEach((node, i) => {
         const label = labels[i];
         if (!label) return;
-        if (node.dataset["chartFocusable"] === "true") {
-          // Já preparado; só mantém o rótulo em sincronia.
-          node.setAttribute("aria-label", label);
-          return;
+
+        if (node.getAttribute("tabindex") !== "0") {
+          node.setAttribute("tabindex", "0");
         }
+        if (node.getAttribute("focusable") !== "true") {
+          node.setAttribute("focusable", "true");
+        }
+        if (node.getAttribute("role") !== "img") {
+          node.setAttribute("role", "img");
+        }
+        if (node.getAttribute("aria-label") !== label) {
+          node.setAttribute("aria-label", label);
+        }
+
+        if (node.dataset["chartFocusable"] === "true") return;
         node.dataset["chartFocusable"] = "true";
-        node.setAttribute("tabindex", "0");
-        node.setAttribute("focusable", "true");
-        node.setAttribute("role", "img");
-        node.setAttribute("aria-label", label);
 
         const fire = (type: string) => {
           node.dispatchEvent(
@@ -80,20 +89,27 @@ export function useChartKeyboardA11y(
           node.removeEventListener("blur", onBlur);
         });
       });
-
-      return nodes.length;
     };
 
     apply();
 
+    // childList: o <svg> só aparece depois da medição do ResponsiveContainer
+    // e os pontos da área só no fim da animação.
+    // attributes/tabindex: o Recharts reescreve tabindex durante a animação.
     const observer = new MutationObserver(() => {
       apply();
     });
-    observer.observe(root, { childList: true, subtree: true });
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["tabindex"],
+    });
 
     return () => {
       observer.disconnect();
       cleanups.forEach((fn) => fn());
     };
   }, [ref, selector, labels]);
+
 }
