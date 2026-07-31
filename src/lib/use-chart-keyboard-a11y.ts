@@ -31,17 +31,22 @@ export function useChartKeyboardA11y(
 
     const cleanups: Array<() => void> = [];
 
+    const setIfNeeded = (el: Element, name: string, value: string) => {
+      if (el.getAttribute(name) !== value) el.setAttribute(name, value);
+    };
+
     const apply = () => {
       // 1. Elementos genéricos não devem receber foco.
       root.querySelectorAll<SVGElement>("svg").forEach((el) => {
-        el.setAttribute("tabindex", "-1");
-        el.setAttribute("focusable", "false");
+        setIfNeeded(el, "tabindex", "-1");
+        setIfNeeded(el, "focusable", "false");
       });
       root
         .querySelectorAll<HTMLElement>(".recharts-wrapper[tabindex]")
         .forEach((el) => {
-          el.setAttribute("tabindex", "-1");
+          setIfNeeded(el, "tabindex", "-1");
         });
+
 
       // 2. Elementos de dados focáveis por teclado.
       //    O Recharts define tabIndex={-1} nas fatias como prop de React e
