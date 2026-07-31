@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { assetsService } from "@/lib/assets-service";
+import { useChartKeyboardA11y } from "@/lib/use-chart-keyboard-a11y";
 import {
   ChartContainer,
   ChartTooltip,
@@ -9,6 +10,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
+
 
 const config: ChartConfig = {
   count: { label: "Aquisições", color: "var(--primary)" },
