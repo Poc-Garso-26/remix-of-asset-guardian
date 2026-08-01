@@ -230,9 +230,21 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         <Field label="UF" error={form.formState.errors.uf?.message}>
           <input {...form.register("uf")} maxLength={2} className={cn(inputCls, "uppercase")} placeholder="SP" />
         </Field>
-        <Field label="Data de aquisição" required error={form.formState.errors.acquisitionDate?.message}>
-          <input type="date" {...form.register("acquisitionDate")} className={inputCls} />
+        <Field
+          label="Data de aquisição"
+          required
+          hint="Formato dd/mm/aaaa"
+          error={form.formState.errors.acquisitionDate?.message}
+        >
+          <DateField
+            name="acquisitionDate"
+            value={form.watch("acquisitionDate") ?? ""}
+            onChange={(iso) =>
+              form.setValue("acquisitionDate", iso, { shouldDirty: true, shouldValidate: true })
+            }
+          />
         </Field>
+
       </Section>
 
 
