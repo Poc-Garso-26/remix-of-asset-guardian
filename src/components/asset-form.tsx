@@ -356,12 +356,14 @@ function Field({
   children,
   className,
   required,
+  hint,
 }: {
   label: string;
   error?: string;
   children: React.ReactNode;
   className?: string;
   required?: boolean;
+  hint?: string;
 }) {
   const autoId = useId();
   const child = isValidElement(children)
@@ -375,9 +377,9 @@ function Field({
     : null;
   const childId = child?.props?.id ?? autoId;
   const errorId = error ? `${childId}-error` : undefined;
-  const describedBy = error
-    ? [child?.props?.["aria-describedby"], errorId].filter(Boolean).join(" ")
-    : child?.props?.["aria-describedby"];
+  const hintId = hint ? `${childId}-hint` : undefined;
+  const describedBy =
+    [child?.props?.["aria-describedby"], hintId, errorId].filter(Boolean).join(" ") || undefined;
   const rendered = child
     ? cloneElement(child, {
         id: childId,
@@ -400,11 +402,17 @@ function Field({
         )}
       </label>
       {rendered}
+      {hint && (
+        <span id={hintId} className="text-xs text-muted-foreground">
+          {hint}
+        </span>
+      )}
       {error && (
         <span id={errorId} role="alert" className="text-xs text-destructive">
           {error}
         </span>
       )}
+
     </div>
   );
 }
