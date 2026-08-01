@@ -108,7 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const labelClass = cn("truncate", collapsed && "lg:hidden");
   const itemClass = (active: boolean) =>
     cn(
-      "flex items-center gap-3 rounded-md px-2.5 py-2 text-sm transition-colors",
+      "flex items-center gap-3 rounded-md px-2.5 py-2.5 text-base transition-colors",
       collapsed && "lg:justify-center lg:px-0",
       active
         ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold shadow-sm"
@@ -154,8 +154,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Boxes className="h-4 w-4" />
             </div>
             <div className={cn("flex flex-col leading-tight", collapsed && "lg:hidden")}>
-              <span className="text-sm font-semibold tracking-tight">GestãoTI</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span className="text-base font-semibold tracking-tight">GestãoTI</span>
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
                 Ativos de TI
               </span>
             </div>
@@ -178,7 +178,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <p
             className={cn(
-              "px-2 pb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground",
+              "px-2 pb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground",
               collapsed && "lg:hidden",
             )}
           >
@@ -207,7 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <p
             className={cn(
-              "mt-6 px-2 pb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground",
+              "mt-6 px-2 pb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground",
               collapsed && "lg:hidden",
             )}
           >
@@ -232,7 +232,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 title={collapsed ? "Sair" : undefined}
                 aria-label="Sair"
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-destructive",
+                  "flex w-full items-center gap-3 rounded-md px-2.5 py-2.5 text-base text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-destructive",
                   collapsed && "lg:justify-center lg:px-0",
                 )}
               >
@@ -289,7 +289,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="ml-auto flex items-center gap-3">
             <ThemeToggle />
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium leading-tight">{session.user.name}</p>
+              <p className="text-base font-medium leading-tight">{session.user.name}</p>
               <p className="text-xs text-muted-foreground">{roleLabel(session.user.role)}</p>
             </div>
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
