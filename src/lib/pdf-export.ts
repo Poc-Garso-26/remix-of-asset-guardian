@@ -37,7 +37,7 @@ function describeFilters(f: AssetFilters = {}): string[] {
   if (f.type && f.type !== "all") out.push(`Tipo: ${ASSET_TYPE_LABEL[f.type]}`);
   if (f.status && f.status !== "all") out.push(`Situação: ${ASSET_STATUS_LABEL[f.status]}`);
   if (f.patrimony) out.push(`Patrimônio: ${f.patrimony}`);
-  if (f.serialNumber) out.push(`Nº de série: ${f.serialNumber}`);
+  if (f.serialNumber) out.push(`Número de série: ${f.serialNumber}`);
   if (f.brand) out.push(`Marca: ${f.brand}`);
   if (f.model) out.push(`Modelo: ${f.model}`);
   if (f.responsible) out.push(`Responsável: ${f.responsible}`);

@@ -212,7 +212,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
               Preencha os campos abaixo e clique em <strong className="font-medium text-foreground">Pesquisar</strong> para aplicar os filtros avançados.
             </p>
             <FilterInput label="Patrimônio" value={filters.patrimony} onChange={(v) => setFilters((f) => ({ ...f, patrimony: v }))} />
-            <FilterInput label="Nº de série" value={filters.serialNumber} onChange={(v) => setFilters((f) => ({ ...f, serialNumber: v }))} />
+            <FilterInput label={<><span aria-hidden="true">Nº de série</span><span className="sr-only">Número de série</span></>} value={filters.serialNumber} onChange={(v) => setFilters((f) => ({ ...f, serialNumber: v }))} />
             <FilterInput label="Marca" value={filters.brand} onChange={(v) => setFilters((f) => ({ ...f, brand: v }))} />
             <FilterInput label="Modelo" value={filters.model} onChange={(v) => setFilters((f) => ({ ...f, model: v }))} />
             <FilterInput label="Responsável" value={filters.responsible} onChange={(v) => setFilters((f) => ({ ...f, responsible: v }))} />
@@ -437,7 +437,7 @@ function FilterInput({
   onChange,
   type = "text",
 }: {
-  label: string;
+  label: React.ReactNode;
   value?: string;
   onChange: (v: string) => void;
   type?: string;
