@@ -183,6 +183,7 @@ function AdminPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
+            <caption className="sr-only">Usuários cadastrados</caption>
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-medium">Nome</th>

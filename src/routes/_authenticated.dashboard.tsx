@@ -93,6 +93,8 @@ function DashboardPage() {
           <div className="overflow-hidden rounded-lg border border-border">
             <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-sm">
+              <caption className="sr-only">Últimos ativos cadastrados</caption>
+
 
               <thead className="bg-muted/50 text-xs uppercase tracking-wider text-foreground/80">
                 <tr>

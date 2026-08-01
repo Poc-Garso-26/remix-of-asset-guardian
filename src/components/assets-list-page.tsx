@@ -263,6 +263,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
+            <caption className="sr-only">Listagem de ativos</caption>
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 {Object.entries(COLUMNS).map(([key, label]) => {
