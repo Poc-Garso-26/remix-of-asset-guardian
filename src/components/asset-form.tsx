@@ -331,6 +331,23 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         </button>
       </div>
     </form>
+
+    <ConfirmDialog
+      open={pending !== null}
+      onOpenChange={(open) => {
+        if (!open) setPending(null);
+      }}
+      title={
+        pending?.patrimony
+          ? `Confirmar as alterações no ativo ${pending.patrimony}?`
+          : "Confirmar as alterações neste ativo?"
+      }
+      description="Os dados serão gravados no sistema e não há como desfazer automaticamente. Escolha “Revisar” para voltar ao formulário sem gravar."
+      confirmLabel="Confirmar"
+      cancelLabel="Revisar"
+      onConfirm={() => { void confirmSave(); }}
+    />
+    </>
   );
 }
 
