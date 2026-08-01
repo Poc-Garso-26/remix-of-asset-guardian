@@ -131,15 +131,30 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
 
   const type = form.watch("type");
   const isPrinter = type === "impressora";
-  const submitting = form.formState.isSubmitting;
+  const [pending, setPending] = useState<AssetFormValues | null>(null);
+  const [saving, setSaving] = useState(false);
+  const submitting = saving;
   const errorCount = Object.keys(form.formState.errors).length;
 
+  const confirmSave = async () => {
+    if (!pending) return;
+    const values = pending;
+    setPending(null);
+    setSaving(true);
+    try {
+      await onSubmit(values);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
+    <>
     <form
       noValidate
       onSubmit={form.handleSubmit(
-        async (v) => {
-          await onSubmit(v);
+        (v) => {
+          setPending(v);
         },
         (errors) => {
           // WCAG 3.3.1: foca o primeiro campo com erro, na ordem do formulário.
