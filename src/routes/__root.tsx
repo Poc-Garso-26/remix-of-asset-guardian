@@ -123,7 +123,9 @@ function RootComponent() {
         <AuthProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
-          <Toaster richColors position="top-right" />
+          <aside aria-label="Notificações do sistema">
+            <Toaster richColors position="top-right" />
+          </aside>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

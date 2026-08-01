@@ -5,6 +5,7 @@ type ToasterProps = React.ComponentProps<typeof Sonner>;
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
+      containerAriaLabel="Notificações"
       className="toaster group"
       toastOptions={{
         classNames: {
