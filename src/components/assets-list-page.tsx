@@ -129,6 +129,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
           {can("report.export") && (
             <button
               onClick={handleExport}
+              aria-label="Exportar PDF com os ativos listados (baixa um arquivo PDF; o nome e o tamanho do arquivo serão informados após a geração)"
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition hover:bg-accent"
             >
               <FileDown className="h-4 w-4" /> Exportar PDF
