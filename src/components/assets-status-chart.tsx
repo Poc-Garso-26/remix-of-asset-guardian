@@ -16,11 +16,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 
 const KNOWN_COLORS: Record<AssetStatus, string> = {
-  em_uso: "var(--success)",
-  estoque: "var(--info)",
-  manutencao: "var(--warning)",
-  baixado: "var(--muted-foreground)",
+  em_uso: "var(--chart-status-em-uso)",
+  estoque: "var(--chart-status-estoque)",
+  manutencao: "var(--chart-status-manutencao)",
+  baixado: "var(--chart-status-baixado)",
 };
+
 
 const FALLBACK_PALETTE = [
   "var(--chart-1)",
