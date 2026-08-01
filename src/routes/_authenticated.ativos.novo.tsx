@@ -23,9 +23,9 @@ function NewAssetPage() {
       <header>
         <button
           onClick={() => navigate({ to: "/ativos" })}
-          className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          className="mb-3 inline-flex min-h-9 items-center gap-1 rounded-md text-xs text-muted-foreground underline decoration-dotted underline-offset-4 transition-colors hover:text-foreground hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:decoration-solid"
         >
-          <ChevronLeft className="h-3 w-3" /> Voltar para ativos
+          <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden="true" /> Voltar para ativos
         </button>
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Inventário</p>
         <h1 className="mt-1 font-display text-4xl tracking-tight">Cadastrar novo ativo</h1>
