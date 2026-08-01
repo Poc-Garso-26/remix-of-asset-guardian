@@ -233,9 +233,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 title={collapsed ? "Sair" : undefined}
                 aria-label="Sair"
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-md px-2.5 py-2.5 text-base text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-destructive",
-                  collapsed && "lg:justify-center lg:px-0",
+                  "flex w-full items-center gap-3 rounded-md border-l-4 border-l-transparent px-2.5 py-2.5 text-base text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-destructive",
+                  collapsed && "lg:justify-center lg:pl-1.5 lg:pr-0",
                 )}
+
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 <span className={labelClass}>Sair</span>
