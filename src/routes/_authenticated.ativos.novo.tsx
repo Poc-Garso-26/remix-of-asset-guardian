@@ -41,6 +41,8 @@ function NewAssetPage() {
           const created = await assetsService.create(values);
           await qc.invalidateQueries({ queryKey: ["assets"] });
           await qc.invalidateQueries({ queryKey: ["assets-summary"] });
+          await qc.invalidateQueries({ queryKey: ["assets-status-distribution"] });
+
           toast.success("Ativo cadastrado com sucesso", {
             description: `${created.patrimony} • ${created.brand} ${created.model}`,
           });
