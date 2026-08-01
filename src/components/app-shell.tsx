@@ -137,7 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div
           className={cn(
-            "flex h-16 items-center gap-2 border-b border-sidebar-border px-5",
+            "flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border px-5",
             collapsed && "lg:justify-center lg:px-2",
           )}
         >
