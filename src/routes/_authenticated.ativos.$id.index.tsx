@@ -107,7 +107,7 @@ function AssetDetailsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <InfoCard title="Identificação" className="lg:col-span-2">
           <Row label="Patrimônio" value={asset.patrimony} mono />
-          <Row label="Nº de série" value={asset.serialNumber} mono />
+          <Row label={<><span aria-hidden="true">Nº de série</span><span className="sr-only">Número de série</span></>} value={asset.serialNumber} mono />
           <Row label="Marca" value={asset.brand} />
           <Row label="Modelo" value={asset.model} />
           <Row label="Situação" value={ASSET_STATUS_LABEL[asset.status]} />
@@ -226,7 +226,7 @@ function InfoCard({
   );
 }
 
-function Row({ label, value, mono }: { label: string; value?: string; mono?: boolean }) {
+function Row({ label, value, mono }: { label: React.ReactNode; value?: string; mono?: boolean }) {
   return (
     <div>
       <dt className="text-xs uppercase tracking-wider text-muted-foreground">{label}</dt>

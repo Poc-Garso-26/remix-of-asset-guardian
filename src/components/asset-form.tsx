@@ -22,7 +22,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 const baseSchema = z.object({
   type: z.enum(["computador", "notebook", "impressora"]),
   patrimony: z.string().trim().min(1, "Informe o patrimônio").max(40),
-  serialNumber: z.string().trim().min(1, "Informe o nº de série").max(80),
+  serialNumber: z.string().trim().min(1, "Informe o número de série").max(80),
   brand: z.string().trim().min(1, "Informe a marca").max(60),
   model: z.string().trim().min(1, "Informe o modelo").max(80),
   cep: z
@@ -196,7 +196,7 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         <Field label="Patrimônio" required error={form.formState.errors.patrimony?.message}>
           <input {...form.register("patrimony")} className={inputCls} placeholder="Ex.: PC-1042" />
         </Field>
-        <Field label="Nº de série" required error={form.formState.errors.serialNumber?.message}>
+        <Field label={<><span aria-hidden="true">Nº de série</span><span className="sr-only">Número de série</span></>} required error={form.formState.errors.serialNumber?.message}>
           <input {...form.register("serialNumber")} className={inputCls} />
         </Field>
         <Field label="Marca" required error={form.formState.errors.brand?.message}>
@@ -391,7 +391,7 @@ function Field({
   required,
   hint,
 }: {
-  label: string;
+  label: React.ReactNode;
   error?: string;
   children: React.ReactNode;
   className?: string;
