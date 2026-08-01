@@ -118,7 +118,9 @@ function DashboardPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
+
         </div>
 
         <div className="space-y-4 rounded-xl border border-border bg-card p-5">
