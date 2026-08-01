@@ -170,7 +170,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        <nav className={cn("px-3 py-4", collapsed && "lg:px-2")}>
+        <nav
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4",
+            collapsed && "lg:px-2",
+          )}
+        >
           <p
             className={cn(
               "px-2 pb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground",
