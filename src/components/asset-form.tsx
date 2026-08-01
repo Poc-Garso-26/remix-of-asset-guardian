@@ -53,6 +53,37 @@ const baseSchema = z.object({
 
 export type AssetFormValues = z.infer<typeof baseSchema>;
 
+/** Ordem visual dos campos — usada para focar o primeiro campo com erro. */
+const FIELD_ORDER: Array<keyof AssetFormValues> = [
+  "type",
+  "patrimony",
+  "serialNumber",
+  "brand",
+  "model",
+  "cep",
+  "status",
+  "sector",
+  "responsible",
+  "location",
+  "logradouro",
+  "bairro",
+  "cidade",
+  "uf",
+  "acquisitionDate",
+  "processor",
+  "ram",
+  "storage",
+  "operatingSystem",
+  "hostname",
+  "ipAddress",
+  "macAddress",
+  "printType",
+  "color",
+  "network",
+  "notes",
+];
+
+
 interface Props {
   initial?: Partial<Asset>;
   submitLabel: string;
