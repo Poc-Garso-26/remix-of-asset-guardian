@@ -408,6 +408,8 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
           await assetsService.remove(toDelete.id);
           await qc.invalidateQueries({ queryKey: ["assets"] });
           await qc.invalidateQueries({ queryKey: ["assets-summary"] });
+          await qc.invalidateQueries({ queryKey: ["assets-status-distribution"] });
+
           toast.success("Ativo excluído", { description: toDelete.patrimony });
           setDeleteId(null);
         }}

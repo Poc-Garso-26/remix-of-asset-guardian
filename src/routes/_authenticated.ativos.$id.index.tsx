@@ -56,6 +56,8 @@ function AssetDetailsPage() {
     await assetsService.remove(asset.id);
     await qc.invalidateQueries({ queryKey: ["assets"] });
     await qc.invalidateQueries({ queryKey: ["assets-summary"] });
+    await qc.invalidateQueries({ queryKey: ["assets-status-distribution"] });
+
     toast.success("Ativo excluído", { description: asset.patrimony });
     navigate({ to: "/ativos" });
   };

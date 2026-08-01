@@ -361,8 +361,15 @@ export const assetsService = {
     }>) {
       const source = row.acquisition_date || row.created_at;
       if (!source) continue;
-      const d = new Date(source);
+      // Datas puras (YYYY-MM-DD) são interpretadas como meia-noite UTC por
+      // `new Date`, o que desloca o mês em fusos negativos (Brasil = UTC-3).
+      // Por isso o parsing é feito no fuso local.
+      const pure = /^(\d{4})-(\d{2})-(\d{2})$/.exec(source);
+      const d = pure
+        ? new Date(Number(pure[1]), Number(pure[2]) - 1, Number(pure[3]))
+        : new Date(source);
       if (Number.isNaN(d.getTime())) continue;
+
       const key = keyOf(d);
       const idx = index.get(key);
       if (idx !== undefined) buckets[idx].count += 1;
