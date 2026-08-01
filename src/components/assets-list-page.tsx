@@ -295,14 +295,21 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
                         <button
                           type="button"
                           onClick={handleSort}
-                          className="inline-flex items-center gap-1 rounded py-1 font-medium uppercase tracking-wider hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="inline-flex cursor-pointer items-center gap-1 rounded px-1 py-1 font-medium uppercase tracking-wider hover:bg-muted hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           {label}
-                          {isActive && <span aria-hidden="true" className="text-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
+                          {isActive ? (
+                            <span aria-hidden="true" className="text-foreground">
+                              {sortDir === "asc" ? "↑" : "↓"}
+                            </span>
+                          ) : (
+                            <span aria-hidden="true" className="opacity-60">↕</span>
+                          )}
                         </button>
                       ) : (
                         <span className="inline-flex items-center gap-1">{label}</span>
                       )}
+
                     </th>
                   );
                 })}
