@@ -52,7 +52,6 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
-    "js-yaml": "^5.2.2",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.575.0",
@@ -92,5 +91,8 @@
   "allowScripts": {
     "core-js@3.49.0": true,
     "esbuild@0.25.12": true
+  },
+  "overrides": {
+    "js-yaml": "4.3.1"
   }
 }
