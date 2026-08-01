@@ -98,14 +98,38 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
   const type = form.watch("type");
   const isPrinter = type === "impressora";
   const submitting = form.formState.isSubmitting;
+  const errorCount = Object.keys(form.formState.errors).length;
 
   return (
     <form
-      onSubmit={form.handleSubmit(async (v) => {
-        await onSubmit(v);
-      })}
+      noValidate
+      onSubmit={form.handleSubmit(
+        async (v) => {
+          await onSubmit(v);
+        },
+        (errors) => {
+          // WCAG 3.3.1: foca o primeiro campo com erro, na ordem do formulário.
+          const first = FIELD_ORDER.find((name) => errors[name]);
+          if (first) {
+            form.setFocus(first, { shouldSelect: true });
+            const el = document.querySelector<HTMLElement>(`[name="${first}"]`);
+            el?.scrollIntoView({ block: "center", behavior: "smooth" });
+          }
+        },
+      )}
       className="space-y-6"
     >
+      {errorCount > 0 && (
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {errorCount === 1
+            ? "1 campo precisa de correção. Verifique as mensagens abaixo dos campos destacados."
+            : `${errorCount} campos precisam de correção. Verifique as mensagens abaixo dos campos destacados.`}
+        </div>
+      )}
+
       <Section title="Identificação" description="Dados básicos do equipamento.">
         <Field label="Tipo" required error={form.formState.errors.type?.message}>
           <select {...form.register("type")} className={inputCls}>
