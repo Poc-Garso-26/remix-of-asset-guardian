@@ -591,7 +591,7 @@ function PageBtn({
   return (
     <button
       {...props}
-      className="rounded-md border border-border bg-card px-3 py-1.5 min-h-9 text-xs font-medium text-foreground transition hover:bg-accent disabled:opacity-50"
+      className="rounded-md border border-border bg-card px-3 py-1.5 min-h-9 text-xs font-medium text-foreground transition enabled:hover:bg-accent disabled:border-dashed disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
     >
       {children}
     </button>
