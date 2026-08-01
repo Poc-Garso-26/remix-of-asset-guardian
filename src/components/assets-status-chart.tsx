@@ -153,13 +153,15 @@ export function AssetsStatusChart() {
                 nameKey="status"
                 innerRadius={60}
                 outerRadius={90}
-                strokeWidth={2}
+                stroke="var(--chart-status-outline)"
+                strokeWidth={1.5}
                 paddingAngle={2}
               >
                 {chartData.map((entry) => (
                   <Cell key={entry.status} fill={entry.fill} />
                 ))}
               </Pie>
+
               <ChartLegend
                 content={<ChartLegendContent nameKey="status" />}
                 verticalAlign="bottom"
