@@ -51,7 +51,21 @@ function describeFilters(f: AssetFilters = {}): string[] {
   return out;
 }
 
-export function exportAssetsPdf(opts: ExportOptions): void {
+export interface ExportResult {
+  fileName: string;
+  sizeBytes: number;
+}
+
+/** Formata bytes em KB/MB no padrão pt-BR (ex.: "128 KB", "1,4 MB"). */
+export function formatFileSize(bytes: number): string {
+  if (!bytes || bytes <= 0) return "tamanho indisponível";
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024)).toLocaleString("pt-BR")} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`;
+}
+
+export function exportAssetsPdf(opts: ExportOptions): ExportResult {
   const { title, assets, filters, generatedBy } = opts;
 
   const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
@@ -144,5 +158,16 @@ export function exportAssetsPdf(opts: ExportOptions): void {
 
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const stamp = new Date().toISOString().slice(0, 10);
-  doc.save(`${slug || "relatorio"}-${stamp}.pdf`);
+  const fileName = `${slug || "relatorio"}-${stamp}.pdf`;
+
+  let sizeBytes = 0;
+  try {
+    sizeBytes = (doc.output("blob") as Blob).size;
+  } catch {
+    sizeBytes = 0;
+  }
+
+  doc.save(fileName);
+
+  return { fileName, sizeBytes };
 }

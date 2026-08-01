@@ -11,7 +11,7 @@ import {
   type AssetType,
 } from "@/lib/assets-types";
 import { useAuth } from "@/lib/auth";
-import { exportAssetsPdf } from "@/lib/pdf-export";
+import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({ meta: [{ title: "Relatórios — GestãoTI" }] }),
@@ -70,13 +70,15 @@ function RelatoriosPage() {
       toast.info("Nenhum registro corresponde aos filtros selecionados.");
       return;
     }
-    exportAssetsPdf({
+    const { fileName, sizeBytes } = exportAssetsPdf({
       title,
       assets,
       filters: queryFilters,
       generatedBy: session?.user.name,
     });
-    toast.success("Relatório PDF gerado", { description: `${assets.length} registro(s)` });
+    toast.success("Relatório PDF gerado", {
+      description: `Arquivo ${fileName} (${formatFileSize(sizeBytes)}) — ${assets.length} registro(s)`,
+    });
   };
 
   return (
@@ -141,6 +143,7 @@ function RelatoriosPage() {
           <button
             onClick={handleExport}
             disabled={isLoading || assets.length === 0}
+            aria-label="Exportar PDF do relatório (baixa um arquivo PDF; o nome e o tamanho do arquivo serão informados após a geração)"
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
           >
             <FileDown className="h-4 w-4" /> Exportar PDF

@@ -84,6 +84,7 @@ function DashboardPage() {
             </div>
             <Link
               to="/ativos"
+              aria-label="Ver todos os ativos"
               className="text-xs font-medium text-primary hover:underline"
             >
               Ver todos

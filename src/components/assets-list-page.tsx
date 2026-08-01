@@ -23,7 +23,7 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { exportAssetsPdf } from "@/lib/pdf-export";
+import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
 
 export const assetsSearchSchema = z.object({
   type: z.enum(["all", "computador", "notebook", "impressora"]).catch("all").default("all"),
@@ -101,13 +101,15 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
       toast.info("Nenhum registro para exportar com os filtros atuais.");
       return;
     }
-    exportAssetsPdf({
+    const { fileName, sizeBytes } = exportAssetsPdf({
       title,
       assets: sorted,
       filters: combined,
       generatedBy: session?.user.name,
     });
-    toast.success("Relatório PDF gerado", { description: `${sorted.length} registro(s) exportado(s)` });
+    toast.success("Relatório PDF gerado", {
+      description: `Arquivo ${fileName} (${formatFileSize(sizeBytes)}) — ${sorted.length} registro(s) exportado(s)`,
+    });
   };
 
   return (
@@ -127,6 +129,7 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
           {can("report.export") && (
             <button
               onClick={handleExport}
+              aria-label="Exportar PDF com os ativos listados (baixa um arquivo PDF; o nome e o tamanho do arquivo serão informados após a geração)"
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition hover:bg-accent"
             >
               <FileDown className="h-4 w-4" /> Exportar PDF
