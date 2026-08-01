@@ -23,7 +23,7 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { exportAssetsPdf } from "@/lib/pdf-export";
+import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
 
 export const assetsSearchSchema = z.object({
   type: z.enum(["all", "computador", "notebook", "impressora"]).catch("all").default("all"),
@@ -101,13 +101,15 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
       toast.info("Nenhum registro para exportar com os filtros atuais.");
       return;
     }
-    exportAssetsPdf({
+    const { fileName, sizeBytes } = exportAssetsPdf({
       title,
       assets: sorted,
       filters: combined,
       generatedBy: session?.user.name,
     });
-    toast.success("Relatório PDF gerado", { description: `${sorted.length} registro(s) exportado(s)` });
+    toast.success("Relatório PDF gerado", {
+      description: `Arquivo ${fileName} (${formatFileSize(sizeBytes)}) — ${sorted.length} registro(s) exportado(s)`,
+    });
   };
 
   return (

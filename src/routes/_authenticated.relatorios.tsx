@@ -11,7 +11,7 @@ import {
   type AssetType,
 } from "@/lib/assets-types";
 import { useAuth } from "@/lib/auth";
-import { exportAssetsPdf } from "@/lib/pdf-export";
+import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({ meta: [{ title: "Relatórios — GestãoTI" }] }),
@@ -70,13 +70,15 @@ function RelatoriosPage() {
       toast.info("Nenhum registro corresponde aos filtros selecionados.");
       return;
     }
-    exportAssetsPdf({
+    const { fileName, sizeBytes } = exportAssetsPdf({
       title,
       assets,
       filters: queryFilters,
       generatedBy: session?.user.name,
     });
-    toast.success("Relatório PDF gerado", { description: `${assets.length} registro(s)` });
+    toast.success("Relatório PDF gerado", {
+      description: `Arquivo ${fileName} (${formatFileSize(sizeBytes)}) — ${assets.length} registro(s)`,
+    });
   };
 
   return (
