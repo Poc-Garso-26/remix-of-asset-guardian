@@ -14,6 +14,12 @@ import {
 import { StatusBadge } from "@/components/status-badge";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -500,6 +506,17 @@ function QrCodePreview({ url, patrimony }: { url: string; patrimony: string }) {
   );
 }
 
+function ActionTooltip({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent side="top">{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 function IconBtn({
   children,
   label,
@@ -512,18 +529,19 @@ function IconBtn({
   onClick?: () => void;
 }) {
   return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className={cn(
-        "rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground transition hover:bg-accent",
-        destructive && "hover:bg-destructive/10 hover:text-destructive",
-      )}
-    >
-      {children}
-    </button>
+    <ActionTooltip label={label}>
+      <button
+        type="button"
+        aria-label={label}
+        onClick={onClick}
+        className={cn(
+          "rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground transition hover:bg-accent",
+          destructive && "hover:bg-destructive/10 hover:text-destructive",
+        )}
+      >
+        {children}
+      </button>
+    </ActionTooltip>
   );
 }
 
@@ -539,17 +557,19 @@ function IconLink({
   label: string;
 }) {
   return (
-    <Link
-      to={to}
-      params={params}
-      title={label}
-      aria-label={label}
-      className="rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground transition hover:bg-accent"
-    >
-      {children}
-    </Link>
+    <ActionTooltip label={label}>
+      <Link
+        to={to}
+        params={params}
+        aria-label={label}
+        className="rounded-md p-1.5 min-h-9 min-w-9 flex items-center justify-center text-muted-foreground transition hover:bg-accent"
+      >
+        {children}
+      </Link>
+    </ActionTooltip>
   );
 }
+
 
 function PageBtn({
   children,
