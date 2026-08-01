@@ -355,7 +355,9 @@ function Field({
         "aria-invalid": error ? true : undefined,
         "aria-describedby": describedBy,
         "aria-required": required ? true : undefined,
-        required: required ? true : child.props.required,
+        // Sem `required` no DOM: a validação nativa do navegador (tooltip
+        // "Preencha este campo") é substituída pela do Zod, exibida abaixo do campo.
+
       })
     : children;
   return (
