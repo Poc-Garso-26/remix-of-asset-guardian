@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as QaAssetFormRouteImport } from './routes/qa-asset-form'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,11 +26,6 @@ import { Route as AuthenticatedAtivosIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAtivosIdIndexRouteImport } from './routes/_authenticated.ativos.$id.index'
 import { Route as AuthenticatedAtivosIdEditarRouteImport } from './routes/_authenticated.ativos.$id.editar'
 
-const QaAssetFormRoute = QaAssetFormRouteImport.update({
-  id: '/qa-asset-form',
-  path: '/qa-asset-form',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -122,7 +116,6 @@ const AuthenticatedAtivosIdEditarRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/qa-asset-form': typeof QaAssetFormRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
   '/ativos': typeof AuthenticatedAtivosRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -140,7 +133,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/qa-asset-form': typeof QaAssetFormRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -158,7 +150,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/qa-asset-form': typeof QaAssetFormRoute
   '/_authenticated/administracao': typeof AuthenticatedAdministracaoRoute
   '/_authenticated/ativos': typeof AuthenticatedAtivosRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -178,7 +169,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/qa-asset-form'
     | '/administracao'
     | '/ativos'
     | '/dashboard'
@@ -196,7 +186,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
-    | '/qa-asset-form'
     | '/administracao'
     | '/dashboard'
     | '/perfil'
@@ -213,7 +202,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
-    | '/qa-asset-form'
     | '/_authenticated/administracao'
     | '/_authenticated/ativos'
     | '/_authenticated/dashboard'
@@ -233,18 +221,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
-  QaAssetFormRoute: typeof QaAssetFormRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/qa-asset-form': {
-      id: '/qa-asset-form'
-      path: '/qa-asset-form'
-      fullPath: '/qa-asset-form'
-      preLoaderRoute: typeof QaAssetFormRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -420,7 +400,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
-  QaAssetFormRoute: QaAssetFormRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
