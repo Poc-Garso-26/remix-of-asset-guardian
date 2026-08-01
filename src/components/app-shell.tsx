@@ -130,14 +130,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         aria-modal={mobileOpen && !isDesktop ? true : undefined}
         aria-label={mobileOpen && !isDesktop ? "Menu de navegação" : undefined}
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 -translate-x-full border-r border-sidebar-border bg-sidebar transition-[width,transform] duration-200 ease-in-out lg:static lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex h-dvh w-64 -translate-x-full flex-col border-r border-sidebar-border bg-sidebar transition-[width,transform] duration-200 ease-in-out lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0",
           mobileOpen && "translate-x-0",
           collapsed && "lg:w-16",
         )}
       >
         <div
           className={cn(
-            "flex h-16 items-center gap-2 border-b border-sidebar-border px-5",
+            "flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border px-5",
             collapsed && "lg:justify-center lg:px-2",
           )}
         >
@@ -170,7 +170,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        <nav className={cn("px-3 py-4", collapsed && "lg:px-2")}>
+        <nav
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4",
+            collapsed && "lg:px-2",
+          )}
+        >
           <p
             className={cn(
               "px-2 pb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground",

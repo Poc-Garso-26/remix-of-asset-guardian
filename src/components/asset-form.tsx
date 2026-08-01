@@ -2,7 +2,7 @@
  * Formulário reutilizável de Ativo (criação e edição).
  * Validação client-side com Zod + react-hook-form.
  */
-import { cloneElement, isValidElement, useId, type ReactElement } from "react";
+import { cloneElement, isValidElement, useId, useState, type ReactElement } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CepInput } from "@/components/cep-input";
 import { DateField } from "@/components/date-field";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 
 
@@ -130,15 +131,30 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
 
   const type = form.watch("type");
   const isPrinter = type === "impressora";
-  const submitting = form.formState.isSubmitting;
+  const [pending, setPending] = useState<AssetFormValues | null>(null);
+  const [saving, setSaving] = useState(false);
+  const submitting = saving;
   const errorCount = Object.keys(form.formState.errors).length;
 
+  const confirmSave = async () => {
+    if (!pending) return;
+    const values = pending;
+    setPending(null);
+    setSaving(true);
+    try {
+      await onSubmit(values);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
+    <>
     <form
       noValidate
       onSubmit={form.handleSubmit(
-        async (v) => {
-          await onSubmit(v);
+        (v) => {
+          setPending(v);
         },
         (errors) => {
           // WCAG 3.3.1: foca o primeiro campo com erro, na ordem do formulário.
@@ -315,6 +331,23 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         </button>
       </div>
     </form>
+
+    <ConfirmDialog
+      open={pending !== null}
+      onOpenChange={(open) => {
+        if (!open) setPending(null);
+      }}
+      title={
+        pending?.patrimony
+          ? `Confirmar as alterações no ativo ${pending.patrimony}?`
+          : "Confirmar as alterações neste ativo?"
+      }
+      description="Os dados serão gravados no sistema e não há como desfazer automaticamente. Escolha “Revisar” para voltar ao formulário sem gravar."
+      confirmLabel="Confirmar"
+      cancelLabel="Revisar"
+      onConfirm={() => { void confirmSave(); }}
+    />
+    </>
   );
 }
 
