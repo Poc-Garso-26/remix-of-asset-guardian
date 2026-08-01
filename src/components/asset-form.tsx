@@ -14,6 +14,8 @@ import {
 } from "@/lib/assets-types";
 import { cn } from "@/lib/utils";
 import { CepInput } from "@/components/cep-input";
+import { DateField } from "@/components/date-field";
+
 
 
 const baseSchema = z.object({
