@@ -16,11 +16,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 
 const KNOWN_COLORS: Record<AssetStatus, string> = {
-  em_uso: "var(--success)",
-  estoque: "var(--info)",
-  manutencao: "var(--warning)",
-  baixado: "var(--muted-foreground)",
+  em_uso: "var(--chart-status-em-uso)",
+  estoque: "var(--chart-status-estoque)",
+  manutencao: "var(--chart-status-manutencao)",
+  baixado: "var(--chart-status-baixado)",
 };
+
 
 const FALLBACK_PALETTE = [
   "var(--chart-1)",
@@ -152,13 +153,15 @@ export function AssetsStatusChart() {
                 nameKey="status"
                 innerRadius={60}
                 outerRadius={90}
-                strokeWidth={2}
+                stroke="var(--chart-status-outline)"
+                strokeWidth={1.5}
                 paddingAngle={2}
               >
                 {chartData.map((entry) => (
                   <Cell key={entry.status} fill={entry.fill} />
                 ))}
               </Pie>
+
               <ChartLegend
                 content={<ChartLegendContent nameKey="status" />}
                 verticalAlign="bottom"
