@@ -53,6 +53,37 @@ const baseSchema = z.object({
 
 export type AssetFormValues = z.infer<typeof baseSchema>;
 
+/** Ordem visual dos campos — usada para focar o primeiro campo com erro. */
+const FIELD_ORDER: Array<keyof AssetFormValues> = [
+  "type",
+  "patrimony",
+  "serialNumber",
+  "brand",
+  "model",
+  "cep",
+  "status",
+  "sector",
+  "responsible",
+  "location",
+  "logradouro",
+  "bairro",
+  "cidade",
+  "uf",
+  "acquisitionDate",
+  "processor",
+  "ram",
+  "storage",
+  "operatingSystem",
+  "hostname",
+  "ipAddress",
+  "macAddress",
+  "printType",
+  "color",
+  "network",
+  "notes",
+];
+
+
 interface Props {
   initial?: Partial<Asset>;
   submitLabel: string;
@@ -98,14 +129,38 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
   const type = form.watch("type");
   const isPrinter = type === "impressora";
   const submitting = form.formState.isSubmitting;
+  const errorCount = Object.keys(form.formState.errors).length;
 
   return (
     <form
-      onSubmit={form.handleSubmit(async (v) => {
-        await onSubmit(v);
-      })}
+      noValidate
+      onSubmit={form.handleSubmit(
+        async (v) => {
+          await onSubmit(v);
+        },
+        (errors) => {
+          // WCAG 3.3.1: foca o primeiro campo com erro, na ordem do formulário.
+          const first = FIELD_ORDER.find((name) => errors[name]);
+          if (first) {
+            form.setFocus(first, { shouldSelect: true });
+            const el = document.querySelector<HTMLElement>(`[name="${first}"]`);
+            el?.scrollIntoView({ block: "center", behavior: "smooth" });
+          }
+        },
+      )}
       className="space-y-6"
     >
+      {errorCount > 0 && (
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {errorCount === 1
+            ? "1 campo precisa de correção. Verifique as mensagens abaixo dos campos destacados."
+            : `${errorCount} campos precisam de correção. Verifique as mensagens abaixo dos campos destacados.`}
+        </div>
+      )}
+
       <Section title="Identificação" description="Dados básicos do equipamento.">
         <Field label="Tipo" required error={form.formState.errors.type?.message}>
           <select {...form.register("type")} className={inputCls}>
@@ -174,32 +229,8 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         </Field>
       </Section>
 
-      <Section title="Alocação" description="Setor, responsável e localização do ativo.">
-        <Field label="Setor" error={form.formState.errors.sector?.message}>
-          <input {...form.register("sector")} className={inputCls} />
-        </Field>
-        <Field label="Responsável" error={form.formState.errors.responsible?.message}>
-          <input {...form.register("responsible")} className={inputCls} />
-        </Field>
-        <Field label="Localização" error={form.formState.errors.location?.message}>
-          <input {...form.register("location")} className={inputCls} placeholder="Andar / Sala" />
-        </Field>
-        <Field label="Logradouro" error={form.formState.errors.logradouro?.message}>
-          <input {...form.register("logradouro")} className={inputCls} placeholder="Rua, Avenida..." />
-        </Field>
-        <Field label="Bairro" error={form.formState.errors.bairro?.message}>
-          <input {...form.register("bairro")} className={inputCls} />
-        </Field>
-        <Field label="Cidade" error={form.formState.errors.cidade?.message}>
-          <input {...form.register("cidade")} className={inputCls} />
-        </Field>
-        <Field label="UF" error={form.formState.errors.uf?.message}>
-          <input {...form.register("uf")} maxLength={2} className={cn(inputCls, "uppercase")} placeholder="SP" />
-        </Field>
-        <Field label="Data de aquisição" error={form.formState.errors.acquisitionDate?.message}>
-          <input type="date" {...form.register("acquisitionDate")} className={inputCls} />
-        </Field>
-      </Section>
+
+
 
       {!isPrinter && (
         <Section title="Especificações técnicas" description="Hardware e configuração de rede.">
@@ -324,7 +355,9 @@ function Field({
         "aria-invalid": error ? true : undefined,
         "aria-describedby": describedBy,
         "aria-required": required ? true : undefined,
-        required: required ? true : child.props.required,
+        // Sem `required` no DOM: a validação nativa do navegador (tooltip
+        // "Preencha este campo") é substituída pela do Zod, exibida abaixo do campo.
+
       })
     : children;
   return (
