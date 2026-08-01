@@ -69,6 +69,8 @@ function EditAssetPage() {
           await qc.invalidateQueries({ queryKey: ["assets"] });
           await qc.invalidateQueries({ queryKey: ["asset", id] });
           await qc.invalidateQueries({ queryKey: ["assets-summary"] });
+          await qc.invalidateQueries({ queryKey: ["assets-status-distribution"] });
+
           toast.success("Alterações salvas");
           navigate({ to: "/ativos/$id", params: { id } });
         }}
