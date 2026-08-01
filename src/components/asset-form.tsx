@@ -161,6 +161,12 @@ export function AssetForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
         </div>
       )}
 
+      <p className="text-xs text-muted-foreground">
+        <span aria-hidden="true" className="text-destructive">*</span> Campo obrigatório
+      </p>
+
+
+
       <Section title="Identificação" description="Dados básicos do equipamento.">
         <Field label="Tipo" required error={form.formState.errors.type?.message}>
           <select {...form.register("type")} className={inputCls}>
@@ -310,16 +316,25 @@ function Section({
   description?: string;
   children: React.ReactNode;
 }) {
+  const descId = useId();
   return (
-    <section className="rounded-xl border border-border bg-card p-5">
-      <header className="mb-4">
+    <fieldset
+      className="min-w-0 rounded-xl border border-border bg-card p-5"
+      aria-describedby={description ? descId : undefined}
+    >
+      <legend className="float-none m-0 mb-4 block w-full p-0">
         <h2 className="text-sm font-semibold">{title}</h2>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
-      </header>
+        {description && (
+          <p id={descId} className="text-xs text-muted-foreground">
+            {description}
+          </p>
+        )}
+      </legend>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
-    </section>
+    </fieldset>
   );
 }
+
 
 function Field({
   label,
