@@ -2,7 +2,7 @@
  * Formulário reutilizável de Ativo (criação e edição).
  * Validação client-side com Zod + react-hook-form.
  */
-import { cloneElement, isValidElement, useId, type ReactElement } from "react";
+import { cloneElement, isValidElement, useId, useState, type ReactElement } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CepInput } from "@/components/cep-input";
 import { DateField } from "@/components/date-field";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 
 
