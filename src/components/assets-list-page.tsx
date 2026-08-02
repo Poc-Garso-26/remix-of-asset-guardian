@@ -269,7 +269,11 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div
+        id="tabela-ativos"
+        tabIndex={-1}
+        className="overflow-hidden rounded-xl border border-border bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <caption className="sr-only">Listagem de ativos</caption>
