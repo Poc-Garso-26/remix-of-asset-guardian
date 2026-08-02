@@ -114,6 +114,12 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <a
+        href="#tabela-ativos"
+        className="sr-only focus:not-sr-only focus:inline-flex focus:min-h-9 focus:items-center focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        Pular para a tabela de ativos
+      </a>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -263,7 +269,11 @@ export function AssetsListPage({ search, title, fixedType }: Props) {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div
+        id="tabela-ativos"
+        tabIndex={-1}
+        className="overflow-hidden rounded-xl border border-border bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <caption className="sr-only">Listagem de ativos</caption>
