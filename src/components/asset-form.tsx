@@ -369,14 +369,17 @@ function Section({
       className="min-w-0 rounded-xl border border-border bg-card p-5"
       aria-describedby={description ? descId : undefined}
     >
-      <legend className="float-none m-0 mb-4 block w-full p-0">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        {description && (
-          <p id={descId} className="text-xs text-muted-foreground">
-            {description}
-          </p>
-        )}
+      <legend className="contents">
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold">{title}</h2>
+          {description && (
+            <p id={descId} className="text-xs text-muted-foreground">
+              {description}
+            </p>
+          )}
+        </div>
       </legend>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
     </fieldset>
   );
