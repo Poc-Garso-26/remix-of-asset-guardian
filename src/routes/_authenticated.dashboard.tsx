@@ -133,7 +133,7 @@ function DashboardPage() {
           </div>
           <div className="flex items-end gap-2">
             <span className="font-display text-5xl tabular-nums">{data?.novosNoMes ?? "—"}</span>
-            <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+            <span className="mb-2 inline-flex items-center gap-1 rounded-full border border-[color:var(--pi-success-border-subtle)] bg-[color:var(--pi-success-bg-subtle)] px-2 py-0.5 text-xs font-medium text-[color:var(--pi-success-text-emphasis)]">
               <TrendingUp className="h-3 w-3" /> novos
             </span>
           </div>
