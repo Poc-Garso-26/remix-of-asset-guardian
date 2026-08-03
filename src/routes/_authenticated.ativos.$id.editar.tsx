@@ -47,6 +47,14 @@ function EditAssetPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Inventário", to: "/ativos" },
+          { label: "Todos os ativos", to: "/ativos" },
+          { label: asset.patrimony, to: "/ativos/$id", params: { id } },
+          { label: "Editar" },
+        ]}
+      />
       <header>
         <button
           onClick={() => navigate({ to: "/ativos/$id", params: { id } })}
