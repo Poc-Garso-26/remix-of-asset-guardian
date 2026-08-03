@@ -10,6 +10,7 @@ import {
   type Asset,
 } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 
