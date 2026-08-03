@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronLeft } from "lucide-react";
 import { AssetForm } from "@/components/asset-form";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { assetsService } from "@/lib/assets-service";
 import { useAuth } from "@/lib/auth";
 
