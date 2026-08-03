@@ -25,8 +25,8 @@ export function Breadcrumbs({ items }: { items: BreadcrumbEntry[] }) {
         {items.map((item, i) => {
           const isLast = i === items.length - 1;
           return (
-            <>
-              <BreadcrumbItem key={`${item.label}-${i}`}>
+            <Fragment key={`${item.label}-${i}`}>
+              <BreadcrumbItem>
                 {isLast || !item.to ? (
                   <BreadcrumbPage className="font-medium">{item.label}</BreadcrumbPage>
                 ) : (
