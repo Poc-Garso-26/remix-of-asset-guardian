@@ -20,6 +20,13 @@ function NewAssetPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Inventário", to: "/ativos" },
+          { label: "Todos os ativos", to: "/ativos" },
+          { label: "Novo ativo" },
+        ]}
+      />
       <header>
         <button
           onClick={() => navigate({ to: "/ativos" })}
