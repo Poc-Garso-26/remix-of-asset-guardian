@@ -29,7 +29,13 @@ export function Breadcrumbs({ items }: { items: BreadcrumbEntry[] }) {
             <Fragment key={`${item.label}-${i}`}>
               <BreadcrumbItem>
                 {isLast || !item.to ? (
-                  <BreadcrumbPage className="font-medium">{item.label}</BreadcrumbPage>
+                  <BreadcrumbPage
+                    role={undefined}
+                    aria-disabled={undefined}
+                    className="font-medium"
+                  >
+                    {item.label}
+                  </BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
                     <Link
