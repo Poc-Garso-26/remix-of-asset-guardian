@@ -10,6 +10,7 @@ import {
   type Asset,
 } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 
@@ -64,6 +65,13 @@ function AssetDetailsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Inventário", to: "/ativos" },
+          { label: "Todos os ativos", to: "/ativos" },
+          { label: asset.patrimony },
+        ]}
+      />
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <button

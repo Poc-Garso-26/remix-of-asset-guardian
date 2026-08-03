@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronLeft } from "lucide-react";
 import { AssetForm } from "@/components/asset-form";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { assetsService } from "@/lib/assets-service";
 import { useAuth } from "@/lib/auth";
 
@@ -20,6 +21,13 @@ function NewAssetPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Inventário", to: "/ativos" },
+          { label: "Todos os ativos", to: "/ativos" },
+          { label: "Novo ativo" },
+        ]}
+      />
       <header>
         <button
           onClick={() => navigate({ to: "/ativos" })}
