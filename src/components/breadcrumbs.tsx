@@ -42,6 +42,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbEntry[] }) {
                     <Link
                       to={item.to}
                       params={item.params as never}
+                      activeOptions={{ exact: true, includeSearch: false, includeHash: false }}
                       className="inline-flex min-h-6 items-center rounded-md underline decoration-dotted underline-offset-4 transition-colors hover:text-foreground hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:decoration-solid"
                     >
                       {item.label}
