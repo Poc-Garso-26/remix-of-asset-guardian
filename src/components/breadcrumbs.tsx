@@ -41,8 +41,8 @@ export function Breadcrumbs({ items }: { items: BreadcrumbEntry[] }) {
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-              {!isLast && <BreadcrumbSeparator key={`sep-${i}`}>›</BreadcrumbSeparator>}
-            </>
+              {!isLast && <BreadcrumbSeparator>›</BreadcrumbSeparator>}
+            </Fragment>
           );
         })}
       </BreadcrumbList>
