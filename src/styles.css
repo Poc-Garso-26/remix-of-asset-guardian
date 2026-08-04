@@ -85,7 +85,7 @@
   --pi-accent-contrast: oklch(0.99 0 0);
 
   --pi-success: oklch(0.52 0.145 150);        /* AA: texto branco na etiqueta "Em uso" >= 4.5:1 */
-  --pi-success-text-emphasis: oklch(0.42 0.13 150);
+  --pi-success-text-emphasis: oklch(0.41 0.13 150);
   --pi-success-bg-subtle: oklch(0.95 0.04 150);
   --pi-success-border-subtle: oklch(0.83 0.08 150);
   --pi-success-contrast: oklch(0.99 0 0);
@@ -97,13 +97,13 @@
   --pi-danger-contrast: oklch(0.99 0 0);
 
   --pi-warning: oklch(0.78 0.16 80);
-  --pi-warning-text-emphasis: oklch(0.5 0.12 80);
+  --pi-warning-text-emphasis: oklch(0.44 0.12 80);
   --pi-warning-bg-subtle: oklch(0.97 0.05 85);
   --pi-warning-border-subtle: oklch(0.87 0.1 80);
   --pi-warning-contrast: oklch(0.22 0.05 80);
 
   --pi-info: oklch(0.52 0.13 230);             /* AA: texto branco na etiqueta "Estoque" >= 4.5:1 */
-  --pi-info-text-emphasis: oklch(0.42 0.13 230);
+  --pi-info-text-emphasis: oklch(0.41 0.13 230);
   --pi-info-bg-subtle: oklch(0.95 0.04 230);
   --pi-info-border-subtle: oklch(0.83 0.08 230);
   --pi-info-contrast: oklch(0.99 0 0);
@@ -111,7 +111,7 @@
   --pi-border: oklch(0.78 0.01 240);
   --pi-border-strong: oklch(0.62 0.015 240);
   --pi-muted: oklch(0.96 0.006 240);
-  --pi-muted-color: oklch(0.5 0.02 250);
+  --pi-muted-color: oklch(0.435 0.02 250);
   --pi-ring: oklch(0.55 0.16 255);
 
   /* --- Mapeamento shadcn → PI --- */
@@ -189,7 +189,7 @@
   --pi-surface: oklch(0.23 0.02 250);
   --pi-surface-muted: oklch(0.27 0.02 250);
 
-  --pi-primary: oklch(0.72 0.14 255);
+  --pi-primary: oklch(0.735 0.14 255);
   --pi-primary-text-emphasis: oklch(0.85 0.1 255);
   --pi-primary-bg-subtle: oklch(0.3 0.06 255);
   --pi-primary-border-subtle: oklch(0.4 0.1 255);
@@ -207,7 +207,7 @@
   --pi-success-border-subtle: oklch(0.4 0.1 150);
   --pi-success-contrast: oklch(0.18 0.02 250);
 
-  --pi-danger: oklch(0.7 0.2 25);
+  --pi-danger: oklch(0.76 0.2 25);
   --pi-danger-text-emphasis: oklch(0.85 0.14 25);
   --pi-danger-bg-subtle: oklch(0.32 0.08 25);
   --pi-danger-border-subtle: oklch(0.45 0.14 25);
@@ -228,7 +228,7 @@
   --pi-border: oklch(1 0 0 / 35%);
   --pi-border-strong: oklch(1 0 0 / 55%);
   --pi-muted: oklch(0.27 0.02 250);
-  --pi-muted-color: oklch(0.72 0.02 250);
+  --pi-muted-color: oklch(0.765 0.02 250);
   --pi-ring: oklch(0.7 0.14 255);
 
   --chart-status-em-uso: oklch(0.82 0.14 152);
