@@ -102,7 +102,7 @@
   --pi-warning-border-subtle: oklch(0.87 0.1 80);
   --pi-warning-contrast: oklch(0.22 0.05 80);
 
-  --pi-info: oklch(0.62 0.13 230);
+  --pi-info: oklch(0.52 0.13 230);             /* AA: texto branco na etiqueta "Estoque" >= 4.5:1 */
   --pi-info-text-emphasis: oklch(0.42 0.13 230);
   --pi-info-bg-subtle: oklch(0.95 0.04 230);
   --pi-info-border-subtle: oklch(0.83 0.08 230);
