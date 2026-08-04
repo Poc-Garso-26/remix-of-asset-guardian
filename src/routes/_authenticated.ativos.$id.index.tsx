@@ -169,9 +169,11 @@ function AssetDetailsPage() {
               onClick={async () => {
                 try {
                   setRegenerating(true);
-                  await regenerateAssetQrCode(asset.id);
+                  await regenerateAssetQrCode(asset.id, { force: Boolean(asset.qrCodeUrl) });
                   await qc.invalidateQueries({ queryKey: ["asset", id] });
-                  toast.success("QR Code atualizado");
+                  toast.success("QR Code atualizado", {
+                    description: `Gerado em ${new Date().toLocaleString("pt-BR")}`,
+                  });
                 } catch {
                   toast.error("Não foi possível gerar o QR Code");
                 } finally {
