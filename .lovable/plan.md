@@ -1,81 +1,42 @@
-# Diagnóstico de escopo — meta AAA (7:1) de contraste de texto
+# Frente 2 — Ajustes "fáceis" para AAA (7:1)
 
-Levantamento apenas: nenhum código alterado. Contrastes calculados a partir dos tokens de `src/styles.css` (conversão OKLCH → sRGB + razão de luminância relativa WCAG), mesmo método dos Blocos G-5/G-9/G-13/G-14. Temas claro e escuro. O tema `.high-contrast` não foi incluído porque já é projetado para AAA.
+Somente luminosidade dos tokens; matizes preservadas. Fora do escopo: accent institucional (vermelho/laranja) e botão destrutivo do **tema claro**. O destrutivo do **tema escuro** entra, conforme o diagnóstico.
 
-## Tema claro
+## Confirmação da lista
 
-| Par (texto / fundo) | Contraste | AA 4,5:1 | AAA 7:1 | Gap | Dificuldade |
-| --- | --- | --- | --- | --- | --- |
-| Texto padrão / fundo de página | 16,57 | Sim | Sim | — | — |
-| Texto padrão / fundo de card | 17,29 | Sim | Sim | — | — |
-| Link (primário) / card | 7,51 | Sim | Sim | — | — |
-| Link em ênfase / card | 12,71 | Sim | Sim | — | — |
-| Botão primário: texto / fundo | 7,30 | Sim | Sim | — | — |
-| Botão secundário: texto / fundo | 7,95 | Sim | Sim | — | — |
-| Item ativo do menu: texto / fundo | 10,97 | Sim | Sim | — | — |
-| Badge Manutenção: texto / fundo | 8,53 | Sim | Sim | — | — |
-| Badge Baixado: texto / fundo | 14,06 | Sim | Sim | — | — |
-| Texto sobre success subtle | 6,89 | Sim | Não | 0,11 | Fácil |
-| Texto sobre info subtle | 6,77 | Sim | Não | 0,23 | Fácil |
-| Texto muted / card | 5,99 | Sim | Não | 1,01 | Fácil |
-| Texto muted / fundo de página | 5,74 | Sim | Não | 1,26 | Fácil |
-| Texto sobre warning subtle | 5,50 | Sim | Não | 1,50 | Fácil |
-| Texto muted / fundo muted | 5,33 | Sim | Não | 1,67 | Médio |
-| Botão destrutivo: texto / fundo | 5,29 | Sim | Não | 1,71 | Médio (identidade) |
-| Accent institucional: texto / fundo | 4,52 | Sim (no limite) | Não | 2,48 | Difícil (identidade) |
-| **Badge Em uso: texto / fundo** | **3,91** | **Não** | Não | 3,09 | Médio |
-| **Badge Estoque: texto / fundo** | **3,41** | **Não** | Não | 3,59 | Médio |
+Os 10 pares informados foram remedidos e batem exatamente com o diagnóstico anterior (6,89 / 6,77 / 5,99 / 5,74 / 5,50 / 5,33 no claro; 6,81 / 6,79 / 6,08 / 6,29 no escuro). O 11º item do levantamento (link primário sobre o fundo de página, tema escuro) já está em 7,56:1 e não precisa de ajuste — será apenas reverificado após as mudanças.
 
-## Tema escuro
+## Ajustes de token (src/styles.css)
 
-| Par (texto / fundo) | Contraste | AA 4,5:1 | AAA 7:1 | Gap | Dificuldade |
-| --- | --- | --- | --- | --- | --- |
-| Texto padrão / fundo de página | 17,24 | Sim | Sim | — | — |
-| Texto padrão / fundo de card | 15,48 | Sim | Sim | — | — |
-| Badge Baixado | 11,89 | Sim | Sim | — | — |
-| Badge Manutenção | 10,61 | Sim | Sim | — | — |
-| Link em ênfase / card | 10,53 | Sim | Sim | — | — |
-| Texto sobre success / info / warning subtle | 8,74 / 8,67 / 8,37 | Sim | Sim | — | — |
-| Item ativo do menu | 8,51 | Sim | Sim | — | — |
-| Badge Estoque | 8,66 | Sim | Sim | — | — |
-| Badge Em uso | 8,01 | Sim | Sim | — | — |
-| Texto muted / fundo de página | 7,59 | Sim | Sim | — | — |
-| Botão primário | 7,56 | Sim | Sim | — | — |
-| Botão secundário | 7,44 | Sim | Sim | — | — |
-| Accent institucional: texto / fundo | 7,11 | Sim | Sim | — | — |
-| Texto muted / card | 6,81 | Sim | Não | 0,19 | Fácil |
-| Link (primário) / card | 6,79 | Sim | Não | 0,21 | Fácil |
-| Texto muted / fundo muted | 6,08 | Sim | Não | 0,92 | Fácil |
-| Botão destrutivo | 6,29 | Sim | Não | 0,71 | Fácil |
+Tema claro (`:root`):
 
-## Achado que precede a discussão de AAA
+| Token | L atual → nova | Par medido | Antes → Depois |
+|---|---|---|---|
+| `--pi-success-text-emphasis` | 0.42 → 0.41 | texto sobre success subtle | 6,89 → 7,18 |
+| `--pi-info-text-emphasis` | 0.42 → 0.41 | texto sobre info subtle | 6,77 → 7,06 |
+| `--pi-warning-text-emphasis` | 0.50 → 0.44 | texto sobre warning subtle | 5,50 → 7,11 |
+| `--pi-muted-color` | 0.50 → 0.435 | muted / fundo muted | 5,33 → 7,06 |
 
-Dois pares **não atendem nem o mínimo AA no tema claro**: as etiquetas "Em uso" (3,91:1) e "Estoque" (3,41:1). Elas usam texto branco (`--pi-success-contrast` / `--pi-info-contrast`) sobre os tons médios `--pi-success` e `--pi-info`. Isso é uma falha de conformidade AA independente da meta AAA e, se confirmado como prioridade, deve ser tratado antes.
+O ajuste único de `--pi-muted-color` resolve os três pares de texto secundário do tema claro, pois o fundo muted é o caso mais severo: card → 7,92 e fundo de página → ~7,7.
 
-## Baixo impacto visual (matiz preservada, só ajuste de luminosidade)
+Tema escuro (`.dark`):
 
-- Texto muted (página, card, fundo muted) — escurecer `--pi-muted-color` cerca de um tom no tema claro e no escuro clarear levemente.
-- Textos sobre fundos "subtle" (success, info, warning) — faltam de 0,11 a 1,50; ajuste no token `*-text-emphasis`.
-- Link primário no tema escuro — falta 0,21.
-- Botão destrutivo no tema escuro — falta 0,71.
+| Token | L atual → nova | Par medido | Antes → Depois |
+|---|---|---|---|
+| `--pi-muted-color` | 0.72 → 0.765 | muted / fundo muted | 6,08 → 7,15 (card → 8,01) |
+| `--pi-primary` | 0.72 → 0.735 | link primário / card | 6,79 → 7,17 (fundo de página → 7,99) |
+| `--pi-danger` | 0.70 → 0.76 | botão destrutivo | 6,29 → 7,10 |
 
-## Risco à identidade visual
+## Efeitos colaterais a verificar
 
-- **Accent institucional PBH** (vermelho/laranja `--pi-accent`, 4,52:1 no claro): chegar a 7:1 com texto branco exige escurecer bastante o vermelho institucional, descaracterizando a cor da marca. Alternativa sem mexer na cor: usar o accent apenas como fundo de área grande com texto escuro, ou restringir texto sobre accent a tamanho "large text" (AAA aceita 4,5:1 para texto grande).
-- **Botão destrutivo no tema claro** (5,29:1): mesma família de vermelho; 7:1 exigiria um vermelho bem mais escuro, próximo de vinho.
-- **Etiquetas de situação (verde/azul)**: além do problema de AA, há a restrição já resolvida no Bloco G-5 de manter ≥ 3:1 *entre* as fatias do gráfico. Qualquer nova escala precisa satisfazer as duas condições ao mesmo tempo — por isso classifiquei como "médio", não "fácil".
-- **Azul institucional primário** já atende 7:1 nos dois temas; não é ponto de atrito.
+- `--pi-muted-color` alimenta `--muted-foreground`: textos secundários, placeholders, descrições de card, legendas de gráfico e rodapés. Verificar que não fica excessivamente escuro (claro) ou claro (escuro).
+- `--pi-primary` (escuro) alimenta `primary`, `sidebar-primary`, `ring` e `--chart-1`: checar botão primário com texto escuro, item ativo do menu, anel de foco e o gráfico de aquisições.
+- `--pi-danger` (escuro) alimenta `destructive`: checar botão de exclusão e estados de erro.
+- `*-text-emphasis` alimenta `secondary-foreground`/`accent-foreground` e textos de aviso: checar badges e alertas.
+- Reconfirmar que os segmentos do gráfico de rosca (Bloco G-5, tokens `--chart-status-*`) continuam ≥ 3:1 entre vizinhos — não são tocados aqui, mas serão remedidos.
+- Reconfirmar as etiquetas "Em uso"/"Estoque" (Frente 1) ainda ≥ 4,5:1 — usam `--pi-success`/`--pi-info`, não os `*-text-emphasis`.
 
-## Resumo quantitativo
+## Validação
 
-- Pares avaliados: 37 (19 no claro + 18 no escuro, contando os agrupados).
-- Já atendem 7:1 hoje: 22.
-- Precisam de ajuste leve (gap ≤ 1,7, só luminosidade, matiz preservada): 11.
-- Exigiriam decisão sobre paleta/identidade: 4 (accent institucional claro, destrutivo claro, badges Em uso e Estoque no claro).
-- Falhas de AA que existem hoje: 2 (badges Em uso e Estoque, tema claro).
-
-Conclusão de escopo: AAA é alcançável em cerca de 90% dos pares com ajustes de luminosidade de baixo risco. O bloqueio real está concentrado na família de vermelho/laranja institucional e nas etiquetas de situação, que precisariam de uma decisão explícita de design (ou uso de texto grande) antes de qualquer implementação.
-
-## Próximo passo sugerido
-
-Se você quiser seguir, o caminho natural é um bloco corretivo em duas etapas: primeiro fechar as duas falhas de AA das etiquetas, depois um segundo bloco com os 11 ajustes leves de luminosidade — deixando os casos de identidade para decisão à parte.
+- Script de contraste (OKLCH → sRGB, luminância relativa) reportando antes/depois par a par nos dois temas.
+- Verificação visual via navegador headless em Dashboard, listagem de ativos, formulário de ativo e administração, nos temas claro e escuro.
