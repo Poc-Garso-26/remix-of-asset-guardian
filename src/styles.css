@@ -84,7 +84,7 @@
   --pi-accent-border-subtle: oklch(0.86 0.07 35);
   --pi-accent-contrast: oklch(0.99 0 0);
 
-  --pi-success: oklch(0.58 0.14 150);
+  --pi-success: oklch(0.52 0.145 150);        /* AA: texto branco na etiqueta "Em uso" >= 4.5:1 */
   --pi-success-text-emphasis: oklch(0.42 0.13 150);
   --pi-success-bg-subtle: oklch(0.95 0.04 150);
   --pi-success-border-subtle: oklch(0.83 0.08 150);
