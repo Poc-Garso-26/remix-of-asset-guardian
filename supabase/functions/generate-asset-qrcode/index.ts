@@ -76,8 +76,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body = (await req.json().catch(() => ({}))) as { assetId?: string };
+    const body = (await req.json().catch(() => ({}))) as {
+      assetId?: string;
+      force?: boolean;
+    };
     const assetId = body.assetId;
+    const force = body.force === true;
     if (!assetId) {
       return new Response(JSON.stringify({ error: "assetId é obrigatório" }), {
         status: 400,
