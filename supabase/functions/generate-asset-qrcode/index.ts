@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
     const fp = await fingerprint([asset.id, asset.patrimony ?? "", asset.serial_number ?? ""]);
     const existingVersion = extractVersion(asset.qr_code_url);
 
-    if (existingVersion === fp && asset.qr_code_url) {
+    if (!force && existingVersion === fp && asset.qr_code_url) {
       return new Response(
         JSON.stringify({ url: asset.qr_code_url, skipped: true }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
