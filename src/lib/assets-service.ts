@@ -427,11 +427,14 @@ async function triggerQrCodeDeletion(assetId: string): Promise<void> {
   }
 }
 
-export async function regenerateAssetQrCode(assetId: string): Promise<string | null> {
-  const { data, error } = await supabase.functions.invoke<{ url?: string }>(
+export async function regenerateAssetQrCode(
+  assetId: string,
+  options?: { force?: boolean },
+): Promise<{ url: string | null; skipped: boolean }> {
+  const { data, error } = await supabase.functions.invoke<{ url?: string; skipped?: boolean }>(
     "generate-asset-qrcode",
-    { body: { assetId } },
+    { body: { assetId, force: options?.force === true } },
   );
   if (error) throw error;
-  return data?.url ?? null;
+  return { url: data?.url ?? null, skipped: data?.skipped === true };
 }
