@@ -7,6 +7,13 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  // A partir de 2026-08-04 a flag `nodejs_compat` passou a ser padrão no runtime
+  // do Worker; declará-la explicitamente virou erro ("Internal server error"/502
+  // no SSR). Desligamos a injeção da flag — a compatibilidade com Node continua
+  // ativa por padrão.
+  nitro: {
+    cloudflare: { nodeCompat: false },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
