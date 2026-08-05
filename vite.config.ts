@@ -7,13 +7,18 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  // A partir de 2026-08-04 a flag `nodejs_compat` passou a ser padrão no runtime
-  // do Worker; declará-la explicitamente virou erro ("Internal server error"/502
-  // no SSR). Desligamos a injeção da flag — a compatibilidade com Node continua
-  // ativa por padrão.
+  // `nodejs_compat` é OBRIGATÓRIA: o TanStack Start guarda o contexto da
+  // requisição em um AsyncLocalStorage de `node:async_hooks`. Sem a flag (e sem
+  // o preset unenv de compatibilidade Node que o Nitro só injeta quando
+  // `nodeCompat` está ligado), `getRequest()` falha com
+  // "No Start context found in AsyncLocalStorage".
+  // Mantemos a flag ligada e fixamos uma compatibility_date recente para que o
+  // Worker use o comportamento moderno de nodejs_compat (v2).
   nitro: {
-    cloudflare: { nodeCompat: false },
+    compatibilityDate: { cloudflare: "2025-07-13", default: "2025-07-13" },
+    cloudflare: { nodeCompat: true },
   },
+
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
