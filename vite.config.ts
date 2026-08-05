@@ -9,15 +9,15 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   // `nodejs_compat` é OBRIGATÓRIA: o TanStack Start guarda o contexto da
   // requisição em um AsyncLocalStorage de `node:async_hooks`. Sem a flag (e sem
-  // o preset unenv de compatibilidade Node que o Nitro só injeta quando
+  // o preset unenv de compatibilidade Node, que o Nitro só injeta quando
   // `nodeCompat` está ligado), `getRequest()` falha com
-  // "No Start context found in AsyncLocalStorage".
-  // Mantemos a flag ligada e fixamos uma compatibility_date recente para que o
-  // Worker use o comportamento moderno de nodejs_compat (v2).
+  // "No Start context found in AsyncLocalStorage" em toda server function
+  // autenticada. A `compatibility_date` do Worker é fixada em wrangler.json
+  // (raiz do projeto) para garantir o comportamento moderno (nodejs_compat v2).
   nitro: {
-    compatibilityDate: { cloudflare: "2025-07-13", default: "2025-07-13" },
     cloudflare: { nodeCompat: true },
   },
+
 
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
