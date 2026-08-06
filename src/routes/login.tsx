@@ -10,7 +10,16 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
-    meta: [{ title: "Entrar — GestãoTI" }],
+    meta: [
+      { title: "Entrar — GestãoTI" },
+      { name: "description", content: "Acesse o GestãoTI para consultar e gerenciar os ativos de TI da sua organização." },
+      { property: "og:title", content: "Entrar — GestãoTI" },
+      { property: "og:description", content: "Acesse o GestãoTI para consultar e gerenciar os ativos de TI da sua organização." },
+      { property: "og:url", content: "/login" },
+      { name: "twitter:title", content: "Entrar — GestãoTI" },
+      { name: "twitter:description", content: "Acesse o GestãoTI para consultar e gerenciar os ativos de TI da sua organização." },
+    ],
+    links: [{ rel: "canonical", href: "/login" }],
   }),
   component: LoginPage,
 });
