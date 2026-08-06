@@ -80,16 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GestãoTI — Gestão de Ativos de TI" },
-      { name: "description", content: "Sistema corporativo para gestão de ativos de TI: computadores, notebooks e impressoras." },
       { property: "og:site_name", content: "GestãoTI" },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "pt_BR" },
-      { property: "og:title", content: "GestãoTI — Gestão de Ativos de TI" },
-      { property: "og:description", content: "Sistema corporativo para gestão de ativos de TI: computadores, notebooks e impressoras." },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "GestãoTI — Gestão de Ativos de TI" },
-      { name: "twitter:description", content: "Sistema corporativo para gestão de ativos de TI: computadores, notebooks e impressoras." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -21,7 +21,18 @@ import { EditUserRoleDialog } from "@/components/edit-user-role-dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 export const Route = createFileRoute("/_authenticated/administracao")({
-  head: () => ({ meta: [{ title: "Administração — GestãoTI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Administração — GestãoTI" },
+      { name: "description", content: "Cadastre usuários, defina perfis de acesso e administre o GestãoTI." },
+      { property: "og:title", content: "Administração — GestãoTI" },
+      { property: "og:description", content: "Cadastre usuários, defina perfis de acesso e administre o GestãoTI." },
+      { property: "og:url", content: "/administracao" },
+      { name: "twitter:title", content: "Administração — GestãoTI" },
+      { name: "twitter:description", content: "Cadastre usuários, defina perfis de acesso e administre o GestãoTI." },
+    ],
+    links: [{ rel: "canonical", href: "/administracao" }],
+  }),
   component: AdminPage,
 });
 

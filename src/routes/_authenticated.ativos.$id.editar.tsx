@@ -8,7 +8,16 @@ import { assetsService } from "@/lib/assets-service";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/ativos/$id/editar")({
-  head: () => ({ meta: [{ title: "Editar ativo — GestãoTI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Editar ativo — GestãoTI" },
+      { name: "description", content: "Atualize os dados cadastrais e a situação de um ativo de TI." },
+      { property: "og:title", content: "Editar ativo — GestãoTI" },
+      { property: "og:description", content: "Atualize os dados cadastrais e a situação de um ativo de TI." },
+      { name: "twitter:title", content: "Editar ativo — GestãoTI" },
+      { name: "twitter:description", content: "Atualize os dados cadastrais e a situação de um ativo de TI." },
+    ],
+  }),
   component: EditAssetPage,
 });
 
