@@ -14,7 +14,18 @@ import { useAuth } from "@/lib/auth";
 import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
-  head: () => ({ meta: [{ title: "Relatórios — GestãoTI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Relatórios — GestãoTI" },
+      { name: "description", content: "Gere e exporte relatórios em PDF do inventário de ativos de TI da organização." },
+      { property: "og:title", content: "Relatórios — GestãoTI" },
+      { property: "og:description", content: "Gere e exporte relatórios em PDF do inventário de ativos de TI da organização." },
+      { property: "og:url", content: "/relatorios" },
+      { name: "twitter:title", content: "Relatórios — GestãoTI" },
+      { name: "twitter:description", content: "Gere e exporte relatórios em PDF do inventário de ativos de TI da organização." },
+    ],
+    links: [{ rel: "canonical", href: "/relatorios" }],
+  }),
   component: RelatoriosPage,
 });
 

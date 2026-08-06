@@ -4,7 +4,18 @@ import { useAuth, roleLabel } from "@/lib/auth";
 import { useCurrentUserStatus } from "@/lib/users-service";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
-  head: () => ({ meta: [{ title: "Perfil — GestãoTI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Perfil — GestãoTI" },
+      { name: "description", content: "Gerencie seus dados de acesso e veja seu perfil de usuário no GestãoTI." },
+      { property: "og:title", content: "Perfil — GestãoTI" },
+      { property: "og:description", content: "Gerencie seus dados de acesso e veja seu perfil de usuário no GestãoTI." },
+      { property: "og:url", content: "/perfil" },
+      { name: "twitter:title", content: "Perfil — GestãoTI" },
+      { name: "twitter:description", content: "Gerencie seus dados de acesso e veja seu perfil de usuário no GestãoTI." },
+    ],
+    links: [{ rel: "canonical", href: "/perfil" }],
+  }),
   component: PerfilPage,
 });
 

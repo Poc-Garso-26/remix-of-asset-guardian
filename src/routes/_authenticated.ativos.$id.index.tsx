@@ -15,7 +15,16 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/ativos/$id/")({
-  head: () => ({ meta: [{ title: "Detalhes do ativo — GestãoTI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Detalhes do ativo — GestãoTI" },
+      { name: "description", content: "Veja dados, situação e QR Code de um ativo de TI do inventário." },
+      { property: "og:title", content: "Detalhes do ativo — GestãoTI" },
+      { property: "og:description", content: "Veja dados, situação e QR Code de um ativo de TI do inventário." },
+      { name: "twitter:title", content: "Detalhes do ativo — GestãoTI" },
+      { name: "twitter:description", content: "Veja dados, situação e QR Code de um ativo de TI do inventário." },
+    ],
+  }),
   component: AssetDetailsPage,
 });
 

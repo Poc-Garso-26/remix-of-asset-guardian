@@ -8,7 +8,18 @@ import { assetsService } from "@/lib/assets-service";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/ativos/novo")({
-  head: () => ({ meta: [{ title: "Novo ativo — GestãoTI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Novo ativo — GestãoTI" },
+      { name: "description", content: "Cadastre um novo computador, notebook ou impressora no inventário de TI." },
+      { property: "og:title", content: "Novo ativo — GestãoTI" },
+      { property: "og:description", content: "Cadastre um novo computador, notebook ou impressora no inventário de TI." },
+      { property: "og:url", content: "/ativos/novo" },
+      { name: "twitter:title", content: "Novo ativo — GestãoTI" },
+      { name: "twitter:description", content: "Cadastre um novo computador, notebook ou impressora no inventário de TI." },
+    ],
+    links: [{ rel: "canonical", href: "/ativos/novo" }],
+  }),
   component: NewAssetPage,
 });
 
