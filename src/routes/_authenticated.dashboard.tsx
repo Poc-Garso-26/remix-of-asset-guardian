@@ -10,7 +10,18 @@ import { AssetsTimelineChart } from "@/components/assets-timeline-chart";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — GestãoTI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Dashboard — GestãoTI" },
+      { name: "description", content: "Visão geral do inventário de TI: totais por tipo, situação dos ativos e aquisições recentes." },
+      { property: "og:title", content: "Dashboard — GestãoTI" },
+      { property: "og:description", content: "Visão geral do inventário de TI: totais por tipo, situação dos ativos e aquisições recentes." },
+      { property: "og:url", content: "/dashboard" },
+      { name: "twitter:title", content: "Dashboard — GestãoTI" },
+      { name: "twitter:description", content: "Visão geral do inventário de TI: totais por tipo, situação dos ativos e aquisições recentes." },
+    ],
+    links: [{ rel: "canonical", href: "/dashboard" }],
+  }),
   component: DashboardPage,
 });
 
