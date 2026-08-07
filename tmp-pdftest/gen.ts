@@ -2,8 +2,8 @@ import { exportAssetsPdf } from "../src/lib/pdf-export";
 import fs from "fs";
 // stub jsPDF save via monkeypatch of Blob->file: capture output
 import jsPDF from "jspdf";
-const origSave = (jsPDF as any).prototype.save;
-(jsPDF as any).prototype.save = function (name: string) {
+
+(jsPDF as any).API.save = function (name: string) {
   const ab = this.output("arraybuffer");
   fs.writeFileSync("/dev-server/tmp-pdftest/" + name, Buffer.from(ab));
   console.log("saved", name);
