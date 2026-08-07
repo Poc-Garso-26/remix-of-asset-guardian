@@ -109,7 +109,7 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
   doc.setFontSize(9);
   const generatedAt = new Date().toLocaleString("pt-BR");
   doc.text(`Emitido em ${generatedAt}`, pageW - margin, 30, { align: "right" });
-  if (generatedBy) doc.text(`Por ${generatedBy}`, pageW - margin, 46, { align: "right" });
+  if (generatedBy) doc.text(pdfSafeText(`Por ${generatedBy}`), pageW - margin, 46, { align: "right" });
 
   // Título do relatório
   doc.setTextColor(15, 23, 42);
