@@ -9,31 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as TmpDatefieldCheckRouteImport } from './routes/tmp-datefield-check'
-import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated.administracao'
-import { Route as AuthenticatedAtivosRouteImport } from './routes/_authenticated.ativos'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
-import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated.perfil'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated.relatorios'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated.perfil'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedAtivosRouteImport } from './routes/_authenticated.ativos'
+import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated.administracao'
 import { Route as AuthenticatedAtivosIndexRouteImport } from './routes/_authenticated.ativos.index'
-import { Route as AuthenticatedAtivosIdRouteImport } from './routes/_authenticated.ativos.$id'
-import { Route as AuthenticatedAtivosComputadoresRouteImport } from './routes/_authenticated.ativos.computadores'
-import { Route as AuthenticatedAtivosImpressorasRouteImport } from './routes/_authenticated.ativos.impressoras'
-import { Route as AuthenticatedAtivosNotebooksRouteImport } from './routes/_authenticated.ativos.notebooks'
 import { Route as AuthenticatedAtivosNovoRouteImport } from './routes/_authenticated.ativos.novo'
+import { Route as AuthenticatedAtivosNotebooksRouteImport } from './routes/_authenticated.ativos.notebooks'
+import { Route as AuthenticatedAtivosImpressorasRouteImport } from './routes/_authenticated.ativos.impressoras'
+import { Route as AuthenticatedAtivosComputadoresRouteImport } from './routes/_authenticated.ativos.computadores'
+import { Route as AuthenticatedAtivosIdRouteImport } from './routes/_authenticated.ativos.$id'
 import { Route as AuthenticatedAtivosIdIndexRouteImport } from './routes/_authenticated.ativos.$id.index'
 import { Route as AuthenticatedAtivosIdEditarRouteImport } from './routes/_authenticated.ativos.$id.editar'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const TmpDatefieldCheckRoute = TmpDatefieldCheckRouteImport.update({
+  id: '/tmp-datefield-check',
+  path: '/tmp-datefield-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -41,25 +37,18 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TmpDatefieldCheckRoute = TmpDatefieldCheckRouteImport.update({
-  id: '/tmp-datefield-check',
-  path: '/tmp-datefield-check',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAdministracaoRoute =
-  AuthenticatedAdministracaoRouteImport.update({
-    id: '/administracao',
-    path: '/administracao',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedAtivosRoute = AuthenticatedAtivosRouteImport.update({
-  id: '/ativos',
-  path: '/ativos',
-  getParentRoute: () => AuthenticatedRoute,
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
@@ -67,26 +56,37 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAtivosRoute = AuthenticatedAtivosRouteImport.update({
+  id: '/ativos',
+  path: '/ativos',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAdministracaoRoute =
+  AuthenticatedAdministracaoRouteImport.update({
+    id: '/administracao',
+    path: '/administracao',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAtivosIndexRoute =
   AuthenticatedAtivosIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedAtivosRoute,
   } as any)
-const AuthenticatedAtivosIdRoute = AuthenticatedAtivosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
+const AuthenticatedAtivosNovoRoute = AuthenticatedAtivosNovoRouteImport.update({
+  id: '/novo',
+  path: '/novo',
   getParentRoute: () => AuthenticatedAtivosRoute,
 } as any)
-const AuthenticatedAtivosComputadoresRoute =
-  AuthenticatedAtivosComputadoresRouteImport.update({
-    id: '/computadores',
-    path: '/computadores',
+const AuthenticatedAtivosNotebooksRoute =
+  AuthenticatedAtivosNotebooksRouteImport.update({
+    id: '/notebooks',
+    path: '/notebooks',
     getParentRoute: () => AuthenticatedAtivosRoute,
   } as any)
 const AuthenticatedAtivosImpressorasRoute =
@@ -95,15 +95,15 @@ const AuthenticatedAtivosImpressorasRoute =
     path: '/impressoras',
     getParentRoute: () => AuthenticatedAtivosRoute,
   } as any)
-const AuthenticatedAtivosNotebooksRoute =
-  AuthenticatedAtivosNotebooksRouteImport.update({
-    id: '/notebooks',
-    path: '/notebooks',
+const AuthenticatedAtivosComputadoresRoute =
+  AuthenticatedAtivosComputadoresRouteImport.update({
+    id: '/computadores',
+    path: '/computadores',
     getParentRoute: () => AuthenticatedAtivosRoute,
   } as any)
-const AuthenticatedAtivosNovoRoute = AuthenticatedAtivosNovoRouteImport.update({
-  id: '/novo',
-  path: '/novo',
+const AuthenticatedAtivosIdRoute = AuthenticatedAtivosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => AuthenticatedAtivosRoute,
 } as any)
 const AuthenticatedAtivosIdIndexRoute =
@@ -238,18 +238,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteImport
+    '/tmp-datefield-check': {
+      id: '/tmp-datefield-check'
+      path: '/tmp-datefield-check'
+      fullPath: '/tmp-datefield-check'
+      preLoaderRoute: typeof TmpDatefieldCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -259,32 +252,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tmp-datefield-check': {
-      id: '/tmp-datefield-check'
-      path: '/tmp-datefield-check'
-      fullPath: '/tmp-datefield-check'
-      preLoaderRoute: typeof TmpDatefieldCheckRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/administracao': {
-      id: '/_authenticated/administracao'
-      path: '/administracao'
-      fullPath: '/administracao'
-      preLoaderRoute: typeof AuthenticatedAdministracaoRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/ativos': {
-      id: '/_authenticated/ativos'
-      path: '/ativos'
-      fullPath: '/ativos'
-      preLoaderRoute: typeof AuthenticatedAtivosRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/perfil': {
@@ -294,11 +280,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/relatorios': {
-      id: '/_authenticated/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/ativos': {
+      id: '/_authenticated/ativos'
+      path: '/ativos'
+      fullPath: '/ativos'
+      preLoaderRoute: typeof AuthenticatedAtivosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/administracao': {
+      id: '/_authenticated/administracao'
+      path: '/administracao'
+      fullPath: '/administracao'
+      preLoaderRoute: typeof AuthenticatedAdministracaoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/ativos/': {
@@ -308,25 +308,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAtivosIndexRouteImport
       parentRoute: typeof AuthenticatedAtivosRoute
     }
-    '/_authenticated/ativos/$id': {
-      id: '/_authenticated/ativos/$id'
-      path: '/$id'
-      fullPath: '/ativos/$id'
-      preLoaderRoute: typeof AuthenticatedAtivosIdRouteImport
-      parentRoute: typeof AuthenticatedAtivosRoute
-    }
-    '/_authenticated/ativos/computadores': {
-      id: '/_authenticated/ativos/computadores'
-      path: '/computadores'
-      fullPath: '/ativos/computadores'
-      preLoaderRoute: typeof AuthenticatedAtivosComputadoresRouteImport
-      parentRoute: typeof AuthenticatedAtivosRoute
-    }
-    '/_authenticated/ativos/impressoras': {
-      id: '/_authenticated/ativos/impressoras'
-      path: '/impressoras'
-      fullPath: '/ativos/impressoras'
-      preLoaderRoute: typeof AuthenticatedAtivosImpressorasRouteImport
+    '/_authenticated/ativos/novo': {
+      id: '/_authenticated/ativos/novo'
+      path: '/novo'
+      fullPath: '/ativos/novo'
+      preLoaderRoute: typeof AuthenticatedAtivosNovoRouteImport
       parentRoute: typeof AuthenticatedAtivosRoute
     }
     '/_authenticated/ativos/notebooks': {
@@ -336,11 +322,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAtivosNotebooksRouteImport
       parentRoute: typeof AuthenticatedAtivosRoute
     }
-    '/_authenticated/ativos/novo': {
-      id: '/_authenticated/ativos/novo'
-      path: '/novo'
-      fullPath: '/ativos/novo'
-      preLoaderRoute: typeof AuthenticatedAtivosNovoRouteImport
+    '/_authenticated/ativos/impressoras': {
+      id: '/_authenticated/ativos/impressoras'
+      path: '/impressoras'
+      fullPath: '/ativos/impressoras'
+      preLoaderRoute: typeof AuthenticatedAtivosImpressorasRouteImport
+      parentRoute: typeof AuthenticatedAtivosRoute
+    }
+    '/_authenticated/ativos/computadores': {
+      id: '/_authenticated/ativos/computadores'
+      path: '/computadores'
+      fullPath: '/ativos/computadores'
+      preLoaderRoute: typeof AuthenticatedAtivosComputadoresRouteImport
+      parentRoute: typeof AuthenticatedAtivosRoute
+    }
+    '/_authenticated/ativos/$id': {
+      id: '/_authenticated/ativos/$id'
+      path: '/$id'
+      fullPath: '/ativos/$id'
+      preLoaderRoute: typeof AuthenticatedAtivosIdRouteImport
       parentRoute: typeof AuthenticatedAtivosRoute
     }
     '/_authenticated/ativos/$id/': {
@@ -425,13 +425,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
