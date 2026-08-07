@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { DateField } from "@/components/date-field";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
@@ -460,19 +461,36 @@ function FilterInput({
   type?: string;
 }) {
   const id = useId();
+  const hintId = `${id}-hint`;
+  const inputClass =
+    "rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background";
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-xs font-medium text-foreground">{label}</label>
-      <input
-        id={id}
-        type={type}
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-      />
+      {type === "date" ? (
+        <>
+          <DateField
+            id={id}
+            value={value ?? ""}
+            onChange={onChange}
+            aria-describedby={hintId}
+            className={inputClass}
+          />
+          <span id={hintId} className="text-xs text-muted-foreground">Formato dd/mm/aaaa</span>
+        </>
+      ) : (
+        <input
+          id={id}
+          type={type}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          className={inputClass}
+        />
+      )}
     </div>
   );
 }
+
 
 function useIsTouch() {
   const [isTouch, setIsTouch] = useState(false);
