@@ -241,3 +241,24 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
+
+function DateFilterField({
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const hintId = `${id}-hint`;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-xs font-medium text-foreground">{label}</label>
+      <DateField id={id} value={value} onChange={onChange} aria-describedby={hintId} className={cls} />
+      <span id={hintId} className="text-xs text-muted-foreground">Formato dd/mm/aaaa</span>
+    </div>
+  );
+}
