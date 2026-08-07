@@ -5,7 +5,7 @@ import jsPDF from "jspdf";
 const origSave = (jsPDF as any).prototype.save;
 (jsPDF as any).prototype.save = function (name: string) {
   const ab = this.output("arraybuffer");
-  fs.writeFileSync("/tmp/pdftest/" + name, Buffer.from(ab));
+  fs.writeFileSync("/dev-server/tmp-pdftest/" + name, Buffer.from(ab));
   console.log("saved", name);
 };
 const assets = [{ id: "1", patrimony: "PAT-00102", type: "computador", brand: "Dell — “X”", model: "OptiPlex", responsible: "João Ção", sector: "TI", status: "em_uso", acquisitionDate: "2026-08-01" }] as any;
