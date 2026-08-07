@@ -115,7 +115,7 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(title, margin, 92);
+  doc.text(pdfSafeText(title), margin, 92);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
@@ -132,7 +132,7 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
     doc.text("Filtros aplicados:", margin, cursorY);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(71, 85, 105);
-    const wrapped = doc.splitTextToSize(filterLines.join("  •  "), pageW - margin * 2);
+    const wrapped = doc.splitTextToSize(filterLines.join("  |  "), pageW - margin * 2);
     doc.text(wrapped, margin, cursorY + 12);
     cursorY += 12 + wrapped.length * 11;
   }
@@ -142,15 +142,17 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
     startY: cursorY + 8,
     margin: { left: margin, right: margin, bottom: 50 },
     head: [["Patrimônio", "Tipo", "Marca/Modelo", "Responsável", "Setor", "Situação", "Aquisição"]],
-    body: assets.map((a) => [
-      a.patrimony,
-      ASSET_TYPE_LABEL[a.type],
-      `${a.brand} ${a.model}`,
-      a.responsible,
-      a.sector,
-      ASSET_STATUS_LABEL[a.status],
-      fmtDate(a.acquisitionDate),
-    ]),
+    body: assets.map((a) =>
+      [
+        a.patrimony,
+        ASSET_TYPE_LABEL[a.type],
+        `${a.brand} ${a.model}`,
+        a.responsible,
+        a.sector,
+        ASSET_STATUS_LABEL[a.status],
+        fmtDate(a.acquisitionDate),
+      ].map(pdfSafeText),
+    ),
     styles: { font: "helvetica", fontSize: 8.5, cellPadding: 5, textColor: [15, 23, 42] },
     headStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: "bold" },
     alternateRowStyles: { fillColor: [250, 250, 252] },
@@ -165,7 +167,8 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
       doc.text(
-        `${BRAND} — Confidencial`,
+        `${BRAND} - Confidencial`,
+
         margin,
         pageH - 20,
       );
