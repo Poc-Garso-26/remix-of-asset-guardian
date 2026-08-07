@@ -12,6 +12,7 @@ import {
 } from "@/lib/assets-types";
 import { useAuth } from "@/lib/auth";
 import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
+import { DateField } from "@/components/date-field";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({
@@ -136,12 +137,18 @@ function RelatoriosPage() {
           <Field label="Responsável">
             <input value={filters.responsible} onChange={(e) => setFilters((f) => ({ ...f, responsible: e.target.value }))} className={cls} />
           </Field>
-          <Field label="Aquisição de">
-            <input type="date" value={filters.acquiredFrom} onChange={(e) => setFilters((f) => ({ ...f, acquiredFrom: e.target.value }))} className={cls} />
-          </Field>
-          <Field label="Aquisição até">
-            <input type="date" value={filters.acquiredTo} onChange={(e) => setFilters((f) => ({ ...f, acquiredTo: e.target.value }))} className={cls} />
-          </Field>
+          <DateFilterField
+            id="rel-acquired-from"
+            label="Aquisição de"
+            value={filters.acquiredFrom}
+            onChange={(v) => setFilters((f) => ({ ...f, acquiredFrom: v }))}
+          />
+          <DateFilterField
+            id="rel-acquired-to"
+            label="Aquisição até"
+            value={filters.acquiredTo}
+            onChange={(v) => setFilters((f) => ({ ...f, acquiredTo: v }))}
+          />
         </div>
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
@@ -232,5 +239,26 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs font-medium text-foreground">{label}</span>
       {children}
     </label>
+  );
+}
+
+function DateFilterField({
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const hintId = `${id}-hint`;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-xs font-medium text-foreground">{label}</label>
+      <DateField id={id} value={value} onChange={onChange} aria-describedby={hintId} className={cls} />
+      <span id={hintId} className="text-xs text-muted-foreground">Formato dd/mm/aaaa</span>
+    </div>
   );
 }
