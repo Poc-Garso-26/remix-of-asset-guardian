@@ -137,14 +137,18 @@ function RelatoriosPage() {
           <Field label="Responsável">
             <input value={filters.responsible} onChange={(e) => setFilters((f) => ({ ...f, responsible: e.target.value }))} className={cls} />
           </Field>
-          <Field label="Aquisição de">
-            <DateField value={filters.acquiredFrom} onChange={(v) => setFilters((f) => ({ ...f, acquiredFrom: v }))} className={cls} />
-            <span className="text-xs text-muted-foreground">Formato dd/mm/aaaa</span>
-          </Field>
-          <Field label="Aquisição até">
-            <DateField value={filters.acquiredTo} onChange={(v) => setFilters((f) => ({ ...f, acquiredTo: v }))} className={cls} />
-            <span className="text-xs text-muted-foreground">Formato dd/mm/aaaa</span>
-          </Field>
+          <DateFilterField
+            id="rel-acquired-from"
+            label="Aquisição de"
+            value={filters.acquiredFrom}
+            onChange={(v) => setFilters((f) => ({ ...f, acquiredFrom: v }))}
+          />
+          <DateFilterField
+            id="rel-acquired-to"
+            label="Aquisição até"
+            value={filters.acquiredTo}
+            onChange={(v) => setFilters((f) => ({ ...f, acquiredTo: v }))}
+          />
         </div>
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
