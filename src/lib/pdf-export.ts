@@ -25,11 +25,35 @@ interface ExportOptions {
   generatedBy?: string;
 }
 
+/**
+ * As fontes padrão do jsPDF (Helvetica) usam codificação de 1 byte: acentos
+ * funcionam, mas travessões, setas, bullets e aspas tipográficas saem
+ * corrompidos. Este helper normaliza esses caracteres para ASCII.
+ */
+export function pdfSafeText(value: unknown): string {
+  const s = value == null ? "" : String(value);
+  return s
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u2192\u21D2\u27A1]/g, ">")
+    .replace(/[\u2022\u00B7\u25CF\u25AA]/g, "|")
+    .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
+    .replace(/\u2026/g, "...")
+    .replace(/\u00A0/g, " ")
+    .replace(/[\u2013\u2014]/g, "-");
+}
+
 function fmtDate(iso?: string) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso.length === 10 ? `${iso}T00:00:00` : iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("pt-BR");
+}
+
+function fmtRange(label: string, from?: string, to?: string): string {
+  if (from && to) return `${label}: ${fmtDate(from)} até ${fmtDate(to)}`;
+  if (from) return `${label}: a partir de ${fmtDate(from)}`;
+  return `${label}: até ${fmtDate(to)}`;
 }
 
 function describeFilters(f: AssetFilters = {}): string[] {
@@ -43,12 +67,10 @@ function describeFilters(f: AssetFilters = {}): string[] {
   if (f.responsible) out.push(`Responsável: ${f.responsible}`);
   if (f.sector) out.push(`Setor: ${f.sector}`);
   if (f.operatingSystem) out.push(`SO: ${f.operatingSystem}`);
-  if (f.createdFrom || f.createdTo)
-    out.push(`Cadastro: ${fmtDate(f.createdFrom)} → ${fmtDate(f.createdTo)}`);
-  if (f.acquiredFrom || f.acquiredTo)
-    out.push(`Aquisição: ${fmtDate(f.acquiredFrom)} → ${fmtDate(f.acquiredTo)}`);
+  if (f.createdFrom || f.createdTo) out.push(fmtRange("Cadastro", f.createdFrom, f.createdTo));
+  if (f.acquiredFrom || f.acquiredTo) out.push(fmtRange("Aquisição", f.acquiredFrom, f.acquiredTo));
   if (f.q) out.push(`Pesquisa: "${f.q}"`);
-  return out;
+  return out.map(pdfSafeText);
 }
 
 export interface ExportResult {
@@ -87,13 +109,13 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
   doc.setFontSize(9);
   const generatedAt = new Date().toLocaleString("pt-BR");
   doc.text(`Emitido em ${generatedAt}`, pageW - margin, 30, { align: "right" });
-  if (generatedBy) doc.text(`Por ${generatedBy}`, pageW - margin, 46, { align: "right" });
+  if (generatedBy) doc.text(pdfSafeText(`Por ${generatedBy}`), pageW - margin, 46, { align: "right" });
 
   // Título do relatório
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(title, margin, 92);
+  doc.text(pdfSafeText(title), margin, 92);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
@@ -110,7 +132,7 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
     doc.text("Filtros aplicados:", margin, cursorY);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(71, 85, 105);
-    const wrapped = doc.splitTextToSize(filterLines.join("  •  "), pageW - margin * 2);
+    const wrapped = doc.splitTextToSize(filterLines.join("  |  "), pageW - margin * 2);
     doc.text(wrapped, margin, cursorY + 12);
     cursorY += 12 + wrapped.length * 11;
   }
@@ -120,15 +142,17 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
     startY: cursorY + 8,
     margin: { left: margin, right: margin, bottom: 50 },
     head: [["Patrimônio", "Tipo", "Marca/Modelo", "Responsável", "Setor", "Situação", "Aquisição"]],
-    body: assets.map((a) => [
-      a.patrimony,
-      ASSET_TYPE_LABEL[a.type],
-      `${a.brand} ${a.model}`,
-      a.responsible,
-      a.sector,
-      ASSET_STATUS_LABEL[a.status],
-      fmtDate(a.acquisitionDate),
-    ]),
+    body: assets.map((a) =>
+      [
+        a.patrimony,
+        ASSET_TYPE_LABEL[a.type],
+        `${a.brand} ${a.model}`,
+        a.responsible,
+        a.sector,
+        ASSET_STATUS_LABEL[a.status],
+        fmtDate(a.acquisitionDate),
+      ].map(pdfSafeText),
+    ),
     styles: { font: "helvetica", fontSize: 8.5, cellPadding: 5, textColor: [15, 23, 42] },
     headStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: "bold" },
     alternateRowStyles: { fillColor: [250, 250, 252] },
@@ -143,7 +167,8 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
       doc.text(
-        `${BRAND} — Confidencial`,
+        `${BRAND} - Confidencial`,
+
         margin,
         pageH - 20,
       );
