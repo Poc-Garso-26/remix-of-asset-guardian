@@ -12,6 +12,7 @@ import {
 } from "@/lib/assets-types";
 import { useAuth } from "@/lib/auth";
 import { exportAssetsPdf, formatFileSize } from "@/lib/pdf-export";
+import { DateField } from "@/components/date-field";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({
