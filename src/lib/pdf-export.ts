@@ -25,11 +25,35 @@ interface ExportOptions {
   generatedBy?: string;
 }
 
+/**
+ * As fontes padrão do jsPDF (Helvetica) usam codificação de 1 byte: acentos
+ * funcionam, mas travessões, setas, bullets e aspas tipográficas saem
+ * corrompidos. Este helper normaliza esses caracteres para ASCII.
+ */
+export function pdfSafeText(value: unknown): string {
+  const s = value == null ? "" : String(value);
+  return s
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u2192\u21D2\u27A1]/g, ">")
+    .replace(/[\u2022\u00B7\u25CF\u25AA]/g, "|")
+    .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
+    .replace(/\u2026/g, "...")
+    .replace(/\u00A0/g, " ")
+    .replace(/[\u2013\u2014]/g, "-");
+}
+
 function fmtDate(iso?: string) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso.length === 10 ? `${iso}T00:00:00` : iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("pt-BR");
+}
+
+function fmtRange(label: string, from?: string, to?: string): string {
+  if (from && to) return `${label}: ${fmtDate(from)} até ${fmtDate(to)}`;
+  if (from) return `${label}: a partir de ${fmtDate(from)}`;
+  return `${label}: até ${fmtDate(to)}`;
 }
 
 function describeFilters(f: AssetFilters = {}): string[] {
@@ -43,12 +67,10 @@ function describeFilters(f: AssetFilters = {}): string[] {
   if (f.responsible) out.push(`Responsável: ${f.responsible}`);
   if (f.sector) out.push(`Setor: ${f.sector}`);
   if (f.operatingSystem) out.push(`SO: ${f.operatingSystem}`);
-  if (f.createdFrom || f.createdTo)
-    out.push(`Cadastro: ${fmtDate(f.createdFrom)} → ${fmtDate(f.createdTo)}`);
-  if (f.acquiredFrom || f.acquiredTo)
-    out.push(`Aquisição: ${fmtDate(f.acquiredFrom)} → ${fmtDate(f.acquiredTo)}`);
+  if (f.createdFrom || f.createdTo) out.push(fmtRange("Cadastro", f.createdFrom, f.createdTo));
+  if (f.acquiredFrom || f.acquiredTo) out.push(fmtRange("Aquisição", f.acquiredFrom, f.acquiredTo));
   if (f.q) out.push(`Pesquisa: "${f.q}"`);
-  return out;
+  return out.map(pdfSafeText);
 }
 
 export interface ExportResult {
