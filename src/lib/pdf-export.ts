@@ -167,8 +167,7 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
       doc.text(
-        `${BRAND} - Confidencial`,
-
+        pdfSafeText(`${BRAND} ${APP_VERSION_SHORT} - Confidencial`),
         margin,
         pageH - 20,
       );
