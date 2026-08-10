@@ -5,8 +5,17 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import pkg from "./package.json" with { type: "json" };
 
 export default defineConfig({
+  // Versão da aplicação exposta ao front-end em tempo de build a partir do
+  // package.json (fonte única da verdade).
+  vite: {
+    define: {
+      "import.meta.env.VITE_APP_VERSION": JSON.stringify(pkg.version),
+    },
+  },
+
   // `nodejs_compat` é OBRIGATÓRIA: o TanStack Start guarda o contexto da
   // requisição em um AsyncLocalStorage de `node:async_hooks`. Sem a flag (e sem
   // o preset unenv de compatibilidade Node, que o Nitro só injeta quando

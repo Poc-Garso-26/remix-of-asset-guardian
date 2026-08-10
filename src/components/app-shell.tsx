@@ -18,6 +18,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth, roleLabel, type Permission } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { APP_VERSION_LABEL, APP_VERSION_SHORT } from "@/lib/app-version";
+
 
 interface NavItem {
   to: string;
@@ -244,7 +246,20 @@ export function AppShell({ children }: { children: ReactNode }) {
             </li>
           </ul>
         </nav>
+
+        <div
+          className={cn(
+            "shrink-0 border-t border-sidebar-border px-5 py-3",
+            collapsed && "lg:px-2 lg:text-center",
+          )}
+        >
+          <p className="text-xs text-muted-foreground" aria-label={APP_VERSION_LABEL}>
+            {collapsed && isDesktop ? APP_VERSION_SHORT : APP_VERSION_LABEL}
+          </p>
+
+        </div>
       </aside>
+
 
       {mobileOpen && (
         <button

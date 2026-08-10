@@ -4,6 +4,8 @@ import { Boxes, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { APP_VERSION_LABEL } from "@/lib/app-version";
+
 
 
 
@@ -85,9 +87,13 @@ function LoginPage() {
           </p>
         </div>
 
-        <p className="text-xs text-primary-foreground/80">
-          © {new Date().getFullYear()} GestãoTI · Todos os direitos reservados à Prodabel.
-        </p>
+        <div className="space-y-1">
+          <p className="text-xs text-primary-foreground/80">
+            © {new Date().getFullYear()} GestãoTI · Todos os direitos reservados à Prodabel.
+          </p>
+          <p className="text-xs text-primary-foreground/80">{APP_VERSION_LABEL}</p>
+        </div>
+
       </div>
 
       {/* Right form */}
@@ -160,6 +166,10 @@ function LoginPage() {
               criação da sua conta em /administracao.
             </p>
           </div>
+
+          <p className="mt-6 text-xs text-muted-foreground lg:hidden">{APP_VERSION_LABEL}</p>
+
+
 
         </div>
       </main>
