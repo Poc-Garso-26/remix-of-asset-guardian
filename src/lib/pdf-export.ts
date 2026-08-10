@@ -14,6 +14,7 @@ import {
   type Asset,
 } from "./assets-types";
 import type { AssetFilters } from "./assets-service";
+import { APP_VERSION_SHORT } from "./app-version";
 
 const BRAND = "GestãoTI";
 const SUBTITLE = "Sistema de Gestão de Ativos de TI";
@@ -167,8 +168,7 @@ export function exportAssetsPdf(opts: ExportOptions): ExportResult {
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
       doc.text(
-        `${BRAND} - Confidencial`,
-
+        pdfSafeText(`${BRAND} ${APP_VERSION_SHORT} - Confidencial`),
         margin,
         pageH - 20,
       );
