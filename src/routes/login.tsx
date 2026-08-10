@@ -85,9 +85,13 @@ function LoginPage() {
           </p>
         </div>
 
-        <p className="text-xs text-primary-foreground/80">
-          © {new Date().getFullYear()} GestãoTI · Todos os direitos reservados à Prodabel.
-        </p>
+        <div className="space-y-1">
+          <p className="text-xs text-primary-foreground/80">
+            © {new Date().getFullYear()} GestãoTI · Todos os direitos reservados à Prodabel.
+          </p>
+          <p className="text-xs text-primary-foreground/80">{APP_VERSION_LABEL}</p>
+        </div>
+
       </div>
 
       {/* Right form */}
