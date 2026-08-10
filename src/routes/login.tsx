@@ -106,7 +106,7 @@ function LoginPage() {
             <p className="text-sm font-semibold tracking-tight">GestãoTI</p>
           </div>
 
-          <h1 className="text-2xl font-semibold tracking-tight">Entrar</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Entrar aqui</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Use suas credenciais corporativas para acessar.
           </p>
