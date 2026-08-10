@@ -167,6 +167,10 @@ function LoginPage() {
             </p>
           </div>
 
+          <p className="mt-6 text-xs text-muted-foreground lg:hidden">{APP_VERSION_LABEL}</p>
+
+
+
         </div>
       </main>
     </div>
