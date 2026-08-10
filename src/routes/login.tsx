@@ -4,6 +4,8 @@ import { Boxes, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { APP_VERSION_LABEL } from "@/lib/app-version";
+
 
 
 
