@@ -14,6 +14,7 @@ import {
   type Asset,
 } from "./assets-types";
 import type { AssetFilters } from "./assets-service";
+import { APP_VERSION_SHORT } from "./app-version";
 
 const BRAND = "GestãoTI";
 const SUBTITLE = "Sistema de Gestão de Ativos de TI";
