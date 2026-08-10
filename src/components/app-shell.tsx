@@ -244,7 +244,20 @@ export function AppShell({ children }: { children: ReactNode }) {
             </li>
           </ul>
         </nav>
+
+        <div
+          className={cn(
+            "shrink-0 border-t border-sidebar-border px-5 py-3",
+            collapsed && "lg:px-2 lg:text-center",
+          )}
+        >
+          <p className="text-xs text-muted-foreground">
+            <span className={cn(collapsed && "lg:sr-only")}>{APP_VERSION_LABEL}</span>
+            {collapsed && <span className="sr-only lg:not-sr-only">{APP_VERSION_SHORT}</span>}
+          </p>
+        </div>
       </aside>
+
 
       {mobileOpen && (
         <button
