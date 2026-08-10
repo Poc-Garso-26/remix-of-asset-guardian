@@ -253,10 +253,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             collapsed && "lg:px-2 lg:text-center",
           )}
         >
-          <p className="text-xs text-muted-foreground">
-            <span className={cn(collapsed && "lg:sr-only")}>{APP_VERSION_LABEL}</span>
-            {collapsed && <span className="sr-only lg:not-sr-only">{APP_VERSION_SHORT}</span>}
+          <p className="text-xs text-muted-foreground" aria-label={APP_VERSION_LABEL}>
+            {collapsed && isDesktop ? APP_VERSION_SHORT : APP_VERSION_LABEL}
           </p>
+
         </div>
       </aside>
 
