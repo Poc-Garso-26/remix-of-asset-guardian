@@ -18,6 +18,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth, roleLabel, type Permission } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { APP_VERSION_LABEL, APP_VERSION_SHORT } from "@/lib/app-version";
+
 
 interface NavItem {
   to: string;
