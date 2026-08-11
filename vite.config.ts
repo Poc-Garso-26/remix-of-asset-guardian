@@ -14,7 +14,13 @@ export default defineConfig({
     define: {
       "import.meta.env.VITE_APP_VERSION": JSON.stringify(pkg.version),
     },
+    // Segurança: nunca publicar source maps em produção (evita expor o
+    // código-fonte não minificado e facilitar engenharia reversa).
+    build: {
+      sourcemap: false,
+    },
   },
+
 
   // `nodejs_compat` é OBRIGATÓRIA: o TanStack Start guarda o contexto da
   // requisição em um AsyncLocalStorage de `node:async_hooks`. Sem a flag (e sem
