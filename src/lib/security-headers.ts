@@ -22,7 +22,7 @@ const GOOGLE_FONTS_FILES = "https://fonts.gstatic.com";
 export type CspMode = "report-only" | "enforce";
 
 /** Modo atual. Validado em report-only antes de ser promovido para enforce. */
-export const CSP_MODE: CspMode = "enforce";
+export const CSP_MODE: CspMode = "report-only";
 
 function isLovablePreviewHost(hostname: string): boolean {
   return (
