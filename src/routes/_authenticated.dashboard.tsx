@@ -33,9 +33,9 @@ function DashboardPage() {
   });
 
   const cards = [
-    { label: "Computadores", value: data?.computadores ?? 0, icon: Monitor, search: { type: "computador" } },
-    { label: "Notebooks", value: data?.notebooks ?? 0, icon: Laptop, search: { type: "notebook" } },
-    { label: "Impressoras", value: data?.impressoras ?? 0, icon: Printer, search: { type: "impressora" } },
+    { label: "Computadores", value: data?.computadores ?? 0, icon: Monitor, to: "/ativos/computadores" },
+    { label: "Notebooks", value: data?.notebooks ?? 0, icon: Laptop, to: "/ativos/notebooks" },
+    { label: "Impressoras", value: data?.impressoras ?? 0, icon: Printer, to: "/ativos/impressoras" },
     { label: "Total de ativos", value: data?.total ?? 0, icon: Package },
   ];
 
@@ -64,7 +64,7 @@ function DashboardPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                   <Icon className="h-4 w-4" />
                 </div>
-                {card.search && (
+                {card.to && (
                   <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                 )}
               </div>
@@ -76,8 +76,8 @@ function DashboardPage() {
               </div>
             </div>
           );
-          return card.search ? (
-            <Link key={card.label} to="/ativos" search={card.search as never}>
+          return card.to ? (
+            <Link key={card.label} to={card.to as never}>
               {content}
             </Link>
           ) : (
