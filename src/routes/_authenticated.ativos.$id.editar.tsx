@@ -59,7 +59,7 @@ function EditAssetPage() {
       <Breadcrumbs
         items={[
           { label: "Inventário", to: "/ativos" },
-          { label: "Todos os ativos", to: "/ativos" },
+          { label: ASSET_TYPE_PLURAL_LABEL[asset.type], to: ASSET_TYPE_LIST_ROUTE[asset.type] },
           { label: asset.patrimony, to: "/ativos/$id", params: { id } },
           { label: "Editar" },
         ]}
