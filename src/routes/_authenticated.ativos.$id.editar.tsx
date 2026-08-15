@@ -5,6 +5,7 @@ import { ChevronLeft, Loader2 } from "lucide-react";
 import { AssetForm } from "@/components/asset-form";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { assetsService } from "@/lib/assets-service";
+import { ASSET_TYPE_LIST_ROUTE, ASSET_TYPE_PLURAL_LABEL } from "@/lib/assets-types";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/ativos/$id/editar")({
