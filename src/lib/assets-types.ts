@@ -48,6 +48,20 @@ export const ASSET_TYPE_LABEL: Record<AssetType, string> = {
   impressora: "Impressora",
 };
 
+/** Rótulo plural por tipo — mesmos textos usados no menu lateral. */
+export const ASSET_TYPE_PLURAL_LABEL: Record<AssetType, string> = {
+  computador: "Computadores",
+  notebook: "Notebooks",
+  impressora: "Impressoras",
+};
+
+/** Rota de listagem dedicada por tipo de ativo. */
+export const ASSET_TYPE_LIST_ROUTE: Record<AssetType, string> = {
+  computador: "/ativos/computadores",
+  notebook: "/ativos/notebooks",
+  impressora: "/ativos/impressoras",
+};
+
 export const ASSET_STATUS_LABEL: Record<AssetStatus, string> = {
   em_uso: "Em uso",
   estoque: "Estoque",
