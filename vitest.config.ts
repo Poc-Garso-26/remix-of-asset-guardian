@@ -5,11 +5,15 @@
  * TanStack Start. Cobre apenas funções puras — nada que dependa de banco,
  * sessão autenticada ou servidor.
  */
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   test: {
     environment: "jsdom",
     include: ["tests/unit/**/*.test.ts"],
