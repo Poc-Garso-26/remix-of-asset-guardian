@@ -18,20 +18,20 @@ export function isoToLocalDate(iso: string): Date | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
-function toIso(d: Date): string {
+export function toIso(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate(),
   ).padStart(2, "0")}`;
 }
 
 /** ISO -> "01/08/2026" */
-function isoToBr(iso: string): string {
+export function isoToBr(iso: string): string {
   const d = isoToLocalDate(iso);
   return d ? `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}` : "";
 }
 
 /** "01/08/2026" -> ISO (ou "" se incompleta/inválida) */
-function brToIso(br: string): string {
+export function brToIso(br: string): string {
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(br);
   if (!m) return "";
   const day = Number(m[1]);
@@ -43,7 +43,7 @@ function brToIso(br: string): string {
 }
 
 /** Aplica máscara dd/mm/aaaa durante a digitação. */
-function mask(raw: string): string {
+export function mask(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, 8);
   const parts = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)].filter(Boolean);
   return parts.join("/");
