@@ -79,17 +79,17 @@ function AssetDetailsPage() {
       <Breadcrumbs
         items={[
           { label: "Inventário", to: "/ativos" },
-          { label: "Todos os ativos", to: "/ativos" },
+          { label: ASSET_TYPE_PLURAL_LABEL[asset.type], to: ASSET_TYPE_LIST_ROUTE[asset.type] },
           { label: asset.patrimony },
         ]}
       />
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <button
-            onClick={() => navigate({ to: "/ativos" })}
+            onClick={() => navigate({ to: ASSET_TYPE_LIST_ROUTE[asset.type] as never })}
             className="mb-3 inline-flex min-h-9 items-center gap-1 rounded-md text-xs text-muted-foreground underline decoration-dotted underline-offset-4 transition-colors hover:text-foreground hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:decoration-solid"
           >
-            <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden="true" /> Voltar para ativos
+            <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden="true" /> Voltar para {ASSET_TYPE_PLURAL_LABEL[asset.type].toLowerCase()}
           </button>
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {ASSET_TYPE_LABEL[asset.type]}
