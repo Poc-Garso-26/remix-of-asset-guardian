@@ -36,8 +36,9 @@ function DashboardPage() {
     { label: "Computadores", value: data?.computadores ?? 0, icon: Monitor, to: "/ativos/computadores" },
     { label: "Notebooks", value: data?.notebooks ?? 0, icon: Laptop, to: "/ativos/notebooks" },
     { label: "Impressoras", value: data?.impressoras ?? 0, icon: Printer, to: "/ativos/impressoras" },
-    { label: "Todos os ativos", value: data?.total ?? 0, icon: Package },
+    { label: "Todos os ativos", value: data?.total ?? 0, icon: Package, to: "/ativos" },
   ];
+
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -77,13 +78,18 @@ function DashboardPage() {
             </div>
           );
           return card.to ? (
-            <Link key={card.label} to={card.to as never}>
+            <Link
+              key={card.label}
+              to={card.to as never}
+              aria-label={`${card.label} — ver listagem`}
+            >
               {content}
             </Link>
           ) : (
             <div key={card.label}>{content}</div>
           );
         })}
+
       </section>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
