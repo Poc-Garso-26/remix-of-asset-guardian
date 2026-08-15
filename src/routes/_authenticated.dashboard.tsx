@@ -36,7 +36,7 @@ function DashboardPage() {
     { label: "Computadores", value: data?.computadores ?? 0, icon: Monitor, to: "/ativos/computadores" },
     { label: "Notebooks", value: data?.notebooks ?? 0, icon: Laptop, to: "/ativos/notebooks" },
     { label: "Impressoras", value: data?.impressoras ?? 0, icon: Printer, to: "/ativos/impressoras" },
-    { label: "Total de ativos", value: data?.total ?? 0, icon: Package },
+    { label: "Todos os ativos", value: data?.total ?? 0, icon: Package },
   ];
 
   return (
