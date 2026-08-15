@@ -71,7 +71,8 @@ function LoginPage() {
           </div>
           <div>
             <p className="text-sm font-semibold tracking-tight">GestãoTI</p>
-            <p className="text-[11px] uppercase tracking-widest text-primary-foreground/70">
+            {/* Sem opacidade: em 11px a opacidade reduzia o contraste abaixo de 4,5:1 (axe/WCAG AA). */}
+            <p className="text-[11px] uppercase tracking-widest text-primary-foreground">
               Ativos de TI
             </p>
           </div>
