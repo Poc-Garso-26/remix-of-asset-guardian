@@ -7,6 +7,8 @@ import { assetsService, regenerateAssetQrCode } from "@/lib/assets-service";
 import {
   ASSET_STATUS_LABEL,
   ASSET_TYPE_LABEL,
+  ASSET_TYPE_LIST_ROUTE,
+  ASSET_TYPE_PLURAL_LABEL,
   type Asset,
 } from "@/lib/assets-types";
 import { StatusBadge } from "@/components/status-badge";
