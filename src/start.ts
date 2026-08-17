@@ -1,7 +1,7 @@
-import { createStart, createMiddleware } from "@tanstack/react-start";
+import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
-import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { attachKeycloakAuth } from "@/integrations/keycloak/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -18,7 +18,11 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
+const csrfMiddleware = createCsrfMiddleware({
+  filter: (context) => context.handlerType === "serverFn",
+});
+
 export const startInstance = createStart(() => ({
-  functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware],
+  functionMiddleware: [attachKeycloakAuth],
+  requestMiddleware: [csrfMiddleware, errorMiddleware],
 }));

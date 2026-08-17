@@ -1,14 +1,9 @@
-import { createFileRoute, useNavigate, Navigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Boxes, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { PasswordInput } from "@/components/ui/password-input";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { APP_VERSION_LABEL } from "@/lib/app-version";
-
-
-
-
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -28,27 +23,31 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
 
-
+  // If already authenticated, redirect to dashboard
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  // Auto-redirect to Keycloak on mount if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && !redirecting) {
+      // Small delay to show the page briefly before redirect
+      const timer = setTimeout(() => {
+        handleLogin();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isAuthenticated, redirecting]);
+
+  async function handleLogin() {
     setError(null);
-    setSubmitting(true);
+    setRedirecting(true);
     try {
-      await login(email, password);
-      navigate({ to: "/dashboard", replace: true });
+      await login();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Falha no login");
-    } finally {
-      setSubmitting(false);
+      setError(err instanceof Error ? err.message : "Falha ao redirecionar para autenticação");
+      setRedirecting(false);
     }
   }
 
@@ -94,13 +93,12 @@ function LoginPage() {
           </p>
           <p className="text-xs text-primary-foreground/80">{APP_VERSION_LABEL}</p>
         </div>
-
       </div>
 
-      {/* Right form */}
+      {/* Right panel */}
       <main id="main" tabIndex={-1} className="flex items-center justify-center px-4 py-12 focus:outline-none lg:px-12">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-2 lg:hidden">
+        <div className="w-full max-w-sm text-center">
+          <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Boxes className="h-5 w-5" />
             </div>
@@ -109,38 +107,18 @@ function LoginPage() {
 
           <h1 className="text-2xl font-semibold tracking-tight">Entrar</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Use suas credenciais corporativas para acessar.
+            Você será redirecionado para o sistema de autenticação corporativo.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="text-xs font-medium text-foreground">
-                E-mail
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="text-xs font-medium text-foreground">
-                Senha
-              </label>
-              <PasswordInput
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background h-auto"
-              />
-            </div>
+          <div className="mt-8 space-y-4">
+            {(isLoading || redirecting) && (
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">
+                  {isLoading ? "Verificando sessão..." : "Redirecionando para autenticação..."}
+                </p>
+              </div>
+            )}
 
             {error && (
               <div role="alert" aria-live="assertive" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
@@ -148,30 +126,26 @@ function LoginPage() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
-            >
-              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Entrar
-            </button>
-
-          </form>
-
+            {!isLoading && !redirecting && !isAuthenticated && (
+              <button
+                type="button"
+                onClick={handleLogin}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+              >
+                Entrar com credenciais corporativas
+              </button>
+            )}
+          </div>
 
           <div className="mt-8 rounded-lg border border-dashed border-border bg-muted/40 p-4 text-xs text-muted-foreground">
             <p className="font-medium text-foreground">Primeiro acesso?</p>
             <p className="mt-1">
-              O cadastro de novos usuários é restrito. Solicite a um administrador a
-              criação da sua conta em /administracao.
+              O acesso é gerenciado pelo sistema corporativo de identidade (Keycloak).
+              Solicite suas credenciais ao administrador de rede.
             </p>
           </div>
 
           <p className="mt-6 text-xs text-muted-foreground lg:hidden">{APP_VERSION_LABEL}</p>
-
-
-
         </div>
       </main>
     </div>

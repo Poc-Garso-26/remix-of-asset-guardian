@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Role } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
 import { createUserAsAdmin } from "@/lib/users-admin.functions";
 
 export interface RegisteredUser {
@@ -62,27 +61,10 @@ export function RegisterUserForm({
 
     setSubmitting(true);
     try {
-      if (allowRoleSelection) {
-        await createUser({
-          data: { name, email, username, password, role },
-        });
-        toast.success(`Usuário ${username} cadastrado com sucesso.`);
-      } else {
-        const redirectTo =
-          typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectTo,
-            data: { nome: name, username },
-          },
-        });
-        if (error) throw new Error(error.message);
-        toast.success("Cadastro realizado", {
-          description: "Se a confirmação de e-mail estiver ativa, verifique sua caixa de entrada.",
-        });
-      }
+      await createUser({
+        data: { name, email, username, password, role: allowRoleSelection ? role : "usuario" },
+      });
+      toast.success(`Usuário ${username} cadastrado com sucesso.`);
       await qc.invalidateQueries({ queryKey: ["managed-users"] });
       onSuccess?.({ username, email });
     } catch (err) {

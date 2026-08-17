@@ -51,8 +51,7 @@ const initial: ReportFilters = {
 function RelatoriosPage() {
   const { can, session } = useAuth();
   const [filters, setFilters] = useState<ReportFilters>(initial);
-
-  if (!can("report.view")) return <Navigate to="/dashboard" replace />;
+  const canViewReports = can("report.view");
 
   const queryFilters: AssetFilters = {
     type: filters.type,
@@ -66,7 +65,10 @@ function RelatoriosPage() {
   const { data: assets = [], isLoading } = useQuery({
     queryKey: ["report-preview", queryFilters],
     queryFn: () => assetsService.list(queryFilters),
+    enabled: canViewReports,
   });
+
+  if (!canViewReports) return <Navigate to="/dashboard" replace />;
 
   const title =
     filters.type === "all"

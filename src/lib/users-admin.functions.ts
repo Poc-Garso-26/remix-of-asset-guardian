@@ -1,32 +1,23 @@
 /**
  * Server functions para administração de usuários.
- * Requer perfil Administrador.
+ * Requer perfil Administrador (validado via token Keycloak).
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireKeycloakAuth } from "@/integrations/keycloak/auth-middleware";
+import { requirePermission } from "./authorization";
 
 const roleEnum = z.enum(["admin", "gerente", "usuario"]);
 type RoleEnum = z.infer<typeof roleEnum>;
 
 const ROLE_RANK: Record<RoleEnum, number> = { admin: 3, gerente: 2, usuario: 1 };
 
-async function ensureAdmin(
-  supabase: {
-    rpc: (
-      fn: "has_role",
-      args: { _user_id: string; _role: "admin" },
-    ) => Promise<{ data: unknown; error: unknown }>;
-  },
-  userId: string,
-) {
-  const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (error) throw new Error("Falha ao validar permissão.");
-  if (!data) throw new Error("Acesso negado: requer Administrador.");
+function ensureAdmin(roles: string[]) {
+  requirePermission(roles, "user.manage");
 }
 
 export const createUserAsAdmin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireKeycloakAuth])
   .validator((input: unknown) =>
     z
       .object({
@@ -39,9 +30,10 @@ export const createUserAsAdmin = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase as never, context.userId);
+    ensureAdmin(context.roles);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Create user in Supabase Auth (for database record keeping)
     const created = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: data.password,
@@ -62,12 +54,12 @@ export const createUserAsAdmin = createServerFn({ method: "POST" })
   });
 
 export const setUserRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireKeycloakAuth])
   .validator((input: unknown) =>
     z.object({ userId: z.string().uuid(), role: roleEnum }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase as never, context.userId);
+    ensureAdmin(context.roles);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Bloquear alteração de perfil de usuários inativos

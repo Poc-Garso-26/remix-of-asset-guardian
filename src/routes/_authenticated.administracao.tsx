@@ -38,6 +38,7 @@ export const Route = createFileRoute("/_authenticated/administracao")({
 
 function AdminPage() {
   const { can, session } = useAuth();
+  const canManageUsers = can("user.manage");
   const [quickQ, setQuickQ] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "gerente" | "usuario">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "Ativo" | "Inativo">("all");
@@ -51,7 +52,7 @@ function AdminPage() {
     role: roleFilter,
     status: statusFilter,
   };
-  const { data: users = [], isLoading } = useManagedUsers(queryFilters);
+  const { data: users = [], isLoading } = useManagedUsers(queryFilters, canManageUsers);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedUser | null>(null);
   const [pendingToggle, setPendingToggle] = useState<ManagedUser | null>(null);
@@ -70,7 +71,7 @@ function AdminPage() {
       toast.error(msg || "Não foi possível atualizar a situação do usuário.");
     },
   });
-  if (!can("user.manage")) return <Navigate to="/dashboard" replace />;
+  if (!canManageUsers) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">

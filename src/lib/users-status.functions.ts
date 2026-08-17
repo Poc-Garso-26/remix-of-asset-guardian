@@ -4,23 +4,18 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireKeycloakAuth } from "@/integrations/keycloak/auth-middleware";
+import { requirePermission } from "./authorization";
 
 const statusEnum = z.enum(["Ativo", "Inativo"]);
 
 export const setUserStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireKeycloakAuth])
   .validator((input: unknown) =>
     z.object({ userId: z.string().uuid(), status: statusEnum }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: isAdmin, error: roleErr } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (roleErr) throw new Error("Falha ao validar permissão.");
-    if (!isAdmin) throw new Error("Acesso negado: requer Administrador.");
-
+    requirePermission(context.roles, "user.manage");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Proteção: impedir inativar o último administrador ativo

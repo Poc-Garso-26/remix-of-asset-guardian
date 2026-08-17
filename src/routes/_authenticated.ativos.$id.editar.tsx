@@ -31,6 +31,7 @@ function EditAssetPage() {
   const { data: asset, isLoading } = useQuery({
     queryKey: ["asset", id],
     queryFn: () => assetsService.get(id),
+    enabled: can("asset.edit"),
   });
 
   if (!can("asset.edit")) return <Navigate to="/ativos" replace />;

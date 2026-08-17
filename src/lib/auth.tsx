@@ -1,6 +1,6 @@
 /**
- * Camada de autenticação — integrada ao Supabase Auth.
- * Carrega sessão + profile + role do usuário e expõe `useAuth()`.
+ * Camada de autenticação — integrada ao Keycloak via OIDC.
+ * Carrega sessão do Keycloak, extrai roles do token JWT e expõe `useAuth()`.
  */
 import {
   createContext,
@@ -11,10 +11,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Session } from "@supabase/supabase-js";
+import type { User } from "oidc-client-ts";
+import { extractRolesFromToken, decodeTokenPayload, getUserManager } from "./keycloak";
+import {
+  PERMISSIONS,
+  highestRole,
+  type Permission,
+  type Role,
+} from "./authorization";
 
-export type Role = "admin" | "gerente" | "usuario";
+export type { Permission, Role } from "./authorization";
 
 export interface AuthUser {
   id: string;
@@ -34,7 +40,7 @@ interface AuthContextValue {
   session: AuthSession | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<AuthSession>;
+  login: () => Promise<void>;
   logout: () => Promise<void>;
   can: (permission: Permission) => boolean;
   refresh: () => Promise<void>;
@@ -42,65 +48,42 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export type Permission =
-  | "asset.view"
-  | "asset.create"
-  | "asset.edit"
-  | "asset.delete"
-  | "report.view"
-  | "report.export"
-  | "user.manage"
-  | "role.manage"
-  | "settings.manage";
-
-const PERMISSIONS: Record<Role, Permission[]> = {
-  admin: [
-    "asset.view",
-    "asset.create",
-    "asset.edit",
-    "asset.delete",
-    "report.view",
-    "report.export",
-    "user.manage",
-    "role.manage",
-    "settings.manage",
-  ],
-  gerente: [
-    "asset.view",
-    "asset.create",
-    "asset.edit",
-    "report.view",
-    "report.export",
-  ],
-  usuario: ["asset.view"],
-};
-
 export function roleLabel(role: Role): string {
   return role === "admin" ? "Administrador" : role === "gerente" ? "Gerente" : "Usuário";
 }
 
-async function loadUser(sbSession: Session): Promise<AuthSession> {
-  const uid = sbSession.user.id;
-  const [{ data: profile }, { data: rolesRows }] = await Promise.all([
-    supabase.from("profiles").select("nome, username, email").eq("user_id", uid).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", uid),
-  ]);
+/**
+ * Build an AuthSession from the oidc-client-ts User object.
+ */
+function buildSession(oidcUser: User): AuthSession {
+  const accessToken = oidcUser.access_token;
+  const roles = extractRolesFromToken(accessToken);
+  const role = highestRole(roles) ?? "usuario";
 
-  const roles = (rolesRows ?? []).map((r) => r.role as Role);
-  const role: Role = roles.includes("admin")
-    ? "admin"
-    : roles.includes("gerente")
-      ? "gerente"
-      : "usuario";
+  const payload = decodeTokenPayload(accessToken);
+  const idPayload = oidcUser.id_token ? decodeTokenPayload(oidcUser.id_token) : payload;
 
-  const email = sbSession.user.email ?? profile?.email ?? "";
+  const sub = (payload.sub as string) ?? "";
+  const email = (idPayload.email as string) ?? (payload.email as string) ?? "";
+  const name =
+    (idPayload.name as string) ??
+    (payload.name as string) ??
+    (idPayload.preferred_username as string) ??
+    email.split("@")[0] ??
+    "Usuário";
+  const username =
+    (idPayload.preferred_username as string) ??
+    (payload.preferred_username as string) ??
+    email.split("@")[0] ??
+    "";
+
   return {
-    token: sbSession.access_token,
+    token: accessToken,
     user: {
-      id: uid,
+      id: sub,
       email,
-      name: profile?.nome ?? email.split("@")[0] ?? "Usuário",
-      username: profile?.username ?? email.split("@")[0] ?? "",
+      name,
+      username,
       role,
     },
   };
@@ -110,61 +93,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const hydrate = useCallback(async (sbSession: Session | null) => {
-    if (!sbSession) {
-      setSession(null);
-      return;
-    }
-    try {
-      const next = await loadUser(sbSession);
-      setSession(next);
-    } catch (err) {
-      console.error("[auth] failed to load user", err);
-      setSession(null);
-    }
-  }, []);
-
+  // Load existing session on mount
   useEffect(() => {
     let mounted = true;
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, sbSession) => {
-      if (!mounted) return;
-      // Defer Supabase calls out of the callback synchronously
-      setTimeout(() => {
-        void hydrate(sbSession);
-      }, 0);
-    });
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      void hydrate(data.session).finally(() => {
+    async function loadSession() {
+      try {
+        const oidcUser = await getUserManager().getUser();
+        if (oidcUser && !oidcUser.expired) {
+          if (mounted) setSession(buildSession(oidcUser));
+        } else {
+          if (mounted) setSession(null);
+        }
+      } catch (err) {
+        console.error("[auth] failed to load session", err);
+        if (mounted) setSession(null);
+      } finally {
         if (mounted) setIsLoading(false);
-      });
-    });
+      }
+    }
+
+    loadSession();
+
+    // Listen for token renewal events
+    const onUserLoaded = (user: User) => {
+      if (mounted) setSession(buildSession(user));
+    };
+    const onUserUnloaded = () => {
+      if (mounted) setSession(null);
+    };
+    const onSilentRenewError = (err: Error) => {
+      console.error("[auth] silent renew failed", err);
+    };
+
+    const mgr = getUserManager();
+    mgr.events.addUserLoaded(onUserLoaded);
+    mgr.events.addUserUnloaded(onUserUnloaded);
+    mgr.events.addSilentRenewError(onSilentRenewError);
 
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      mgr.events.removeUserLoaded(onUserLoaded);
+      mgr.events.removeUserUnloaded(onUserUnloaded);
+      mgr.events.removeSilentRenewError(onSilentRenewError);
     };
-  }, [hydrate]);
+  }, []);
 
-  const login = useCallback(async (email: string, password: string): Promise<AuthSession> => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
-    if (!data.session) throw new Error("Sessão indisponível. Verifique seu e-mail.");
-    const next = await loadUser(data.session);
-    setSession(next);
-    return next;
+  const login = useCallback(async () => {
+    await getUserManager().signinRedirect();
   }, []);
 
   const logout = useCallback(async () => {
-    await supabase.auth.signOut();
     setSession(null);
+    await getUserManager().signoutRedirect();
   }, []);
 
   const refresh = useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    await hydrate(data.session);
-  }, [hydrate]);
+    try {
+      const user = await getUserManager().signinSilent();
+      if (user) setSession(buildSession(user));
+    } catch (err) {
+      console.error("[auth] refresh failed", err);
+      setSession(null);
+    }
+  }, []);
 
   const can = useCallback(
     (permission: Permission) => {
