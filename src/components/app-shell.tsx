@@ -5,7 +5,6 @@ import {
   Laptop,
   Printer,
   FileBarChart2,
-  Shield,
   UserCircle,
   LogOut,
   Boxes,
@@ -35,7 +34,6 @@ const NAV: NavItem[] = [
   { to: "/ativos/notebooks", label: "Notebooks", icon: Laptop },
   { to: "/ativos/impressoras", label: "Impressoras", icon: Printer },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart2, permission: "report.view" },
-  { to: "/administracao", label: "Administração", icon: Shield, permission: "user.manage" },
 ];
 
 const COLLAPSED_STORAGE_KEY = "gti.sidebar.collapsed.v1";

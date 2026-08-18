@@ -1,18 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, XCircle } from "lucide-react";
 import { useAuth, roleLabel } from "@/lib/auth";
-import { useCurrentUserStatus } from "@/lib/users-service";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
     meta: [
       { title: "Perfil — GestãoTI" },
-      { name: "description", content: "Gerencie seus dados de acesso e veja seu perfil de usuário no GestãoTI." },
+      { name: "description", content: "Veja seu perfil de usuário no GestãoTI." },
       { property: "og:title", content: "Perfil — GestãoTI" },
-      { property: "og:description", content: "Gerencie seus dados de acesso e veja seu perfil de usuário no GestãoTI." },
+      { property: "og:description", content: "Veja seu perfil de usuário no GestãoTI." },
       { property: "og:url", content: "/perfil" },
       { name: "twitter:title", content: "Perfil — GestãoTI" },
-      { name: "twitter:description", content: "Gerencie seus dados de acesso e veja seu perfil de usuário no GestãoTI." },
+      { name: "twitter:description", content: "Veja seu perfil de usuário no GestãoTI." },
     ],
     links: [{ rel: "canonical", href: "/perfil" }],
   }),
@@ -21,7 +19,6 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 
 function PerfilPage() {
   const { session, logout } = useAuth();
-  const { data: status } = useCurrentUserStatus(session?.user.id);
   if (!session) return null;
   const u = session.user;
 
@@ -56,20 +53,8 @@ function PerfilPage() {
             <dd className="mt-1 font-mono text-sm">{u.id}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wider text-muted-foreground">Situação</dt>
-            <dd className="mt-1">
-              {status === "Ativo" ? (
-                <span className="inline-flex items-center gap-1 text-xs text-[color:var(--pi-success-text-emphasis)]">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
-                </span>
-              ) : status === "Inativo" ? (
-                <span className="inline-flex items-center gap-1 text-xs text-[color:var(--pi-danger-text-emphasis)]">
-                  <XCircle className="h-3.5 w-3.5" /> Inativo
-                </span>
-              ) : (
-                <span className="text-sm text-muted-foreground">—</span>
-              )}
-            </dd>
+            <dt className="text-xs uppercase tracking-wider text-muted-foreground">Perfil de acesso</dt>
+            <dd className="mt-1 text-sm">{roleLabel(u.role)}</dd>
           </div>
         </dl>
 

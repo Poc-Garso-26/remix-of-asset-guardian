@@ -6,10 +6,7 @@ export type Permission =
   | "asset.edit"
   | "asset.delete"
   | "report.view"
-  | "report.export"
-  | "user.manage"
-  | "role.manage"
-  | "settings.manage";
+  | "report.export";
 
 export const PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   admin: [
@@ -19,9 +16,6 @@ export const PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     "asset.delete",
     "report.view",
     "report.export",
-    "user.manage",
-    "role.manage",
-    "settings.manage",
   ],
   gerente: [
     "asset.view",
