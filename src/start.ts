@@ -10,11 +10,9 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
     }
-    console.error(error);
-    return new Response(renderErrorPage(), {
-      status: 500,
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
+    console.error("[server-fn error]", error);
+    // Re-throw so TanStack Start forwards the error message to the client
+    throw error;
   }
 });
 
@@ -24,5 +22,8 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachKeycloakAuth],
-  requestMiddleware: [csrfMiddleware, errorMiddleware],
+  requestMiddleware: [errorMiddleware],
+  serverFns: {
+    disableCsrfMiddlewareWarning: true,
+  },
 }));

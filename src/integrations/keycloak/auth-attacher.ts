@@ -14,8 +14,11 @@ export const attachKeycloakAuth = createMiddleware({ type: "function" }).client(
         const mgr = getUserManager();
         const user = await mgr.getUser();
         token = user?.access_token;
-      } catch {
-        // UserManager not available — skip token
+        if (!token) {
+          console.warn("[auth-attacher] No access token found in session. User may not be logged in.");
+        }
+      } catch (err) {
+        console.warn("[auth-attacher] Failed to get user from UserManager:", err);
       }
     }
     return next({
