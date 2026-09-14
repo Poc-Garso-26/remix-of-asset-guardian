@@ -89,7 +89,10 @@ Construída em **React 19 + TanStack Start (SSR)**, **Vite 7**, **Tailwind CSS v
 | Notificações | `sonner` | `^2.0.7` |
 | Tooling | `typescript` `^5.8.3`, `eslint` `^9.32.0`, `prettier` `^3.7.3` | — |
 
-> A árvore transitiva foi auditada: `js-yaml@4.2.0` resolvido no `bun.lock` mitiga o CVE de DoS por chaves de merge.
+> A árvore transitiva é auditada e fixada pelo bloco `overrides` do `package.json`:
+> `js-yaml@4.3.2`, `browserslist@4.28.9`, `baseline-browser-mapping@2.11.23` e
+> `dompurify@3.4.15` — versões corrigidas das advisories, sem alterar as versões dos
+> pacotes diretos (`@tanstack/react-start`, `@tanstack/router-plugin`, `jspdf`).
 
 ---
 
@@ -483,7 +486,7 @@ docker compose down               # parar e remover containers
 | 404 ao recarregar uma rota | Arquivo da rota inexistente em `src/routes/` | Crie o arquivo seguindo a convenção flat-dot (ex.: `_authenticated.relatorios.tsx`) |
 | `window is not defined` em SSR | Lib browser-only importada em escopo de módulo | Mova o import para dentro de função client-only ou renomeie o arquivo para `*.client.ts` |
 | Página em branco após navegação para rota filha | Layout pai sem `<Outlet />` | Inclua `<Outlet />` no componente do layout (inclusive `__root.tsx` e `_authenticated.tsx`) |
-| Vulnerabilidade `js-yaml` reportada | Resolução transitiva antiga | Já mitigado — `bun.lock` resolve `js-yaml@4.2.0` |
+| Vulnerabilidade em dependência transitiva reportada | Resolução transitiva antiga | Fixe a versão corrigida no bloco `overrides` do `package.json` e reinstale (padrão já usado para `js-yaml`, `browserslist`, `baseline-browser-mapping` e `dompurify`) |
 | Cadastro de usuário não vira `admin` | Já existe pelo menos um registro em `user_roles` | A regra "primeiro vira admin" só vale na criação do primeiro usuário do sistema |
 
 Logs úteis:
